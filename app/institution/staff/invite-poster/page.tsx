@@ -11,7 +11,7 @@ export default function InvitePosterPage() {
   const [downloaded, setDownloaded] = useState(false)
   
   const inviteCode = 'QCY-2026-ABCD'
-  const orgName = '七彩音乐艺术中心'
+  const orgName = '七彩培训中心'
 
   const handleDownload = () => {
     setDownloading(true)

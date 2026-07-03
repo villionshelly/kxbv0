@@ -149,7 +149,7 @@ export default function TeacherHomePage() {
             <img src={ME.avatar} alt={ME.name} className="w-10 h-10 rounded-full bg-muted ring-2 ring-primary/20" />
             <div>
               <p className="font-semibold">{ME.name}</p>
-              <p className="text-xs text-muted-foreground">{ME.title} · 七彩音乐艺术中心</p>
+              <p className="text-xs text-muted-foreground">{ME.title} · 七彩培训中心</p>
             </div>
           </div>
           <button onClick={() => router.push('/institution/login')} className="p-2 rounded-lg hover:bg-muted transition-colors">
@@ -710,7 +710,7 @@ export default function TeacherHomePage() {
 
     // 模拟已绑定的机构
     const [boundOrgs, setBoundOrgs] = useState([
-      { id: '1', name: '七彩音乐艺术中心', role: 'admin' as const, isDefault: true },
+      { id: '1', name: '七彩培训中心', role: 'admin' as const, isDefault: true },
     ])
 
     const handleSave = () => {

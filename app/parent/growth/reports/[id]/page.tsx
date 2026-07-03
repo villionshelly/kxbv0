@@ -1,16 +1,93 @@
 'use client'
 
-import { useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { ArrowLeft, BookOpenText, CalendarDays, Download, Image as ImageIcon, Share2, Sparkles, X } from 'lucide-react'
 import { getGrowthReportById } from '@/lib/parent-data'
+
+type GrowthReport = ReturnType<typeof getGrowthReportById>
+
+const demoReportStorageKey = 'kxb-parent-assistant-demo-report'
+const assistantReportId = 'assistant-english'
+const assistantEnglishTeacherComment = `Dear Parents,
+I would like to share some positive feedback about your Duoduo's progress in class.
+George is a very diligent and independent learner who always tries his best to complete tasks on his own. While I continue to guide and support him throughout our lessons, I am pleased to see that he takes initiative and makes a genuine effort to think and respond independently.
+Another wonderful quality is that he is very open to corrections and feedback. He listens carefully, applies what he learns, and shows a positive attitude toward improving his English skills.
+We only have two more units remaining in Level 4, and he is making steady progress toward completing them. Once finished, he will be ready to advance to Level 5 lessons.
+Overall, I am very happy with his progress and learning attitude. I look forward to seeing his continued growth and success in English.
+Today will be his 25th class. I'd like to ask if you renew and add more classes for George?
+Kind regards,
+Teacher Evee ❤️❤️`
+
+const assistantEnglishFallbackReport: GrowthReport = {
+  id: assistantReportId,
+  childId: '1',
+  studentName: '朵朵',
+  studentAvatar: '/images/avatars/child-duoduo-photo.jpg',
+  institution: '家长自建课程',
+  courseName: '英语课',
+  teacherName: 'Teacher Evee',
+  teacherAvatar: '',
+  title: '英语课 25节阶段成长报告',
+  period: '2026.05.05-2026.07.03',
+  lessonCount: 25,
+  coveredLessonRange: '第 1-25 课时',
+  month: '2026年7月',
+  status: 'generated',
+  generatedAt: '2026-07-03 20:18',
+  sentAt: '2026-07-03 20:18',
+  summary: 'Teacher Evee 反馈朵朵在英语课中学习态度稳定，能主动独立完成任务，也愿意接受纠正并把反馈应用到后续练习中。Level 4 仅剩 2 个单元，完成后可衔接 Level 5。',
+  highlights: ['主动独立完成任务', '能听取纠正并应用反馈', 'Level 4 稳步推进'],
+  attendance: 25,
+  totalClasses: 25,
+  teacherComment: assistantEnglishTeacherComment,
+  aiSuggestion: '建议家长优先安排 Level 4 最后 2 个单元的复习与衔接，并结合老师的续课提醒，提前规划 Level 5 课程。',
+  images: [
+    '/images/growth-feed/english-reading-feedback.svg',
+  ],
+}
 
 export default function ParentGrowthReportDetailPage() {
   const router = useRouter()
   const params = useParams()
-  const report = getGrowthReportById(String(params.id))
+  const searchParams = useSearchParams()
+  const reportId = String(params.id)
+  const isAssistantEmbed = searchParams.get('assistantEmbed') === '1'
+  const [report, setReport] = useState<GrowthReport>(
+    reportId === assistantReportId ? assistantEnglishFallbackReport : getGrowthReportById(reportId),
+  )
   const [showShareSheet, setShowShareSheet] = useState(false)
   const [generatingPoster, setGeneratingPoster] = useState(false)
+
+  useEffect(() => {
+    if (reportId !== assistantReportId) {
+      setReport(getGrowthReportById(reportId))
+      return
+    }
+
+    try {
+      const raw = window.localStorage.getItem(demoReportStorageKey)
+      const storedReport = raw ? JSON.parse(raw) : {}
+      setReport({
+        ...assistantEnglishFallbackReport,
+        ...storedReport,
+        teacherName: assistantEnglishFallbackReport.teacherName,
+        title: assistantEnglishFallbackReport.title,
+        lessonCount: assistantEnglishFallbackReport.lessonCount,
+        coveredLessonRange: assistantEnglishFallbackReport.coveredLessonRange,
+        summary: assistantEnglishFallbackReport.summary,
+        highlights: assistantEnglishFallbackReport.highlights,
+        attendance: assistantEnglishFallbackReport.attendance,
+        totalClasses: assistantEnglishFallbackReport.totalClasses,
+        teacherComment: assistantEnglishFallbackReport.teacherComment,
+        aiSuggestion: assistantEnglishFallbackReport.aiSuggestion,
+        teacherAvatar: assistantEnglishFallbackReport.teacherAvatar,
+        images: assistantEnglishFallbackReport.images,
+      })
+    } catch {
+      setReport(assistantEnglishFallbackReport)
+    }
+  }, [reportId])
 
   const handleGeneratePoster = () => {
     setShowShareSheet(true)
@@ -19,20 +96,22 @@ export default function ParentGrowthReportDetailPage() {
   }
 
   return (
-    <div className="min-h-screen warm-bg pb-8">
-      <header className="sticky top-0 z-10 warm-header px-4 py-3">
-        <div className="flex items-center gap-2">
-          <button onClick={() => router.back()} className="-ml-1 rounded-lg p-1.5 hover:bg-card/60" aria-label="返回">
-            <ArrowLeft className="h-5 w-5 text-foreground" />
-          </button>
-          <h1 className="flex-1 text-center text-base font-bold">报告详情</h1>
-          <button onClick={handleGeneratePoster} className="rounded-lg p-1.5 hover:bg-card/60" aria-label="分享成长报告">
-            <Share2 className="h-5 w-5 text-foreground" />
-          </button>
-        </div>
-      </header>
+    <div className={isAssistantEmbed ? 'min-h-full bg-background pb-4' : 'min-h-screen warm-bg pb-8'}>
+      {!isAssistantEmbed && (
+        <header className="sticky top-0 z-10 warm-header px-4 py-3">
+          <div className="flex items-center gap-2">
+            <button onClick={() => router.back()} className="-ml-1 rounded-lg p-1.5 hover:bg-card/60" aria-label="返回">
+              <ArrowLeft className="h-5 w-5 text-foreground" />
+            </button>
+            <h1 className="flex-1 text-center text-base font-bold">报告详情</h1>
+            <button onClick={handleGeneratePoster} className="rounded-lg p-1.5 hover:bg-card/60" aria-label="分享成长报告">
+              <Share2 className="h-5 w-5 text-foreground" />
+            </button>
+          </div>
+        </header>
+      )}
 
-      <main className="px-4 pt-3">
+      <main className={isAssistantEmbed ? 'px-3 pt-3' : 'px-4 pt-3'}>
         <section className="overflow-hidden rounded-3xl bg-card card-warm">
           <div className="bg-[linear-gradient(135deg,rgba(248,126,49,0.12),rgba(14,112,192,0.1))] p-4">
             <div className="flex items-start gap-3">
@@ -65,7 +144,11 @@ export default function ParentGrowthReportDetailPage() {
 
           <div className="space-y-4 p-4">
             <div className="flex items-center gap-3 rounded-2xl bg-muted/35 p-3">
-              <img src={report.teacherAvatar} alt={report.teacherName} className="h-10 w-10 rounded-full object-cover" />
+              {report.teacherAvatar ? (
+                <img src={report.teacherAvatar} alt={report.teacherName} className="h-10 w-10 rounded-full object-cover" />
+              ) : (
+                <TeacherNameAvatar name={report.teacherName} />
+              )}
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold text-foreground">{report.teacherName}</p>
                 <p className="truncate text-xs text-muted-foreground">{report.institution}</p>
@@ -107,14 +190,16 @@ export default function ParentGrowthReportDetailPage() {
               </div>
             </section>
 
-            <button
-              type="button"
-              onClick={handleGeneratePoster}
-              className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary text-sm font-bold text-primary-foreground"
-            >
-              <Share2 className="h-4 w-4" />
-              分享成长报告
-            </button>
+            {!isAssistantEmbed && (
+              <button
+                type="button"
+                onClick={handleGeneratePoster}
+                className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary text-sm font-bold text-primary-foreground"
+              >
+                <Share2 className="h-4 w-4" />
+                分享成长报告
+              </button>
+            )}
           </div>
         </section>
       </main>
@@ -239,6 +324,20 @@ export default function ParentGrowthReportDetailPage() {
           </div>
         </div>
       )}
+    </div>
+  )
+}
+
+function getTeacherAvatarLabel(name: string) {
+  return name.replace(/^teacher\s+/i, '').trim().split(/\s+/).filter(Boolean).pop() || name
+}
+
+function TeacherNameAvatar({ name }: { name: string }) {
+  return (
+    <div className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[linear-gradient(135deg,#fff2df,#dff2ff_52%,#ffe8f2)] text-[12px] font-black text-[#0e4f86] shadow-sm ring-2 ring-white/80">
+      <span className="absolute -right-3 -top-4 h-10 w-10 rounded-full bg-white/50" />
+      <span className="absolute -bottom-4 -left-4 h-12 w-12 rounded-full bg-primary/12" />
+      <span className="relative tracking-normal">{getTeacherAvatarLabel(name)}</span>
     </div>
   )
 }

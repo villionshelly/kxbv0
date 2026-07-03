@@ -18,7 +18,7 @@ interface Institution {
 export default function MyInstitutionsPage() {
   const router = useRouter()
   const [institutions, setInstitutions] = useState<Institution[]>([
-    { id: '1', name: '七彩音乐艺术中心', type: '音乐培训', status: 'bound', bindTime: '2024-01-15', childrenCount: 2 },
+    { id: '1', name: '七彩培训中心', type: '音乐培训', status: 'bound', bindTime: '2024-01-15', childrenCount: 2 },
     { id: '2', name: '启明星舞蹈学校', type: '舞蹈培训', status: 'bound', bindTime: '2024-03-20', childrenCount: 1 },
     { id: '3', name: '小天才美术工作室', type: '美术培训', status: 'pending', bindTime: '2024-05-01' },
   ])

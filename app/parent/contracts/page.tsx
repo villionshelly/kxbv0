@@ -8,7 +8,7 @@ const contracts = [
   {
     id: 'c1',
     title: '钢琴启蒙课程服务协议',
-    institution: '七彩音乐艺术中心',
+    institution: '七彩培训中心',
     child: '朵朵',
     signedAt: '2026-03-18',
     status: 'signed',

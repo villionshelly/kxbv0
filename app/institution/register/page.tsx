@@ -105,7 +105,7 @@ export default function InstitutionRegisterPage() {
                 <Building2 className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <input
                   type="text"
-                  placeholder="如：七彩音乐艺术中心"
+                  placeholder="如：七彩培训中心"
                   value={institutionName}
                   onChange={e => setInstitutionName(e.target.value)}
                   className="w-full h-12 pl-11 pr-4 bg-muted/40 rounded-xl text-sm outline-none focus:ring-2 focus:ring-secondary/30"

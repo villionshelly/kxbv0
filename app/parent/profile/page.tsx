@@ -2,7 +2,6 @@
 
 import { useRouter } from 'next/navigation'
 import {
-  ArrowLeft,
   Bell,
   BookOpenCheck,
   Building2,
@@ -62,18 +61,9 @@ export default function ParentProfilePage() {
 
   return (
     <div className="flex h-full flex-col warm-bg">
-      <header className="safe-area-top px-4 pb-2 warm-header">
-        <div className="mb-1 flex items-center gap-2 py-1">
-          <button
-            onClick={() => router.push('/parent')}
-            className="-ml-1.5 rounded-lg p-1.5 hover:bg-card/60"
-            aria-label="返回首页"
-          >
-            <ArrowLeft className="h-5 w-5 text-foreground" />
-          </button>
-          <h1 className="text-lg font-bold">个人中心</h1>
-        </div>
+      <div className="h-[88px] shrink-0 warm-header" aria-hidden />
 
+      <main className="flex-1 overflow-auto px-4 pb-24 pt-2">
         <button
           type="button"
           onClick={() => router.push('/parent/account')}
@@ -98,9 +88,7 @@ export default function ParentProfilePage() {
           </div>
           <ChevronRight className="relative h-4 w-4 text-muted-foreground" />
         </button>
-      </header>
 
-      <main className="flex-1 overflow-auto px-4 pb-24">
         <section className="pt-3">
           <div className="mb-2 flex items-center justify-between">
             <h2 className="text-sm font-semibold text-foreground">我的家庭</h2>

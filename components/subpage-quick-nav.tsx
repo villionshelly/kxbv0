@@ -161,26 +161,32 @@ export function SubpageQuickNav({ section }: SubpageQuickNavProps) {
 
   return (
     <div
-      className="subpage-top-nav pointer-events-none absolute inset-x-0 z-[90] h-9"
-      style={{ top: 'calc(env(safe-area-inset-top, 0px) + 10px)' }}
+      className="subpage-top-nav pointer-events-none absolute inset-x-0 z-[90]"
+      style={{
+        top: 'var(--kxb-mp-status-bar-height)',
+        height: 'var(--kxb-mp-nav-bar-height)',
+      }}
     >
-      <div className="subpage-quick-nav pointer-events-auto absolute left-4 top-0 flex h-9 items-center gap-3">
+      <div className="subpage-quick-nav pointer-events-auto absolute left-4 top-0 flex h-full items-center gap-3">
         <button
           type="button"
           aria-label="返回"
           onClick={handleBack}
-          className="subpage-quick-nav__button flex h-8 w-8 items-center justify-center transition-colors"
+          className="subpage-quick-nav__button flex h-10 w-10 items-center justify-center transition-colors"
         >
-          <ArrowLeft className="h-[21px] w-[21px]" strokeWidth={2.15} />
+          <ArrowLeft className="h-[22px] w-[22px]" strokeWidth={2.15} />
         </button>
-        <button
-          type="button"
+        <a
+          href={homeHref}
           aria-label="回到首页"
-          onClick={() => router.push(homeHref)}
-          className="subpage-quick-nav__button flex h-8 w-8 items-center justify-center transition-colors"
+          onClick={(event) => {
+            event.preventDefault()
+            router.push(homeHref)
+          }}
+          className="subpage-quick-nav__button flex h-10 w-10 items-center justify-center transition-colors"
         >
-          <Home className="h-[21px] w-[21px]" strokeWidth={2.15} />
-        </button>
+          <Home className="h-[22px] w-[22px]" strokeWidth={2.15} />
+        </a>
       </div>
       {pageTitle && (
         <div className="subpage-top-nav__title absolute inset-y-0 left-24 right-24 flex items-center justify-center">

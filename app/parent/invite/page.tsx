@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import {
   ArrowLeft,
   BadgePercent,
@@ -24,6 +24,8 @@ const inviteData = {
 
 export default function InviteInstitutionPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const isAssistantEmbed = searchParams.get('assistantEmbed') === '1'
   const [shareHint, setShareHint] = useState<'wechat' | 'poster' | null>(null)
   const [showPosterSheet, setShowPosterSheet] = useState(false)
   const [showPromoterSheet, setShowPromoterSheet] = useState(false)
@@ -75,17 +77,19 @@ export default function InviteInstitutionPage() {
 
   return (
     <div className="flex h-full flex-col warm-bg">
-      <header className="safe-area-top px-4 pb-1 warm-header">
-        <div className="flex items-center gap-2 py-1">
-          <button onClick={() => router.back()} className="-ml-1.5 rounded-lg p-1.5 hover:bg-card/60" aria-label="返回">
-            <ArrowLeft className="h-5 w-5" />
-          </button>
-          <h1 className="text-lg font-semibold">邀请机构入驻</h1>
-        </div>
-      </header>
+      {!isAssistantEmbed && (
+        <header className="safe-area-top px-4 pb-1 warm-header">
+          <div className="flex items-center gap-2 py-1">
+            <button onClick={() => router.back()} className="-ml-1.5 rounded-lg p-1.5 hover:bg-card/60" aria-label="返回">
+              <ArrowLeft className="h-5 w-5" />
+            </button>
+            <h1 className="text-lg font-semibold">邀请机构入驻</h1>
+          </div>
+        </header>
+      )}
 
       <main className="flex-1 overflow-auto px-4 pb-40">
-        <section className="px-1 pt-2">
+        <section className={`px-1 ${isAssistantEmbed ? 'pt-5' : 'pt-2'}`}>
           <div className="py-2">
             <h2 className="text-[28px] font-black leading-tight text-foreground">
               邀请机构

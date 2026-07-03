@@ -35,6 +35,9 @@
   --chart-4: oklch(0.75 0.12 80);
   --chart-5: oklch(0.6 0.2 320);
   --radius: 0.75rem;
+  --kxb-mp-status-bar-height: 44px;
+  --kxb-mp-nav-bar-height: 44px;
+  --kxb-mp-header-height: calc(var(--kxb-mp-status-bar-height) + var(--kxb-mp-nav-bar-height));
   --sidebar: oklch(0.99 0 0);
   --sidebar-foreground: oklch(0.18 0.02 250);
   --sidebar-primary: oklch(0.68 0.18 45);
@@ -147,11 +150,20 @@
 /* Mini program viewport: phone-sized canvas without a device frame */
 .mobile-frame {
   width: min(100vw, 390px);
-  height: 100vh;
-  height: 100dvh;
+  height: 844px;
+  min-height: 844px;
   overflow: hidden;
   position: relative;
   flex-shrink: 0;
+}
+
+@media (max-width: 430px) {
+  .mobile-frame {
+    height: 100vh;
+    height: 100dvh;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
 }
 
 .mobile-frame::before,
@@ -179,6 +191,10 @@
 .mobile-frame[data-global-quick-nav='true'] header a[aria-label*='返回'] {
   visibility: hidden !important;
   pointer-events: none !important;
+}
+
+.mobile-frame[data-global-quick-nav='true'] .safe-area-top {
+  padding-top: var(--kxb-mp-header-height);
 }
 
 .subpage-top-nav {
@@ -275,6 +291,64 @@
   background: linear-gradient(180deg, #fce7d4 0%, #fdf1e6 100%);
 }
 
+.assistant-page-texture {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.72) 72%, rgba(255, 255, 255, 0.88)),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.46) 0 22%, transparent 22% 100%);
+}
+
+.assistant-page-texture::before,
+.assistant-page-texture::after {
+  content: '';
+  position: absolute;
+  display: block;
+  border: 1px solid rgba(255, 255, 255, 0.58);
+  background: rgba(255, 255, 255, 0.26);
+  box-shadow: 0 18px 42px -32px rgba(232, 122, 52, 0.45);
+}
+
+.assistant-page-texture::before {
+  top: 70px;
+  right: -66px;
+  width: 168px;
+  height: 168px;
+  border-radius: 46px;
+  transform: rotate(22deg);
+}
+
+.assistant-page-texture::after {
+  left: -76px;
+  bottom: 118px;
+  width: 218px;
+  height: 126px;
+  border-radius: 34px;
+  transform: rotate(-13deg);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.34), rgba(255, 244, 232, 0.2));
+}
+
+.scrollbar-quiet {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(126, 92, 68, 0.16) transparent;
+}
+
+.scrollbar-quiet::-webkit-scrollbar {
+  width: 3px;
+  height: 3px;
+}
+
+.scrollbar-quiet::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-quiet::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(126, 92, 68, 0.14);
+}
+
+.scrollbar-quiet::-webkit-scrollbar-thumb:hover {
+  background: rgba(126, 92, 68, 0.2);
+}
+
 /* Soft floating card shadow with a warm tint */
 .card-warm {
   box-shadow: 0 8px 26px -12px rgba(232, 122, 52, 0.28);
@@ -283,4 +357,9 @@
 /* Inner highlight pill for primary actions */
 .pill-warm {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 6px 18px -8px rgba(232, 122, 52, 0.35);
+}
+
+/* Hide Next.js dev indicator in mobile prototype previews. */
+nextjs-portal {
+  display: none !important;
 }

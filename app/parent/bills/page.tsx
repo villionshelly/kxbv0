@@ -8,7 +8,7 @@ const bills = [
   {
     id: 'b1',
     title: '钢琴启蒙 24 课时',
-    institution: '七彩音乐艺术中心',
+    institution: '七彩培训中心',
     child: '朵朵',
     amount: 3600,
     paidAt: '2026-03-18',

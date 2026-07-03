@@ -9,7 +9,7 @@ const myLeaveRequests = [
   {
     id: '1',
     courseName: '钢琴启蒙',
-    institution: '七彩音乐艺术中心',
+    institution: '七彩培训中心',
     originalTime: '2026-03-28 10:00-11:00',
     reason: '孩子感冒发烧，需要在家休息',
     submitTime: '2026-03-27 20:30',

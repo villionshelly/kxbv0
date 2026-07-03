@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import {
-  ArrowLeft,
   CalendarDays,
   ChevronLeft,
   ChevronRight,
@@ -224,25 +223,18 @@ export default function ParentSchedulePage() {
 
   return (
     <div className="flex h-full flex-col warm-bg">
-      <header className="safe-area-top px-4 pb-2">
-        <div className="flex items-center gap-3 py-1.5">
-          <button onClick={() => router.back()} className="rounded-lg p-1.5 -ml-1.5 hover:bg-card/60" aria-label="返回">
-            <ArrowLeft className="h-5 w-5 text-foreground" />
-          </button>
-          <h1 className="text-lg font-bold">课程表</h1>
-        </div>
-      </header>
+      <div className="h-[88px] shrink-0 warm-header" aria-hidden />
 
-      <main className="flex-1 overflow-auto px-4 pb-24">
+      <main className="flex-1 overflow-auto px-4 pb-24 pt-2">
         <div className="space-y-2.5">
-          <div className="rounded-3xl bg-card p-2.5 card-warm">
+          <div className="px-0">
             <div className="flex gap-1.5 overflow-x-auto pb-1">
               <button
                 type="button"
                 onClick={() => handleChildFilterChange(allChildrenValue)}
                 className={cn(
-                  'shrink-0 rounded-full px-2.5 py-1.5 text-xs font-medium',
-                  childFilter === allChildrenValue ? 'bg-primary text-primary-foreground' : 'bg-muted/60 text-muted-foreground',
+                  'shrink-0 rounded-full px-2.5 py-1.5 text-xs font-medium shadow-sm',
+                  childFilter === allChildrenValue ? 'bg-primary text-primary-foreground' : 'bg-card/72 text-muted-foreground',
                 )}
               >
                 全部孩子
@@ -253,8 +245,8 @@ export default function ParentSchedulePage() {
                   type="button"
                   onClick={() => handleChildFilterChange(child.id)}
                   className={cn(
-                    'flex shrink-0 items-center gap-1.5 rounded-full px-2 py-1.5 text-xs font-medium',
-                    childFilter === child.id ? 'bg-primary text-primary-foreground' : 'bg-muted/60 text-muted-foreground',
+                    'flex shrink-0 items-center gap-1.5 rounded-full px-2 py-1.5 text-xs font-medium shadow-sm',
+                    childFilter === child.id ? 'bg-primary text-primary-foreground' : 'bg-card/72 text-muted-foreground',
                   )}
                 >
                   <img src={child.avatar} alt={child.name} className="h-5 w-5 rounded-full object-cover" />
@@ -264,7 +256,7 @@ export default function ParentSchedulePage() {
             </div>
 
             <div className="mt-2 flex items-center gap-2">
-              <label className="flex h-9 min-w-0 flex-1 items-center gap-2 rounded-2xl bg-muted/45 px-3">
+              <label className="flex h-9 min-w-0 flex-1 items-center gap-2 rounded-2xl bg-card/72 px-3 shadow-sm">
                 <Search className="h-4 w-4 text-muted-foreground" />
                 <input
                   value={query}
@@ -277,8 +269,8 @@ export default function ParentSchedulePage() {
                 type="button"
                 onClick={() => setLeaveOnly((value) => !value)}
                 className={cn(
-                  'h-9 shrink-0 rounded-2xl px-3 text-xs font-medium',
-                  leaveOnly ? 'bg-amber-500 text-white' : 'bg-muted/60 text-muted-foreground',
+                  'h-9 shrink-0 rounded-2xl px-3 text-xs font-medium shadow-sm',
+                  leaveOnly ? 'bg-amber-500 text-white' : 'bg-card/72 text-muted-foreground',
                 )}
               >
                 已请假

@@ -33,7 +33,7 @@ const lockedTasksByChild: Record<string, MedalTask[]> = {
       color: '#F59E0B',
       category: 'attitude',
       childId: '1',
-      institution: '七彩音乐艺术中心',
+      institution: '七彩培训中心',
       courseName: '钢琴启蒙',
       teacherName: '李老师',
       teacherAvatar: '/images/avatars/teacher-lixue-photo.jpg',

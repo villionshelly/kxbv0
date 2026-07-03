@@ -16,7 +16,7 @@ export default function FeedbackDetailPage() {
   const catalog = courseCatalog.find(c => c.name === record.courseName)
   const course = courses.find(c => c.name === record.courseName)
   const teacherName = catalog?.teacher || course?.teacher || '任课老师'
-  const institution = course?.institution || '七彩音乐艺术中心'
+  const institution = course?.institution || '七彩培训中心'
 
   // 课堂照片（按课程匹配）
   const photos = growthPhotos.filter(p => p.course === record.courseName)

@@ -228,7 +228,7 @@ export default function InstitutionLoginPage() {
                       type="text"
                       value={institutionName}
                       onChange={(e) => setInstitutionName(e.target.value)}
-                      placeholder="如：七彩音乐艺术中心"
+                      placeholder="如：七彩培训中心"
                       className="w-full h-12 pl-12 pr-4 bg-muted/50 rounded-xl text-base outline-none focus:ring-2 focus:ring-secondary/30"
                     />
                   </div>

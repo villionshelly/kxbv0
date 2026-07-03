@@ -56,7 +56,7 @@ export default function StaffManagementPage() {
   const [ruleSaved, setRuleSaved] = useState(false)
 
   const inviteCode = 'QCY-2026-ABCD'
-  const orgNameForInvite = '七彩音乐艺术中心'
+  const orgNameForInvite = '七彩培训中心'
   const joinPath = `/teacher/join?code=${inviteCode}&org=${encodeURIComponent(orgNameForInvite)}`
   const inviteLink = `https://kxb.app${joinPath}`
   const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=10&data=${encodeURIComponent(inviteLink)}`

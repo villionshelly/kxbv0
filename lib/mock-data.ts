@@ -23,7 +23,7 @@ export const courses = [
     id: '1',
     childId: '1',
     name: '钢琴启蒙',
-    institution: '七彩音乐艺术中心',
+    institution: '七彩培训中心',
     teacher: '李老师',
     color: '#F87E31',
     totalClasses: 48,
@@ -104,8 +104,8 @@ function generateSchedule() {
     dayOfWeek: number // 0=周日 1=周一 ... 6=周六
   }> = [
     // 钢琴启蒙：周二、周五 10:00-11:00
-    { courseId: '1', courseName: '钢琴启蒙', institution: '七彩音乐艺术中心', teacher: '李老师', classroom: '3号琴房', startTime: '10:00', endTime: '11:00', childId: '1', color: '#F87E31', courseType: 'institution', dayOfWeek: 2 },
-    { courseId: '1', courseName: '钢琴启蒙', institution: '七彩音乐艺术中心', teacher: '李老师', classroom: '3号琴房', startTime: '10:00', endTime: '11:00', childId: '1', color: '#F87E31', courseType: 'institution', dayOfWeek: 5 },
+    { courseId: '1', courseName: '钢琴启蒙', institution: '七彩培训中心', teacher: '李老师', classroom: '3号琴房', startTime: '10:00', endTime: '11:00', childId: '1', color: '#F87E31', courseType: 'institution', dayOfWeek: 2 },
+    { courseId: '1', courseName: '钢琴启蒙', institution: '七彩培训中心', teacher: '李老师', classroom: '3号琴房', startTime: '10:00', endTime: '11:00', childId: '1', color: '#F87E31', courseType: 'institution', dayOfWeek: 5 },
     // 创意美术：周六 14:00-15:30
     { courseId: '2', courseName: '创意美术', institution: '小画家美术工作室', teacher: '张老师', classroom: '创意教室A', startTime: '14:00', endTime: '15:30', childId: '1', color: '#0E70C0', courseType: 'institution', dayOfWeek: 6 },
     // 少儿编程：周日 09:00-10:30
@@ -377,7 +377,7 @@ export const medals = {
       color: '#F87E31',
       category: 'persistence',
       childId: '1',
-      institution: '七彩音乐艺术中心',
+      institution: '七彩培训中心',
       courseName: '钢琴启蒙',
       teacherName: '李老师',
       teacherAvatar: '/images/avatars/teacher-lixue-photo.jpg',
@@ -395,7 +395,7 @@ export const medals = {
       color: '#0E70C0',
       category: 'milestone',
       childId: '1',
-      institution: '七彩音乐艺术中心',
+      institution: '七彩培训中心',
       courseName: '钢琴启蒙',
       teacherName: '李老师',
       teacherAvatar: '/images/avatars/teacher-lixue-photo.jpg',
@@ -699,7 +699,7 @@ export const parentMessages = [
     id: 'm3',
     type: 'institution',
     title: '机构通知',
-    content: '七彩音乐艺术中心：暑期班开始报名啦，老学员续费享 9 折优惠。',
+    content: '七彩培训中心：暑期班开始报名啦，老学员续费享 9 折优惠。',
     time: '06-25 14:30',
     unread: false,
   },
@@ -889,7 +889,7 @@ export const classSessions = [
 // B端机构数据
 export const institutionInfo = {
   id: '1',
-  name: '七彩音乐艺术中心',
+  name: '七彩培训中心',
   logo: 'https://api.dicebear.com/7.x/shapes/svg?seed=qicai',
   address: '杭州市西湖区文三路168号',
   phone: '0571-88888888',
@@ -1218,7 +1218,7 @@ export const pendingInstitutions = [
 export const recentOrders = [
   {
     id: 'ORD202603280001',
-    institution: '七彩音乐艺术中心',
+    institution: '七彩培训中心',
     product: 'AI增长版年费',
     amount: 9800,
     payTime: '2026-03-28 10:23',
@@ -1275,7 +1275,7 @@ export const leadPool = [
     location: '拱墅区',
     submitTime: '2026-03-27 16:30',
     status: 'assigned',
-    assignedTo: '七彩音乐艺术中心',
+    assignedTo: '七彩培训中心',
   },
 ]
 
@@ -1457,7 +1457,7 @@ export const growthReports = [
     childId: '1',
     studentName: '朵朵',
     studentAvatar: '/images/avatars/child-duoduo-photo.jpg',
-    institution: '七彩音乐艺术中心',
+    institution: '七彩培训中心',
     courseName: '钢琴启蒙',
     teacherName: '李老师',
     teacherAvatar: '/images/avatars/teacher-lixue-photo.jpg',
@@ -1598,7 +1598,7 @@ export const growthReports = [
 export const allInstitutions = [
   {
     id: '1',
-    name: '七彩音乐艺术中心',
+    name: '七彩培训中心',
     contact: '王校长',
     phone: '0571-88888888',
     address: '杭州市西湖区文三路168号',
