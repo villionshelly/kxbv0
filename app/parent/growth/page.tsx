@@ -2,9 +2,9 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ChevronDown, Share2, Download, X, Image as ImageIcon, ChevronRight, CalendarCheck, BadgeCheck, CircleHelp } from 'lucide-react'
+import { ChevronDown, Share2, Download, X, Image as ImageIcon, ChevronRight, CalendarCheck, BadgeCheck } from 'lucide-react'
 import { children, growthPhotos, medals, classRecords } from '@/lib/mock-data'
-import { getChildGrowthProfile, getMedalKey } from '@/lib/parent-data'
+import { getChildGrowthProfile, getChildGrowthReports, getMedalKey } from '@/lib/parent-data'
 import { useSelectedChild } from '@/hooks/use-selected-child'
 import { cn } from '@/lib/utils'
 
@@ -48,6 +48,7 @@ export default function ParentGrowthPage() {
   const childPhotos = growthPhotos.filter((photo) => photo.childId === selectedChild.id)
   const reportPhoto = childPhotos[0] || growthPhotos[0]
   const childGrowthProfile = getChildGrowthProfile(selectedChild.id)
+  const childReports = getChildGrowthReports(selectedChild.id)
   // 学习课时 = 已消课（到课 + 调休补课）记录数，一节课记 1 课时
   const totalLessons = classRecords.filter(
     r => r.childId === selectedChild.id && (r.status === 'attended' || r.status === 'makeup')
@@ -143,7 +144,7 @@ export default function ParentGrowthPage() {
           </button>
           <div className="w-px h-8 bg-border" />
           <button
-            onClick={() => setActiveTab('medals')}
+            onClick={() => router.push('/parent/growth/medals')}
             className="text-center flex-1 group"
           >
             <p className="text-xl font-bold text-primary flex items-center justify-center gap-0.5">
@@ -154,14 +155,14 @@ export default function ParentGrowthPage() {
           </button>
           <div className="w-px h-8 bg-border" />
           <button
-            onClick={() => setActiveTab('timeline')}
+            onClick={() => router.push('/parent/growth/reports')}
             className="text-center flex-1 group"
           >
-            <p className="text-xl font-bold text-foreground flex items-center justify-center gap-0.5">
-              {growthMomentCount}
-              <ChevronRight className="w-4 h-4 text-muted-foreground/60 group-hover:translate-x-0.5 transition-transform" />
+            <p className="text-xl font-bold text-primary flex items-center justify-center gap-0.5">
+              {childReports.length}
+              <ChevronRight className="w-4 h-4 text-primary/60 group-hover:translate-x-0.5 transition-transform" />
             </p>
-            <p className="text-xs text-muted-foreground">成长瞬间</p>
+            <p className="text-xs text-muted-foreground">成长报告</p>
           </button>
         </div>
       </div>
@@ -269,47 +270,31 @@ export default function ParentGrowthPage() {
               })}
             </div>
 
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => setActiveTab('timeline')}
-                className="flex items-center justify-center gap-1.5 rounded-xl bg-muted py-2 text-xs font-medium text-muted-foreground"
-              >
-                <BadgeCheck className="h-3.5 w-3.5" />
-                看成长记录
-              </button>
-              <button
-                type="button"
-                onClick={() => setSelectedMedal(childMedals[0] || null)}
-                className="flex items-center justify-center gap-1.5 rounded-xl bg-primary/10 py-2 text-xs font-medium text-primary disabled:opacity-50"
-                disabled={childMedals.length === 0}
-              >
-                <CircleHelp className="h-3.5 w-3.5" />
-                勋章说明
-              </button>
-            </div>
           </div>
         ) : (
           /* Timeline Section */
           <div className="space-y-4">
-            {/* AI Growth Report Card */}
+            {/* Growth Report Card */}
             <div className="p-3 bg-card rounded-2xl card-warm">
               <div className="flex items-center gap-2 mb-2">
-                <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
-                  <span className="text-xs font-bold text-primary-foreground">AI</span>
-                </div>
                 <h3 className="font-semibold text-primary">{childGrowthProfile.reportTitle}</h3>
+                <span className="rounded-full bg-[linear-gradient(135deg,#ff9c7a,#8b5cf6)] px-1 py-0.5 text-[8px] font-black leading-none text-white shadow-[0_3px_8px_-7px_rgba(139,92,246,0.75)]">
+                  NEW
+                </span>
                 <span className="ml-auto text-xs text-muted-foreground">刚刚生成</span>
               </div>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 {childGrowthProfile.reportSummary}
               </p>
-              <button
-                onClick={() => handleGeneratePoster(reportPhoto, 'report')}
-                className="mt-3 w-full py-2 bg-primary text-primary-foreground rounded-xl text-sm font-medium pill-warm"
-              >
-                分享成长报告
-              </button>
+              <div className="mt-3 flex justify-end">
+                <button
+                  onClick={() => router.push(`/parent/growth/reports/${childReports[0]?.id || 'gr-1'}`)}
+                  className="inline-flex items-center gap-0.5 rounded-full px-1 py-1 text-xs font-medium text-muted-foreground/85 active:scale-[0.98]"
+                >
+                  查看详情
+                  <ChevronRight className="h-3.5 w-3.5" />
+                </button>
+              </div>
             </div>
 
             {/* Timeline */}

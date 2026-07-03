@@ -1,9 +1,11 @@
-import { childGrowthProfiles, children, classRecords, courses, schedule } from '@/lib/mock-data'
+import { childGrowthProfiles, children, classRecords, courses, growthReports, medals, schedule } from '@/lib/mock-data'
 
 export type CourseItem = (typeof courses)[number]
 export type ScheduleItem = (typeof schedule)[number]
 export type ClassRecordItem = (typeof classRecords)[number]
 export type ChildItem = (typeof children)[number]
+export type GrowthReportItem = (typeof growthReports)[number]
+export type MedalItem = (typeof medals.duoduo)[number] | (typeof medals.xiaobao)[number]
 export type LessonDisplayStatus = 'upcoming' | 'completed' | 'leave'
 
 export const allChildrenValue = 'all'
@@ -34,8 +36,22 @@ export function getMedalKey(childId: string) {
   return childId === '1' ? 'duoduo' : 'xiaobao'
 }
 
+export function getChildMedals(childId: string) {
+  return medals[getMedalKey(childId)] || []
+}
+
 export function getChildGrowthProfile(childId: string) {
   return childGrowthProfiles[childId as keyof typeof childGrowthProfiles] || childGrowthProfiles['1']
+}
+
+export function getChildGrowthReports(childId: string) {
+  return growthReports
+    .filter((report) => report.childId === childId && report.status === 'generated')
+    .sort((a, b) => String(b.generatedAt || '').localeCompare(String(a.generatedAt || '')))
+}
+
+export function getGrowthReportById(reportId: string) {
+  return growthReports.find((report) => report.id === reportId) || growthReports[0]
 }
 
 export function getLessonDisplayStatus(item: ScheduleItem): LessonDisplayStatus {
