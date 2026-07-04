@@ -19,11 +19,11 @@ import {
   WalletCards,
 } from 'lucide-react'
 import { children, familyMembers } from '@/lib/mock-data'
+import { useParentProfileSettings } from '@/lib/parent-profile-store'
 
 export default function ParentProfilePage() {
   const router = useRouter()
-  const accountNickname = '王女士'
-  const accountPhone = ''
+  const { settings } = useParentProfileSettings()
 
   const assetItems = [
     { icon: Building2, label: '我的机构', href: '/parent/institutions', tone: 'text-sky-600 bg-sky-100' },
@@ -61,9 +61,7 @@ export default function ParentProfilePage() {
 
   return (
     <div className="flex h-full flex-col warm-bg">
-      <div className="h-[88px] shrink-0 warm-header" aria-hidden />
-
-      <main className="flex-1 overflow-auto px-4 pb-24 pt-2">
+      <main className="flex-1 overflow-auto px-4 pb-24 pt-3">
         <button
           type="button"
           onClick={() => router.push('/parent/account')}
@@ -71,8 +69,8 @@ export default function ParentProfilePage() {
         >
           <div className="absolute -right-10 -top-12 h-32 w-32 rounded-full bg-primary/12" />
           <img
-            src="/images/avatars/parent-mom.jpg"
-            alt={accountNickname}
+            src={settings.avatar}
+            alt={settings.nickname}
             className="relative h-16 w-16 rounded-[24px] object-cover ring-4 ring-white/70"
           />
           <div className="relative min-w-0 flex-1">
@@ -80,10 +78,10 @@ export default function ParentProfilePage() {
               <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">家庭管理员</span>
               <span className="rounded-full bg-secondary/10 px-2 py-0.5 text-[10px] font-semibold text-secondary">购课家长</span>
             </div>
-            <h2 className="mt-1.5 text-xl font-bold text-foreground">{accountNickname}</h2>
+            <h2 className="mt-1.5 text-xl font-bold text-foreground">{settings.nickname || '未设置昵称'}</h2>
             <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
               <Phone className="h-3 w-3" />
-              {accountPhone || '未绑定手机号'}
+              {settings.phone || '未绑定手机号'}
             </p>
           </div>
           <ChevronRight className="relative h-4 w-4 text-muted-foreground" />
@@ -103,7 +101,7 @@ export default function ParentProfilePage() {
               <Users className="h-5 w-5" />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold">王女士的家庭</p>
+              <p className="text-sm font-semibold">{settings.nickname || '我'}的家庭</p>
               <p className="truncate text-xs text-muted-foreground">{children.length} 个孩子 · {familyMembers.length + 1} 位家庭成员</p>
             </div>
             <ChevronRight className="h-4 w-4 text-muted-foreground" />

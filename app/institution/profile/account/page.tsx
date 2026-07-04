@@ -1,9 +1,9 @@
 'use client'
 
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
-import { ArrowLeft, Camera, LogOut, Phone, UserRound } from 'lucide-react'
-import { Input } from '@/components/ui/input'
+import { LogOut } from 'lucide-react'
+import { WechatProfileIdentityEditor } from '@/components/wechat-profile-identity-editor'
 import { useInstitutionProfileSettings } from '@/lib/institution-profile-store'
 
 const avatarPresets = [
@@ -17,85 +17,41 @@ const avatarPresets = [
 export default function InstitutionAccountPage() {
   const router = useRouter()
   const { settings, updateSettings } = useInstitutionProfileSettings()
+  const [phoneWarningOpen, setPhoneWarningOpen] = useState(false)
+  const [phoneWarningShown, setPhoneWarningShown] = useState(false)
+
+  const handlePhoneChange = (value: string) => {
+    const nextPhone = value.replace(/\D/g, '').slice(0, 11)
+    if (!phoneWarningShown && nextPhone !== settings.accountPhone) {
+      setPhoneWarningOpen(true)
+      setPhoneWarningShown(true)
+    }
+    updateSettings({ accountPhone: nextPhone })
+  }
 
   return (
     <div className="flex min-h-full flex-col bg-background">
-      <header className="safe-area-top flex items-center gap-3 border-b border-border px-4 py-3">
-        <button onClick={() => router.back()} className="rounded-lg p-1.5 hover:bg-muted" aria-label="返回">
-          <ArrowLeft className="h-5 w-5" />
-        </button>
-        <h1 className="text-base font-semibold">账号设置</h1>
-      </header>
-
-      <main className="scrollbar-quiet flex-1 overflow-auto px-4 py-5">
-        <section className="rounded-3xl bg-card p-4 text-center card-dream">
-          <div className="relative mx-auto h-24 w-24">
-            <Image
-              src={settings.accountAvatar}
-              alt={settings.accountNickname}
-              width={96}
-              height={96}
-              className="h-24 w-24 rounded-full object-cover ring-4 ring-white shadow-sm"
-            />
-            <div className="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm">
-              <Camera className="h-4 w-4" />
-            </div>
-          </div>
-          <p className="mt-3 text-sm font-bold">{settings.accountNickname}</p>
-          <p className="mt-0.5 text-xs text-muted-foreground">{settings.accountPhone || '未绑定手机号'}</p>
-        </section>
-
-        <section className="mt-4 space-y-4 rounded-3xl bg-card p-4 card-dream">
-          <div>
-            <label className="mb-1.5 flex items-center gap-2 text-xs font-medium text-muted-foreground">
-              <UserRound className="h-3.5 w-3.5" />
-              昵称
-            </label>
-            <Input
-              value={settings.accountNickname}
-              onChange={(event) => updateSettings({ accountNickname: event.target.value })}
-              className="h-11 rounded-xl bg-muted/35"
-              placeholder="请输入昵称"
-            />
-          </div>
-
-          <div>
-            <label className="mb-1.5 flex items-center gap-2 text-xs font-medium text-muted-foreground">
-              <Phone className="h-3.5 w-3.5" />
-              手机号换绑
-            </label>
-            <Input
+      <main className="scrollbar-quiet flex-1 overflow-auto px-4 pb-8 pt-3">
+        <WechatProfileIdentityEditor
+          avatar={settings.accountAvatar}
+          nickname={settings.accountNickname}
+          onAvatarChange={(accountAvatar) => updateSettings({ accountAvatar })}
+          onNicknameChange={(accountNickname) => updateSettings({ accountNickname })}
+          avatarChoices={avatarPresets}
+          wechatAvatar="/images/avatars/sea-sailboat-avatar.png"
+          wechatNickname="李道一"
+          avatarAlt={settings.accountNickname}
+        >
+          <div className="flex min-h-16 items-center border-t border-black/5 px-4">
+            <span className="text-base font-semibold text-foreground">手机号</span>
+            <input
               value={settings.accountPhone}
-              onChange={(event) => updateSettings({ accountPhone: event.target.value.replace(/[^\d*]/g, '').slice(0, 11) })}
-              className="h-11 rounded-xl bg-muted/35"
-              placeholder="请输入新手机号"
+              onChange={(event) => handlePhoneChange(event.target.value)}
+              placeholder="请输入手机号"
+              className="ml-auto min-w-0 flex-1 bg-transparent text-right text-base font-semibold text-foreground outline-none placeholder:text-muted-foreground"
             />
           </div>
-
-          <div>
-            <label className="mb-2 block text-xs font-medium text-muted-foreground">头像</label>
-            <div className="grid grid-cols-4 gap-3">
-              {avatarPresets.map((avatar) => (
-                <button
-                  type="button"
-                  key={avatar}
-                  onClick={() => updateSettings({ accountAvatar: avatar })}
-                  className={`overflow-hidden rounded-2xl ring-2 transition-all ${
-                    settings.accountAvatar === avatar ? 'ring-primary' : 'ring-transparent'
-                  }`}
-                >
-                  <Image src={avatar} alt="" width={64} height={64} className="h-16 w-full object-cover" />
-                </button>
-              ))}
-            </div>
-            <Input
-              value={settings.accountAvatar}
-              onChange={(event) => updateSettings({ accountAvatar: event.target.value })}
-              className="mt-3 h-11 rounded-xl bg-muted/35"
-              placeholder="/images/avatars/parent-mom.jpg"
-            />
-          </div>
-        </section>
+        </WechatProfileIdentityEditor>
 
         <button
           type="button"
@@ -106,6 +62,26 @@ export default function InstitutionAccountPage() {
           退出登录
         </button>
       </main>
+
+      {phoneWarningOpen && (
+        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/35 px-8">
+          <div className="w-full max-w-[300px] overflow-hidden rounded-2xl bg-white text-center shadow-2xl">
+            <div className="px-5 pb-4 pt-5">
+              <p className="text-base font-bold text-foreground">手机号更改提醒</p>
+              <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                请确保输入的手机号正确，否则将导致账号无法正常登录。
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setPhoneWarningOpen(false)}
+              className="h-12 w-full border-t border-border text-sm font-semibold text-primary"
+            >
+              知道了
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

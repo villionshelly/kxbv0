@@ -1,20 +1,45 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { Send, Users, CheckCircle, Clock, AlertCircle, History, X, MessageSquare, Plus, Mic, Keyboard, MicOff, Loader2 } from 'lucide-react'
-import { todayScheduleB, students, leaveRequests } from '@/lib/mock-data'
+import { Send, Users, CheckCircle, Clock, AlertCircle, History, X, MessageSquare, Plus, Mic, Keyboard, MicOff, Loader2, UserPlus } from 'lucide-react'
+import { todayScheduleB, students, leaveRequests, institutionInfo } from '@/lib/mock-data'
 import { useInstitutionProfileSettings } from '@/lib/institution-profile-store'
+import { InstitutionParentBindingInviteModal } from '@/components/institution-parent-binding-invite-modal'
+
+interface StudentCreationResult {
+  studentName: string
+  age: number
+  gender: '女' | '男'
+  parentName: string
+  parentRelation: string
+  courseName: string
+  totalLessons: number
+  amount: number
+  unitPrice: number
+  remainingLessons: number
+  studentStatus: string
+  packageStatus: string
+  bindingStatus: string
+  inviteCode: string
+}
+
+type MessageAction =
+  | {
+      type: 'attendance' | 'leave_approval' | 'student_query' | 'reminder'
+      data?: any
+      confirmed?: boolean
+    }
+  | {
+      type: 'student_created'
+      data: StudentCreationResult
+    }
 
 interface Message {
   id: string
   role: 'user' | 'assistant'
   content: string
   timestamp: Date
-  action?: {
-    type: 'attendance' | 'leave_approval' | 'student_query' | 'reminder'
-    data?: any
-    confirmed?: boolean
-  }
+  action?: MessageAction
 }
 
 interface ChatSession {
@@ -25,15 +50,63 @@ interface ChatSession {
 }
 
 const quickActions = [
+  { label: '新建学员', icon: UserPlus },
   { label: '今天谁请假了', icon: Users },
   { label: '帮我点名', icon: CheckCircle },
   { label: '查看续费预警', icon: AlertCircle },
 ]
 
 const assistantCrabSrc = '/images/ai/ai_crab_加油加油.gif'
+const mockStudentCreationResult: StudentCreationResult = {
+  studentName: '王可乐',
+  age: 6,
+  gender: '女',
+  parentName: '谢女士',
+  parentRelation: '妈妈',
+  courseName: '小提琴入门课',
+  totalLessons: 10,
+  amount: 2000,
+  unitPrice: 200,
+  remainingLessons: 10,
+  studentStatus: '学员已创建',
+  packageStatus: '课包已记账',
+  bindingStatus: '家长未绑定',
+  inviteCode: 'KXB-AI-0004',
+}
 
 const formatMessageTime = (date: Date) =>
   date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
+
+const formatCurrency = (amount: number) =>
+  `¥${amount.toLocaleString('zh-CN')}`
+
+const normalizeMessageText = (text: string) =>
+  text.replace(/\s/g, '').replace(/，|。|、|；|：/g, '')
+
+const isCompleteStudentCreationRequest = (text: string) => {
+  const normalizedText = normalizeMessageText(text)
+
+  return (
+    normalizedText.includes('王可乐') &&
+    (normalizedText.includes('6岁') || normalizedText.includes('六岁')) &&
+    (normalizedText.includes('女孩') || normalizedText.includes('女生') || normalizedText.includes('女')) &&
+    (normalizedText.includes('妈妈姓谢') || normalizedText.includes('姓谢')) &&
+    normalizedText.includes('小提琴入门') &&
+    (normalizedText.includes('10节') || normalizedText.includes('十节')) &&
+    (normalizedText.includes('2000元') || normalizedText.includes('2000'))
+  )
+}
+
+const isStudentCreationIntent = (text: string) => {
+  const normalizedText = normalizeMessageText(text)
+
+  return (
+    normalizedText.includes('新建学员') ||
+    normalizedText.includes('创建学员') ||
+    normalizedText.includes('添加学员') ||
+    (normalizedText.includes('帮我创建') && normalizedText.includes('学员'))
+  )
+}
 
 // 模拟历史会话
 const historyChats: ChatSession[] = [
@@ -52,6 +125,7 @@ export default function InstitutionAssistantPage() {
   const [inputMode, setInputMode] = useState<'voice' | 'text'>('voice')
   const [isRecording, setIsRecording] = useState(false)
   const [recordingTime, setRecordingTime] = useState(0)
+  const [inviteStudent, setInviteStudent] = useState<StudentCreationResult | null>(null)
   const recordingTimerRef = useRef<NodeJS.Timeout | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const hasConversation = messages.length > 1 || isTyping
@@ -140,6 +214,28 @@ export default function InstitutionAssistantPage() {
   const processMessage = (text: string): Message => {
     const lowerText = text.toLowerCase()
 
+    if (isCompleteStudentCreationRequest(text)) {
+      return {
+        id: Date.now().toString(),
+        role: 'assistant',
+        content: '已根据你提供的信息完成新学员创建，并自动记账购买的课包。建议现在发送绑定邀请，让家长确认并同步课程信息。',
+        timestamp: new Date(),
+        action: {
+          type: 'student_created',
+          data: mockStudentCreationResult,
+        },
+      }
+    }
+
+    if (isStudentCreationIntent(text)) {
+      return {
+        id: Date.now().toString(),
+        role: 'assistant',
+        content: '可以，我来帮你新建学员。请补充学员姓名、年龄性别、家长信息、购买课程、课时数和金额。\n\n例如：帮我创建 王可乐学员，6岁女孩，妈妈姓谢，买了小提琴入门课 10节，2000元。',
+        timestamp: new Date(),
+      }
+    }
+
     if (lowerText.includes('点名') || lowerText.includes('没来') || lowerText.includes('都到了') || lowerText.includes('出勤')) {
       const absentStudents: string[] = []
       
@@ -219,7 +315,7 @@ export default function InstitutionAssistantPage() {
     return {
       id: Date.now().toString(),
       role: 'assistant',
-      content: '我理解您的需求。您可以试试说"帮我点名"、"今天谁请假了"或"查看续费预警"，我会帮您快速处理。',
+      content: '我理解您的需求。您可以试试说"新建学员"、"帮我点名"、"今天谁请假了"或"查看续费预警"，我会帮您快速处理。',
       timestamp: new Date(),
     }
   }
@@ -258,6 +354,10 @@ export default function InstitutionAssistantPage() {
     ])
   }
 
+  const handleOpenBindingInvite = (student: StudentCreationResult) => {
+    setInviteStudent(student)
+  }
+
   const startNewChat = () => {
     setMessages([
       {
@@ -267,6 +367,7 @@ export default function InstitutionAssistantPage() {
         timestamp: new Date(),
       },
     ])
+    setInviteStudent(null)
     setShowHistory(false)
   }
 
@@ -386,6 +487,64 @@ export default function InstitutionAssistantPage() {
                 >
                   <p className="whitespace-pre-line">{message.content}</p>
                 </div>
+
+                {/* 新建学员结果 */}
+                {message.action?.type === 'student_created' && (
+                  <div className="mt-2 overflow-hidden rounded-2xl border border-blue-100 bg-white shadow-sm">
+                    <div className="bg-blue-50/80 px-3 py-3">
+                      <div className="flex items-start gap-3">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white text-blue-600 shadow-sm">
+                          <UserPlus className="h-5 w-5" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            <p className="text-base font-bold text-slate-900">{message.action.data.studentName}</p>
+                            <span className="rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-semibold text-green-700">
+                              {message.action.data.studentStatus}
+                            </span>
+                          </div>
+                          <p className="mt-1 text-sm text-slate-600">
+                            {message.action.data.age}岁{message.action.data.gender}孩 · {message.action.data.parentName}（{message.action.data.parentRelation}）
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2 p-3">
+                      <div className="grid grid-cols-2 gap-2 text-sm">
+                        <div className="rounded-2xl bg-slate-50 px-3 py-2">
+                          <p className="text-[10px] text-slate-500">课程课包</p>
+                          <p className="mt-0.5 font-semibold text-slate-900">{message.action.data.courseName}</p>
+                        </div>
+                        <div className="rounded-2xl bg-slate-50 px-3 py-2">
+                          <p className="text-[10px] text-slate-500">购买课时</p>
+                          <p className="mt-0.5 font-semibold text-slate-900">{message.action.data.totalLessons}节</p>
+                        </div>
+                        <div className="rounded-2xl bg-slate-50 px-3 py-2">
+                          <p className="text-[10px] text-slate-500">实收金额</p>
+                          <p className="mt-0.5 font-semibold text-slate-900">{formatCurrency(message.action.data.amount)}</p>
+                        </div>
+                        <div className="rounded-2xl bg-slate-50 px-3 py-2">
+                          <p className="text-[10px] text-slate-500">课时单价</p>
+                          <p className="mt-0.5 font-semibold text-slate-900">{formatCurrency(message.action.data.unitPrice)}/节</p>
+                        </div>
+                      </div>
+
+                      <div className="rounded-2xl bg-green-50 px-3 py-2 text-sm leading-6 text-green-700">
+                        {message.action.data.packageStatus}，剩余 {message.action.data.remainingLessons} 节；当前{message.action.data.bindingStatus}，建议发送绑定邀请。
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => handleOpenBindingInvite(message.action?.type === 'student_created' ? message.action.data : mockStudentCreationResult)}
+                        className="flex h-10 w-full items-center justify-center gap-2 rounded-xl institution-btn-primary text-sm font-semibold"
+                      >
+                        <Send className="h-4 w-4" />
+                        发送绑定
+                      </button>
+                    </div>
+                  </div>
+                )}
 
                 {/* 点名确认 */}
                 {message.action?.type === 'attendance' && !message.action.confirmed && message.action.data?.absent && (
@@ -618,12 +777,22 @@ export default function InstitutionAssistantPage() {
               onClick={() => handleSend()}
               disabled={!input.trim()}
               className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full institution-btn-primary transition-opacity disabled:opacity-35"
+              aria-label="发送"
             >
               <Send className="w-5 h-5" />
             </button>
           </div>
         )}
       </footer>
+
+      {inviteStudent && (
+        <InstitutionParentBindingInviteModal
+          student={{ name: inviteStudent.studentName }}
+          institutionName={institutionInfo.name}
+          onClose={() => setInviteStudent(null)}
+          position="absolute"
+        />
+      )}
 
     </div>
   )
