@@ -28,6 +28,8 @@ const routeTitleOverrides: Array<[RegExp, string]> = [
   [/^\/institution\/assistant$/, 'AI助理'],
   [/^\/institution\/teacher\/assistant$/, 'AI助理'],
   [/^\/institution\/profile$/, '我的'],
+  [/^\/institution\/profile\/institution-info$/, '机构信息'],
+  [/^\/institution\/profile\/account$/, '账号设置'],
 ]
 
 function getRouteTitle(pathname: string) {

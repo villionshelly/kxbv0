@@ -1,10 +1,13 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef, type PointerEvent } from 'react'
 import { ChevronLeft, ChevronRight, Plus, Sparkles, Users, Clock, X, CheckCircle, ArrowLeft } from 'lucide-react'
 import { classSessions, courseCatalog, students, teachers, leaveRecords } from '@/lib/mock-data'
 import { cn } from '@/lib/utils'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
+import floatAiSchedule from '@/png_256/float_ai_schedule.png'
+import floatShift from '@/png_256/float_shift.png'
 
 const timeSlots = ['08:00','09:00','10:00','11:00','12:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00']
 const weekDays = ['周一','周二','周三','周四','周五','周六','周日']
@@ -339,6 +342,81 @@ export default function InstitutionSchedulePage() {
   const [courseFilter, setCourseFilter] = useState<string>('all')
   const [showAI, setShowAI] = useState(false)
   const [activeBlock, setActiveBlock] = useState<{ session: ClassSessionItem; day: number } | null>(null)
+  const [floatPosition, setFloatPosition] = useState({ right: 16, bottom: 8 })
+  const dragStateRef = useRef<{
+    timer: ReturnType<typeof setTimeout> | null
+    dragging: boolean
+    pointerId: number | null
+    startX: number
+    startY: number
+    startRight: number
+    startBottom: number
+  }>({
+    timer: null,
+    dragging: false,
+    pointerId: null,
+    startX: 0,
+    startY: 0,
+    startRight: 16,
+    startBottom: 8,
+  })
+  const suppressClickRef = useRef(false)
+
+  const clearFloatDragTimer = () => {
+    if (dragStateRef.current.timer) {
+      clearTimeout(dragStateRef.current.timer)
+      dragStateRef.current.timer = null
+    }
+  }
+
+  const handleFloatPointerDown = (event: PointerEvent<HTMLDivElement>) => {
+    clearFloatDragTimer()
+    const target = event.currentTarget
+    const state = dragStateRef.current
+    state.pointerId = event.pointerId
+    state.startX = event.clientX
+    state.startY = event.clientY
+    state.startRight = floatPosition.right
+    state.startBottom = floatPosition.bottom
+    state.dragging = false
+    state.timer = setTimeout(() => {
+      state.dragging = true
+      suppressClickRef.current = true
+      target.setPointerCapture(event.pointerId)
+    }, 320)
+  }
+
+  const handleFloatPointerMove = (event: PointerEvent<HTMLDivElement>) => {
+    const state = dragStateRef.current
+    if (!state.dragging || state.pointerId !== event.pointerId) return
+
+    const frame = event.currentTarget.closest('.mobile-frame')
+    const frameRect = frame?.getBoundingClientRect()
+    const maxRight = frameRect ? frameRect.width - 72 : 318
+    const maxBottom = frameRect ? frameRect.height - 180 : 664
+    const nextRight = state.startRight - (event.clientX - state.startX)
+    const nextBottom = state.startBottom - (event.clientY - state.startY)
+
+    setFloatPosition({
+      right: Math.min(Math.max(nextRight, 10), maxRight),
+      bottom: Math.min(Math.max(nextBottom, 8), maxBottom),
+    })
+  }
+
+  const handleFloatPointerEnd = (event: PointerEvent<HTMLDivElement>) => {
+    clearFloatDragTimer()
+    const state = dragStateRef.current
+    if (state.dragging && state.pointerId === event.pointerId) {
+      try {
+        event.currentTarget.releasePointerCapture(event.pointerId)
+      } catch {}
+    }
+    state.dragging = false
+    state.pointerId = null
+    window.setTimeout(() => {
+      suppressClickRef.current = false
+    }, 0)
+  }
 
   // Filter sessions by selected course tab
   const filteredSessions = useMemo(() =>
@@ -368,79 +446,32 @@ export default function InstitutionSchedulePage() {
   return (
     <div className="flex h-full flex-col institution-dream-bg relative">
       {/* Header */}
-      <header className="safe-area-top px-4 pb-3">
-        <div className="flex items-center justify-between py-3">
+      <header className="safe-area-top px-4 pb-2">
+        <div className="flex items-center py-2">
           <div>
             <h1 className="text-xl font-bold leading-tight">排课管理</h1>
-            <p className="mt-0.5 text-xs text-muted-foreground">{classSessions.length} 个班次 · {students.length} 位学员</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setShowAI(true)}
-              className="flex items-center gap-1 px-3 py-2 bg-card text-primary rounded-full text-sm font-medium shadow-sm"
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              AI排课
-            </button>
-            <button
-              onClick={() => router.push('/institution/classes')}
-              className="w-10 h-10 rounded-full institution-btn-primary flex items-center justify-center shadow-sm"
-              aria-label="新增班次"
-            >
-              <Plus className="w-5 h-5" />
-            </button>
           </div>
         </div>
 
-        <div className="rounded-3xl bg-card p-3 card-dream">
-          {/* Course filter tabs */}
-          <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-3">
+        <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 scrollbar-hide">
+          <button
+            onClick={() => setCourseFilter('all')}
+            className={cn(
+              'shrink-0 rounded-full px-3 py-1.5 text-xs font-medium whitespace-nowrap shadow-sm transition-colors',
+              courseFilter === 'all' ? 'institution-btn-primary' : 'bg-card/82 text-muted-foreground'
+            )}
+          >全部</button>
+          {courseCatalog.map(c => (
             <button
-              onClick={() => setCourseFilter('all')}
+              key={c.id}
+              onClick={() => setCourseFilter(c.id)}
               className={cn(
-                'px-3 py-1.5 rounded-full text-xs whitespace-nowrap transition-colors shrink-0 font-medium',
-                courseFilter === 'all' ? 'institution-btn-primary' : 'bg-muted/60 text-muted-foreground'
+                'shrink-0 rounded-full px-3 py-1.5 text-xs font-medium whitespace-nowrap shadow-sm transition-colors',
+                courseFilter === c.id ? 'text-white' : 'bg-card/82 text-muted-foreground'
               )}
-            >全部</button>
-            {courseCatalog.map(c => (
-              <button
-                key={c.id}
-                onClick={() => setCourseFilter(c.id)}
-                className={cn(
-                  'px-3 py-1.5 rounded-full text-xs whitespace-nowrap transition-colors shrink-0 font-medium',
-                  courseFilter === c.id ? 'text-white' : 'bg-muted/60 text-muted-foreground'
-                )}
-                style={courseFilter === c.id ? { backgroundColor: c.color } : {}}
-              >{c.name}</button>
-            ))}
-          </div>
-
-          {/* Week navigator + view toggle */}
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1 flex-1">
-              <button onClick={() => setCurrentWeek(w => w - 1)} className="p-1.5 hover:bg-muted rounded-full transition-colors">
-                <ChevronLeft className="w-4 h-4 text-muted-foreground" />
-              </button>
-              <span className="text-sm font-medium min-w-[4rem] text-center">
-                {currentWeek === 0 ? '本周' : currentWeek > 0 ? `${currentWeek}周后` : `${-currentWeek}周前`}
-              </span>
-              <button onClick={() => setCurrentWeek(w => w + 1)} className="p-1.5 hover:bg-muted rounded-full transition-colors">
-                <ChevronRight className="w-4 h-4 text-muted-foreground" />
-              </button>
-            </div>
-            <div className="flex bg-muted/50 rounded-full p-0.5">
-              {(['week', 'list'] as const).map(m => (
-                <button
-                  key={m}
-                  onClick={() => setViewMode(m)}
-                  className={cn(
-                    'px-3 py-1 text-xs font-medium rounded-full transition-colors',
-                    viewMode === m ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground'
-                  )}
-                >{m === 'week' ? '周视图' : '列表'}</button>
-              ))}
-            </div>
-          </div>
+              style={courseFilter === c.id ? { backgroundColor: c.color } : {}}
+            >{c.name}</button>
+          ))}
         </div>
       </header>
 
@@ -448,17 +479,43 @@ export default function InstitutionSchedulePage() {
       <div className="scrollbar-quiet flex-1 overflow-auto px-4 pb-32">
         {viewMode === 'week' ? (
           <div className="overflow-hidden rounded-3xl bg-card card-dream">
-            {/* Week header */}
-            <div className="flex sticky top-0 bg-card z-10 border-b border-border">
-              <div className="w-11 shrink-0" />
-              {weekDays.map((day, idx) => (
-                <div key={day} className="flex-1 text-center py-2">
-                  <span className={cn(
-                    'text-[11px] font-medium',
-                    idx >= 5 ? 'text-primary' : 'text-muted-foreground'
-                  )}>{day}</span>
+            <div className="sticky top-0 z-20 bg-card border-b border-border">
+              <div className="flex items-center gap-3 px-3 py-2.5">
+                <div className="flex flex-1 items-center gap-1">
+                  <button onClick={() => setCurrentWeek(w => w - 1)} className="rounded-full p-1.5 transition-colors hover:bg-muted">
+                    <ChevronLeft className="w-4 h-4 text-muted-foreground" />
+                  </button>
+                  <span className="min-w-[4rem] text-center text-sm font-medium">
+                    {currentWeek === 0 ? '本周' : currentWeek > 0 ? `${currentWeek}周后` : `${-currentWeek}周前`}
+                  </span>
+                  <button onClick={() => setCurrentWeek(w => w + 1)} className="rounded-full p-1.5 transition-colors hover:bg-muted">
+                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                  </button>
                 </div>
-              ))}
+                <div className="flex rounded-full bg-muted/50 p-0.5">
+                  {(['week', 'list'] as const).map(m => (
+                    <button
+                      key={m}
+                      onClick={() => setViewMode(m)}
+                      className={cn(
+                        'rounded-full px-3 py-1 text-xs font-medium transition-colors',
+                        viewMode === m ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground'
+                      )}
+                    >{m === 'week' ? '周视图' : '列表'}</button>
+                  ))}
+                </div>
+              </div>
+              <div className="flex border-t border-border/50">
+                <div className="w-11 shrink-0" />
+                {weekDays.map((day, idx) => (
+                  <div key={day} className="flex-1 text-center py-2">
+                    <span className={cn(
+                      'text-[11px] font-medium',
+                      idx >= 5 ? 'text-primary' : 'text-muted-foreground'
+                    )}>{day}</span>
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* Time grid */}
@@ -512,6 +569,33 @@ export default function InstitutionSchedulePage() {
           </div>
         ) : (
           <div className="space-y-3">
+            <div className="sticky top-0 z-20 rounded-3xl bg-card p-3 card-dream">
+              <div className="flex items-center gap-3">
+                <div className="flex flex-1 items-center gap-1">
+                  <button onClick={() => setCurrentWeek(w => w - 1)} className="rounded-full p-1.5 transition-colors hover:bg-muted">
+                    <ChevronLeft className="w-4 h-4 text-muted-foreground" />
+                  </button>
+                  <span className="min-w-[4rem] text-center text-sm font-medium">
+                    {currentWeek === 0 ? '本周' : currentWeek > 0 ? `${currentWeek}周后` : `${-currentWeek}周前`}
+                  </span>
+                  <button onClick={() => setCurrentWeek(w => w + 1)} className="rounded-full p-1.5 transition-colors hover:bg-muted">
+                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                  </button>
+                </div>
+                <div className="flex rounded-full bg-muted/50 p-0.5">
+                  {(['week', 'list'] as const).map(m => (
+                    <button
+                      key={m}
+                      onClick={() => setViewMode(m)}
+                      className={cn(
+                        'rounded-full px-3 py-1 text-xs font-medium transition-colors',
+                        viewMode === m ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground'
+                      )}
+                    >{m === 'week' ? '周视图' : '列表'}</button>
+                  ))}
+                </div>
+              </div>
+            </div>
             {filteredSessions.length === 0 ? (
               <div className="flex flex-col items-center justify-center rounded-3xl bg-card py-20 text-muted-foreground card-dream">
                 <Users className="w-12 h-12 mb-3 opacity-30" />
@@ -569,6 +653,36 @@ export default function InstitutionSchedulePage() {
             })}
           </div>
         )}
+      </div>
+
+      <div
+        className="absolute z-30 flex touch-none select-none flex-col items-center gap-1.5"
+        style={{ right: floatPosition.right, bottom: floatPosition.bottom }}
+        onPointerDown={handleFloatPointerDown}
+        onPointerMove={handleFloatPointerMove}
+        onPointerUp={handleFloatPointerEnd}
+        onPointerCancel={handleFloatPointerEnd}
+      >
+        <button
+          onClick={() => {
+            if (suppressClickRef.current) return
+            setShowAI(true)
+          }}
+          className="flex h-14 w-14 items-center justify-center rounded-full bg-transparent p-0 transition-transform active:scale-95"
+          aria-label="AI排课"
+        >
+          <Image src={floatAiSchedule} alt="" width={56} height={56} className="h-14 w-14 object-contain" aria-hidden="true" />
+        </button>
+        <button
+          onClick={() => {
+            if (suppressClickRef.current) return
+            router.push('/institution/classes')
+          }}
+          className="flex h-14 w-14 items-center justify-center rounded-full bg-transparent p-0 transition-transform active:scale-95"
+          aria-label="班次管理"
+        >
+          <Image src={floatShift} alt="" width={56} height={56} className="h-14 w-14 object-contain" aria-hidden="true" />
+        </button>
       </div>
 
       {/* Session detail sheet */}

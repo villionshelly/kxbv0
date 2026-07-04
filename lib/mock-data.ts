@@ -902,6 +902,20 @@ export const institutionInfo = {
 
 export const students = [
   {
+    id: '4',
+    name: '王可乐',
+    avatar: '/images/avatars/child-doudou.jpg',
+    parentName: '王可乐妈妈',
+    parentRelation: '妈妈',
+    parentPhone: '',
+    courses: ['钢琴启蒙'],
+    remainingClasses: 18,
+    totalClasses: 24,
+    status: 'normal',
+    joinDate: '2026-07-04',
+    isBound: false,
+  },
+  {
     id: '1',
     name: '朵朵',
     avatar: '/images/avatars/child-duoduo-photo.jpg',
@@ -941,20 +955,6 @@ export const students = [
     totalClasses: 24,
     status: 'expired',
     joinDate: '2025-03-20',
-    isBound: false,
-  },
-  {
-    id: '4',
-    name: '豆豆',
-    avatar: '/images/avatars/child-doudou.jpg',
-    parentName: '赵先生',
-    parentRelation: '爸爸',
-    parentPhone: '136****4444',
-    courses: ['钢琴启蒙'],
-    remainingClasses: 18,
-    totalClasses: 24,
-    status: 'normal',
-    joinDate: '2025-11-01',
     isBound: false,
   },
   {

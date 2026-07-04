@@ -1,28 +1,26 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { AlertTriangle, BarChart3, Bell, CheckCircle, ChevronRight, ClipboardCheck, FileText, Globe2, Megaphone, MessageSquare, Target } from 'lucide-react'
-import { diagnosisInsights, enrollmentOverview, institutionInfo, leaveRequests, todayScheduleB, warningStudents } from '@/lib/mock-data'
+import { AlertTriangle, Bell, CheckCircle, ChevronRight, ClipboardCheck, FileText, Megaphone, MessageSquare, Target } from 'lucide-react'
+import { diagnosisInsights, enrollmentOverview, leaveRequests, todayScheduleB, warningStudents } from '@/lib/mock-data'
 import { getLessonStatus, useAttendanceStore } from '@/lib/attendance-store'
 import Image from 'next/image'
 import featurePhotoAttendance from '@/png_256/feature_photo_attendance.png'
 import featureMoments from '@/png_256/feature_moments.png'
+import growthBusinessDiagnosis from '@/png_256/growth_business_diagnosis_经营诊断.png'
+import growthEnrollmentManager from '@/png_256/growth_enrollment_manager_招生管家.png'
+import growthMyUpdates from '@/png_256/growth_my_updates_我的动态.png'
+import growthTrialManagement from '@/png_256/growth_trial_management_试听管理.png'
 import { cn } from '@/lib/utils'
+import { useInstitutionProfileSettings } from '@/lib/institution-profile-store'
 
 export default function InstitutionHomePage() {
   const router = useRouter()
+  const { settings } = useInstitutionProfileSettings()
   const attendanceStore = useAttendanceStore()
   const pendingLeaves = leaveRequests.filter(l => l.status === 'pending')
   const revenue = diagnosisInsights.recruitmentRenewal.revenue.current
   const consumptionRate = diagnosisInsights.consumption.rate
-  const lessonStats = todayScheduleB.reduce(
-    (acc, item) => {
-      const status = getLessonStatus(attendanceStore[item.id])
-      acc[status] += 1
-      return acc
-    },
-    { pending: 0, checked: 0, completed: 0 } as Record<'pending' | 'checked' | 'completed', number>
-  )
 
   const businessStats = [
     { label: '新增商机', value: enrollmentOverview.newLeads, icon: Megaphone, color: 'text-sky-600', href: '/institution/enrollment' },
@@ -48,47 +46,42 @@ export default function InstitutionHomePage() {
   ]
 
   const growthTools = [
-    { label: '招生管家', desc: '活动获客', icon: Megaphone, href: '/institution/enrollment', color: 'text-sky-600', bg: 'bg-sky-100' },
-    { label: '经营诊断', desc: 'AI建议', icon: BarChart3, href: '/institution/diagnosis', color: 'text-blue-600', bg: 'bg-blue-100' },
-    { label: '试听管理', desc: '商机转化', icon: ClipboardCheck, href: '/institution/trials', color: 'text-emerald-600', bg: 'bg-emerald-100' },
-    { label: '我的动态', desc: '微官网', icon: Globe2, href: '/institution/microsite', color: 'text-orange-600', bg: 'bg-orange-100' },
+    { label: '招生管家', desc: '活动获客', image: growthEnrollmentManager, href: '/institution/enrollment' },
+    { label: '经营诊断', desc: 'AI建议', image: growthBusinessDiagnosis, href: '/institution/diagnosis' },
+    { label: '试听管理', desc: '商机转化', image: growthTrialManagement, href: '/institution/trials' },
+    { label: '我的动态', desc: '微官网', image: growthMyUpdates, href: '/institution/microsite' },
   ]
 
   return (
     <div className="flex h-full flex-col institution-dream-bg">
-      <header className="safe-area-top px-4 pt-2 pb-3">
-        <div className="flex items-center justify-between">
+      <div className="scrollbar-quiet flex-1 overflow-auto px-4 pb-32">
+        <header className="safe-area-top pb-3">
           <div className="flex min-w-0 items-center gap-3">
-            <div className="h-12 w-12 shrink-0 overflow-hidden rounded-2xl bg-card shadow-sm ring-2 ring-white/80">
+            <div className="h-11 w-11 shrink-0 overflow-hidden rounded-2xl bg-white/80 shadow-sm ring-1 ring-white">
               <Image
-                src={institutionInfo.logo}
-                alt={institutionInfo.name}
-                width={48}
-                height={48}
+                src={settings.institutionLogo}
+                alt={settings.institutionName}
+                width={44}
+                height={44}
                 className="h-full w-full object-cover"
               />
             </div>
             <div className="min-w-0">
-              <h1 className="truncate text-xl font-bold leading-tight text-foreground">{institutionInfo.name}</h1>
-              <p className="mt-0.5 text-xs font-medium text-slate-500">AI增长版 · 今日经营看板</p>
+              <div className="flex min-w-0 items-center gap-2">
+                <h1 className="truncate text-xl font-bold leading-tight text-foreground">{settings.institutionName}</h1>
+                <span className="shrink-0 rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-semibold text-blue-700 ring-1 ring-blue-100">
+                  AI增长版
+                </span>
+              </div>
             </div>
           </div>
-          <button
-            className="relative flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm"
-            aria-label="通知"
-          >
-            <Bell className="h-5 w-5 text-blue-600" />
-            <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-destructive" />
-          </button>
-        </div>
-      </header>
+        </header>
 
-      <div className="scrollbar-quiet flex-1 overflow-auto px-4 pb-32">
         <section className="mb-4 overflow-hidden rounded-[28px] border border-white bg-white card-dream">
-          <div className="bg-gradient-to-br from-blue-50 via-white to-white p-4">
+          <div className="bg-gradient-to-br from-blue-50 via-white to-white px-4 pb-2.5 pt-3.5">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-xs font-medium text-slate-500">今日经营</p>
+                <p className="text-xs font-medium text-slate-500">本月销课</p>
                 <button
                   type="button"
                   onClick={() => router.push('/institution/finance')}
@@ -100,55 +93,38 @@ export default function InstitutionHomePage() {
                   <ChevronRight className="h-4 w-4 text-slate-400" />
                 </button>
               </div>
-              <div className="rounded-3xl bg-blue-50 px-4 py-3 text-right shadow-sm">
-                <p className="text-xs text-slate-500">销课率</p>
-                <p className="mt-1 text-3xl font-bold leading-none text-blue-600">{consumptionRate}%</p>
+              <div className="rounded-[22px] bg-blue-50 px-3 py-2 text-right shadow-sm">
+                <p className="text-[11px] text-slate-500">销课率</p>
+                <p className="mt-0.5 text-2xl font-bold leading-none text-blue-600">{consumptionRate}%</p>
               </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-3 divide-x divide-slate-100 px-4 py-3">
-            {businessStats.map((item) => (
-              <button
-                key={item.label}
-                type="button"
-                onClick={() => router.push(item.href)}
-                className="flex items-center justify-center gap-2 px-2 text-left transition-colors active:bg-slate-50"
-              >
-                <item.icon className={cn('h-4 w-4', item.color)} />
-                <div>
-                  <p className="text-lg font-bold leading-none text-slate-900">{item.value}</p>
-                  <p className="mt-1 text-[10px] text-slate-500">{item.label}</p>
-                </div>
-              </button>
-            ))}
-          </div>
-
-          <div className="space-y-2 border-t border-slate-100 px-4 py-3">
+          <div className="space-y-2 px-4 pb-4 pt-1.5">
             {warningStudents.length > 0 && (
               <button
                 type="button"
                 onClick={() => router.push('/institution/ai/warning')}
-                className="flex w-full items-center gap-2 rounded-2xl bg-rose-50/90 px-3 py-2.5 text-left"
+                className="flex min-h-[54px] w-full items-center gap-2 rounded-[22px] bg-rose-50/90 px-4 py-3.5 text-left"
               >
-                <AlertTriangle className="h-4 w-4 shrink-0 text-rose-500" />
-                <span className="min-w-0 flex-1 truncate text-xs font-medium text-slate-700">
+                <AlertTriangle className="h-5 w-5 shrink-0 text-rose-500" />
+                <span className="min-w-0 flex-1 truncate text-sm font-semibold text-slate-700">
                   {warningStudents.slice(0, 2).map(s => s.name).join('、')} 等 {warningStudents.length} 人待续费跟进
                 </span>
-                <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
+                <ChevronRight className="h-4 w-4 text-slate-400" />
               </button>
             )}
             {pendingLeaves.length > 0 && (
               <button
                 type="button"
                 onClick={() => router.push('/institution/leave')}
-                className="flex w-full items-center gap-2 rounded-2xl bg-amber-50/90 px-3 py-2.5 text-left"
+                className="flex min-h-[54px] w-full items-center gap-2 rounded-[22px] bg-amber-50/90 px-4 py-3.5 text-left"
               >
-                <FileText className="h-4 w-4 shrink-0 text-amber-500" />
-                <span className="min-w-0 flex-1 truncate text-xs font-medium text-slate-700">
+                <FileText className="h-5 w-5 shrink-0 text-amber-500" />
+                <span className="min-w-0 flex-1 truncate text-sm font-semibold text-slate-700">
                   {pendingLeaves.slice(0, 2).map(l => l.studentName).join('、')} 提交了请假申请
                 </span>
-                <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
+                <ChevronRight className="h-4 w-4 text-slate-400" />
               </button>
             )}
           </div>
@@ -158,15 +134,13 @@ export default function InstitutionHomePage() {
           <div className="mb-3 flex items-center justify-between">
             <div>
               <h2 className="text-base font-bold text-slate-950">今日执行</h2>
-              <p className="mt-0.5 text-xs text-slate-500">{lessonStats.pending} 待点名 · {lessonStats.checked} 待反馈</p>
             </div>
             <button
-              type="button"
-              onClick={() => router.push('/institution/schedule')}
-              className="flex items-center gap-0.5 text-xs font-medium text-slate-500"
+              className="relative flex h-9 w-9 items-center justify-center rounded-full bg-blue-50 text-blue-600 shadow-sm ring-1 ring-blue-100"
+              aria-label="通知"
             >
-              排课
-              <ChevronRight className="h-3.5 w-3.5" />
+              <Bell className="h-[18px] w-[18px]" />
+              <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-destructive" />
             </button>
           </div>
 
@@ -176,11 +150,13 @@ export default function InstitutionHomePage() {
                 key={action.label}
                 type="button"
                 onClick={() => router.push(action.href)}
-                className={cn('rounded-3xl bg-gradient-to-br p-3 text-left transition-transform active:scale-[0.98]', action.bg)}
+                className={cn('flex min-h-[76px] items-center gap-3 rounded-3xl bg-gradient-to-br p-3 text-left transition-transform active:scale-[0.98]', action.bg)}
               >
-                <Image src={action.image} alt="" width={48} height={48} className="h-12 w-12 object-contain" aria-hidden="true" />
-                <p className="mt-2 text-sm font-bold text-slate-950">{action.label}</p>
-                <p className="mt-0.5 text-xs text-slate-500">{action.desc}</p>
+                <Image src={action.image} alt="" width={52} height={52} className="h-[52px] w-[52px] shrink-0 object-contain" aria-hidden="true" />
+                <span className="min-w-0">
+                  <span className="block text-sm font-bold text-slate-950">{action.label}</span>
+                  <span className="mt-0.5 block text-xs leading-4 text-slate-500">{action.desc}</span>
+                </span>
               </button>
             ))}
           </div>
@@ -235,25 +211,40 @@ export default function InstitutionHomePage() {
 
         </section>
 
-        <section className="mt-4 rounded-[28px] border border-white bg-white p-4 card-dream">
+        <section className="mt-4 rounded-[28px] border border-white bg-white p-3.5 card-dream">
           <div className="mb-3 flex items-center justify-between">
             <div>
               <h2 className="text-base font-bold text-slate-950">增长工具</h2>
-              <p className="mt-0.5 text-xs text-slate-500">招生、诊断、试听、微官网</p>
             </div>
             <Target className="h-5 w-5 text-blue-500" />
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="mb-3 rounded-[24px] bg-blue-50/55 p-2">
+            <div className="grid grid-cols-3 divide-x divide-blue-100/80">
+              {businessStats.map((item) => (
+                <button
+                  key={item.label}
+                  type="button"
+                  onClick={() => router.push(item.href)}
+                  className="flex min-h-[58px] flex-col items-center justify-center gap-1 px-2 text-center transition-colors active:bg-white/60"
+                >
+                  <span className="flex items-center gap-1.5">
+                    <item.icon className={cn('h-4 w-4', item.color)} />
+                    <span className="text-lg font-bold leading-none text-slate-900">{item.value}</span>
+                  </span>
+                  <span className="text-[11px] font-medium text-slate-500">{item.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-2.5">
             {growthTools.map((tool) => (
               <button
                 key={tool.label}
                 type="button"
                 onClick={() => router.push(tool.href)}
-                className="flex items-center gap-3 rounded-3xl bg-slate-50/92 p-3 text-left transition-transform active:scale-[0.98]"
+                className="flex min-h-[76px] items-center gap-3 rounded-3xl bg-slate-50/92 p-3 text-left transition-transform active:scale-[0.98]"
               >
-                <span className={cn('flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl', tool.bg)}>
-                  <tool.icon className={cn('h-6 w-6', tool.color)} />
-                </span>
+                <Image src={tool.image} alt="" width={52} height={52} className="h-[52px] w-[52px] shrink-0 object-contain" aria-hidden="true" />
                 <span className="min-w-0">
                   <span className="block text-sm font-bold text-slate-950">{tool.label}</span>
                   <span className="mt-0.5 block truncate text-xs text-slate-500">{tool.desc}</span>

@@ -2,9 +2,9 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Search, Plus, Filter, Phone, AlertCircle, Link2, Send, X, Download, MessageCircle, CheckCircle2 } from 'lucide-react'
+import { Search, Plus, Phone, AlertCircle, Link2, Send, X, Download, MessageCircle } from 'lucide-react'
 import { institutionInfo, students } from '@/lib/mock-data'
-import { parentInviteCardSrc, parentInvitePosterSrc } from '@/lib/invite-assets'
+import { parentInviteCardSrc, parentInvitePosterSrc, parentInviteQrSrc, parentInviteWechatPreviewSrc } from '@/lib/invite-assets'
 import { cn } from '@/lib/utils'
 
 type Student = typeof students[number]
@@ -14,7 +14,7 @@ export default function InstitutionStudentsPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [activeFilter, setActiveFilter] = useState<'all' | 'normal' | 'warning' | 'expired' | 'unbound'>('all')
   const [inviteStudent, setInviteStudent] = useState<Student | null>(null)
-  const [shareSent, setShareSent] = useState(false)
+  const [showWechatPreview, setShowWechatPreview] = useState(false)
 
   const buildParentJoinPath = (student: Student) => {
     const params = new URLSearchParams({
@@ -26,10 +26,56 @@ export default function InstitutionStudentsPage() {
     return `/parent/join?${params.toString()}`
   }
 
-  const handleDownloadPoster = (student: Student) => {
+  const loadPosterImage = (src: string) =>
+    new Promise<HTMLImageElement>((resolve, reject) => {
+      const image = new Image()
+      image.onload = () => resolve(image)
+      image.onerror = reject
+      image.src = src
+    })
+
+  const handleDownloadPoster = async (student: Student) => {
     const link = document.createElement('a')
-    link.href = parentInvitePosterSrc
     link.download = `${student.name}-家长绑定邀请海报.png`
+
+    try {
+      const [posterImage, qrImage] = await Promise.all([
+        loadPosterImage(parentInvitePosterSrc),
+        loadPosterImage(parentInviteQrSrc),
+      ])
+      const canvas = document.createElement('canvas')
+      canvas.width = posterImage.naturalWidth
+      canvas.height = posterImage.naturalHeight
+      const context = canvas.getContext('2d')
+
+      if (!context) throw new Error('Canvas context unavailable')
+
+      context.drawImage(posterImage, 0, 0, canvas.width, canvas.height)
+
+      const qrBoxSize = canvas.width * 0.0945
+      const qrBoxX = canvas.width * 0.52825
+      const qrBoxY = canvas.height - canvas.height * 0.0345 - qrBoxSize
+      const qrPadding = canvas.width * 0.004
+      context.fillStyle = '#ffffff'
+      context.fillRect(qrBoxX, qrBoxY, qrBoxSize, qrBoxSize)
+      context.drawImage(
+        qrImage,
+        qrBoxX + qrPadding,
+        qrBoxY + qrPadding,
+        qrBoxSize - qrPadding * 2,
+        qrBoxSize - qrPadding * 2,
+      )
+
+      context.fillStyle = '#ff7a1a'
+      context.font = `900 ${Math.round(canvas.width * 0.024)}px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`
+      context.textBaseline = 'middle'
+      context.fillText(institutionInfo.name, canvas.width * 0.642, canvas.height * 0.932)
+
+      link.href = canvas.toDataURL('image/png')
+    } catch {
+      link.href = parentInvitePosterSrc
+    }
+
     document.body.appendChild(link)
     link.click()
     link.remove()
@@ -68,17 +114,10 @@ export default function InstitutionStudentsPage() {
             <h1 className="text-xl font-bold leading-tight">学员管理</h1>
             <p className="mt-0.5 text-xs text-muted-foreground">{students.length} 位学员 · {statusCounts.warning + statusCounts.expired} 位需跟进</p>
           </div>
-          <button 
-            onClick={() => router.push('/institution/students/add')}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-card text-primary shadow-sm"
-            aria-label="新增学员"
-          >
-            <Plus className="w-5 h-5" />
-          </button>
         </div>
 
         {/* Search */}
-        <div className="mt-4 flex items-center gap-2 rounded-3xl bg-card p-2 card-dream">
+        <div className="mt-3 flex items-center gap-2 rounded-3xl bg-card p-2 card-dream">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
@@ -89,8 +128,12 @@ export default function InstitutionStudentsPage() {
               className="w-full rounded-2xl bg-muted/45 py-2.5 pl-9 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
             />
           </div>
-          <button className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center">
-            <Filter className="w-4 h-4 text-muted-foreground" />
+          <button
+            onClick={() => router.push('/institution/students/add')}
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl institution-btn-primary"
+            aria-label="新增学员"
+          >
+            <Plus className="w-5 h-5" />
           </button>
         </div>
 
@@ -128,8 +171,21 @@ export default function InstitutionStudentsPage() {
           {filteredStudents.map((student) => (
             <div
               key={student.id}
-              className="rounded-3xl bg-card p-4 card-dream"
+              className={cn(
+                'relative rounded-3xl p-4 card-dream',
+                student.remainingClasses <= 5
+                  ? student.status === 'expired'
+                    ? 'bg-rose-50/90 ring-1 ring-rose-100'
+                    : 'bg-amber-50/90 ring-1 ring-amber-100'
+                  : 'bg-card'
+              )}
             >
+              {student.remainingClasses <= 5 && (
+                <div className="absolute right-4 top-4 flex items-center gap-1 rounded-full bg-white/85 px-2 py-1 text-xs font-semibold text-destructive shadow-sm ring-1 ring-rose-100">
+                  <AlertCircle className="h-3.5 w-3.5" />
+                  需跟进续费
+                </div>
+              )}
               <div className="flex items-start gap-3">
                 <img
                   src={student.avatar}
@@ -137,7 +193,7 @@ export default function InstitutionStudentsPage() {
                   className="w-12 h-12 rounded-2xl bg-muted object-cover ring-2 ring-primary/10"
                 />
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
+                  <div className="flex items-center gap-2 flex-wrap pr-24">
                     <h4 className="font-medium">{student.name}</h4>
                     {/* 绑定状态 */}
                     {student.isBound !== false ? (
@@ -188,12 +244,6 @@ export default function InstitutionStudentsPage() {
                       {student.remainingClasses}/{student.totalClasses}
                     </p>
                   </div>
-                  {student.remainingClasses <= 5 && (
-                    <div className="flex items-center gap-1 text-destructive">
-                      <AlertCircle className="w-4 h-4" />
-                      <span className="text-xs">需跟进续费</span>
-                    </div>
-                  )}
                 </div>
                 <div className="flex items-center gap-2">
                   <button className="p-2 hover:bg-muted rounded-lg transition-colors">
@@ -209,7 +259,7 @@ export default function InstitutionStudentsPage() {
                       onClick={(e) => {
                         e.stopPropagation()
                         setInviteStudent(student)
-                        setShareSent(false)
+                        setShowWechatPreview(false)
                       }}
                       className="px-2.5 py-1.5 bg-primary/10 text-primary rounded-lg text-xs font-medium flex items-center gap-1"
                     >
@@ -260,39 +310,27 @@ export default function InstitutionStudentsPage() {
             </div>
 
             <div className="mx-auto max-w-[320px]">
-              <div className="overflow-hidden rounded-[18px] bg-white shadow-[0_20px_40px_-26px_rgba(25,39,65,0.48)] ring-1 ring-border">
+              <div className="relative overflow-hidden rounded-[18px] bg-white shadow-[0_20px_40px_-26px_rgba(25,39,65,0.48)] ring-1 ring-border">
                 <img
                   src={parentInvitePosterSrc}
                   alt="家长绑定邀请海报"
-                  className="block aspect-[941/1672] w-full object-cover"
+                  className="block aspect-[2/3] w-full object-cover"
                 />
+                <div className="absolute bottom-[3.45%] left-[52.825%] flex w-[9.45%] items-center justify-center rounded-[7px] bg-white p-[0.35%]">
+                  <img src={parentInviteQrSrc} alt="家长绑定邀请二维码" className="block w-full" />
+                </div>
+                <div className="absolute left-[64.2%] right-[5.5%] top-[92.45%]">
+                  <p className="truncate text-left text-[11px] font-black leading-none text-[#ff7a1a]">
+                    {institutionInfo.name}
+                  </p>
+                </div>
               </div>
             </div>
-
-            {shareSent && (
-              <div className="mt-4 rounded-[18px] border border-green-100 bg-green-50 p-3">
-                <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-green-700">
-                  <CheckCircle2 className="h-4 w-4" />
-                  微信小程序卡片已生成
-                </div>
-                <div className="flex gap-3 rounded-[14px] bg-white p-3">
-                  <img
-                    src={sharePayload.imageUrl}
-                    alt="小程序卡片海报"
-                    className="h-16 w-16 rounded-xl object-cover"
-                  />
-                  <div className="min-w-0 flex-1">
-                    <p className="line-clamp-2 text-sm font-semibold">{sharePayload.title}</p>
-                    <p className="mt-1 truncate text-xs text-muted-foreground">{sharePayload.path}</p>
-                  </div>
-                </div>
-              </div>
-            )}
 
             <div className="mt-4 grid grid-cols-2 gap-3">
               <button
                 type="button"
-                onClick={() => setShareSent(true)}
+                onClick={() => setShowWechatPreview(true)}
                 className="flex h-12 items-center justify-center gap-2 rounded-[16px] bg-[#07C160] text-sm font-bold text-white shadow-[0_14px_24px_-18px_rgba(7,193,96,0.8)]"
               >
                 <MessageCircle className="h-5 w-5" />
@@ -308,6 +346,24 @@ export default function InstitutionStudentsPage() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {showWechatPreview && (
+        <div className="fixed inset-0 z-[60] bg-[#ededed]">
+          <img
+            src={parentInviteWechatPreviewSrc}
+            alt="机构邀请家长微信分享预览"
+            className="h-full w-full object-cover"
+          />
+          <button
+            type="button"
+            onClick={() => setShowWechatPreview(false)}
+            className="absolute right-4 top-[calc(var(--kxb-mp-status-bar-height)+10px)] z-[70] flex h-9 w-9 items-center justify-center rounded-full bg-white/75 text-slate-700 shadow-[0_8px_20px_-12px_rgba(0,0,0,0.55)] ring-1 ring-black/10 backdrop-blur"
+            aria-label="关闭微信分享预览"
+          >
+            <X className="h-4 w-4" />
+          </button>
         </div>
       )}
     </div>

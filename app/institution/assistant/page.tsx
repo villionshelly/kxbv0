@@ -2,7 +2,8 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { Send, Users, CheckCircle, Clock, AlertCircle, History, X, MessageSquare, Plus, Mic, Keyboard, MicOff, Loader2 } from 'lucide-react'
-import { institutionInfo, todayScheduleB, students, leaveRequests } from '@/lib/mock-data'
+import { todayScheduleB, students, leaveRequests } from '@/lib/mock-data'
+import { useInstitutionProfileSettings } from '@/lib/institution-profile-store'
 
 interface Message {
   id: string
@@ -42,6 +43,7 @@ const historyChats: ChatSession[] = [
 ]
 
 export default function InstitutionAssistantPage() {
+  const { settings } = useInstitutionProfileSettings()
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [isTyping, setIsTyping] = useState(false)
@@ -367,10 +369,10 @@ export default function InstitutionAssistantPage() {
                 )}
                 {message.role === 'user' && (
                   <div className="mb-1 flex items-center justify-end gap-2">
-                    <span className="text-[11px] font-medium text-slate-500">{institutionInfo.name} · {formatMessageTime(message.timestamp)}</span>
+                    <span className="text-[11px] font-medium text-slate-500">{settings.accountNickname} · {formatMessageTime(message.timestamp)}</span>
                     <img
-                      src={institutionInfo.logo}
-                      alt={institutionInfo.name}
+                      src={settings.accountAvatar}
+                      alt={settings.accountNickname}
                       className="h-8 w-8 rounded-full bg-white object-cover shadow-sm ring-1 ring-white/80"
                     />
                   </div>
