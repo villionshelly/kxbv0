@@ -46,7 +46,7 @@ function SessionEditor({
               onClick={() => selected ? removeDay(i) : addDay(i)}
               className={cn(
                 'flex-1 h-9 rounded-lg text-xs font-medium transition-colors',
-                selected ? 'bg-primary text-primary-foreground' : 'bg-muted/50 text-muted-foreground hover:bg-muted'
+                selected ? 'institution-btn-primary' : 'bg-muted/50 text-muted-foreground hover:bg-muted'
               )}
             >{d}</button>
           )
@@ -204,7 +204,7 @@ function ClassFormModal({
                     onClick={() => { setType(t); if (t === '1对1') setMaxStudents('1') }}
                     className={cn(
                       'flex-1 h-10 rounded-xl text-sm font-medium transition-colors',
-                      type === t ? 'bg-primary text-primary-foreground' : 'bg-muted/50 text-muted-foreground'
+                      type === t ? 'institution-btn-primary' : 'bg-muted/50 text-muted-foreground'
                     )}
                   >{t}</button>
                 ))}
@@ -296,7 +296,7 @@ function ClassFormModal({
             <button
               onClick={handleSave}
               disabled={!canSave}
-              className="w-full h-12 bg-primary text-primary-foreground rounded-xl font-medium disabled:opacity-40"
+              className="w-full h-12 institution-btn-primary rounded-xl font-medium disabled:opacity-40"
             >
               保存班次
             </button>
@@ -353,7 +353,7 @@ function InstitutionClassesContent() {
         </h1>
         <button
           onClick={() => { setEditSession(undefined); setShowForm(true) }}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium"
+          className="flex items-center gap-1.5 px-3 py-1.5 institution-btn-primary rounded-lg text-sm font-medium"
         >
           <Plus className="w-4 h-4" />
           新建班次
@@ -366,7 +366,7 @@ function InstitutionClassesContent() {
           onClick={() => setCourseFilter('all')}
           className={cn(
             'px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-colors shrink-0',
-            courseFilter === 'all' ? 'bg-primary text-primary-foreground' : 'bg-muted/50 text-muted-foreground'
+            courseFilter === 'all' ? 'institution-btn-primary' : 'bg-muted/50 text-muted-foreground'
           )}
         >全部</button>
         {courseCatalog.map(c => (

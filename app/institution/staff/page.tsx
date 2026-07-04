@@ -156,7 +156,7 @@ export default function StaffManagementPage() {
         <h1 className="text-base font-semibold flex-1">员工管理</h1>
         <button
           onClick={() => setShowInviteSheet(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-secondary text-secondary-foreground rounded-lg text-sm font-medium"
+          className="flex items-center gap-1.5 px-3 py-1.5 institution-btn-primary rounded-lg text-sm font-medium"
         >
           <Plus className="w-4 h-4" />
           邀请教师
@@ -392,7 +392,7 @@ export default function StaffManagementPage() {
             
             <button
               onClick={handleSaveEdit}
-              className="w-full h-12 bg-primary text-primary-foreground rounded-xl font-medium mt-6"
+              className="w-full h-12 institution-btn-primary rounded-xl font-medium mt-6"
             >
               保存修改
             </button>
@@ -559,7 +559,7 @@ export default function StaffManagementPage() {
                 
                 <button
                   onClick={handleSaveRule}
-                  className="w-full h-12 bg-primary text-primary-foreground rounded-xl font-medium"
+                  className="w-full h-12 institution-btn-primary rounded-xl font-medium"
                 >
                   保存结算规则
                 </button>
@@ -672,7 +672,7 @@ export default function StaffManagementPage() {
                     setCopiedCode(true)
                     setTimeout(() => setCopiedCode(false), 2000)
                   }}
-                  className="p-2 bg-secondary text-secondary-foreground rounded-lg shrink-0"
+                  className="p-2 institution-btn-primary rounded-lg shrink-0"
                 >
                   <Copy className="w-4 h-4" />
                 </button>
@@ -690,7 +690,7 @@ export default function StaffManagementPage() {
                   { step: 4, title: '绑定成功', desc: '加入机构，信息同步到员工列表' },
                 ].map(item => (
                   <div key={item.step} className="flex items-start gap-3">
-                    <span className="w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center shrink-0 font-medium">
+                    <span className="w-6 h-6 rounded-full institution-btn-primary text-xs flex items-center justify-center shrink-0 font-medium">
                       {item.step}
                     </span>
                     <div className="flex-1">
@@ -732,7 +732,7 @@ export default function StaffManagementPage() {
             </div>
             <button
               onClick={() => { setShowQrCode(false); router.push(joinPath) }}
-              className="w-full h-11 bg-secondary text-secondary-foreground rounded-xl text-sm font-medium mt-4"
+              className="w-full h-11 institution-btn-primary rounded-xl text-sm font-medium mt-4"
             >
               预览教师授权页面
             </button>

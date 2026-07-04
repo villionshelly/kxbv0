@@ -137,7 +137,7 @@ export default function FinanceDashboardPage() {
               className={cn(
                 'px-3 py-1.5 text-sm font-medium rounded-lg transition-colors whitespace-nowrap',
                 activeTab === tab.key
-                  ? 'bg-primary text-primary-foreground'
+                  ? 'institution-btn-primary'
                   : 'text-muted-foreground hover:bg-muted'
               )}
             >

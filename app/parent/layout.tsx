@@ -1,7 +1,7 @@
 'use client'
 
 import { Suspense } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { usePathname, useSearchParams } from 'next/navigation'
 import { SubpageQuickNav } from '@/components/subpage-quick-nav'
 import { ParentAiAssistantFab } from '@/components/parent-ai-assistant-fab'
 
@@ -11,13 +11,18 @@ function ParentChrome({
   children: React.ReactNode
 }) {
   const searchParams = useSearchParams()
+  const pathname = usePathname()
   const isAssistantEmbed = searchParams.get('assistantEmbed') === '1'
+  const showSubpageNav = !isAssistantEmbed && pathname !== '/parent'
 
   return (
-    <div className="mobile-frame bg-background flex flex-col">
+    <div className="mobile-frame bg-background flex flex-col" style={{ transform: 'translateZ(0)', contain: 'paint' }}>
       {!isAssistantEmbed && <SubpageQuickNav section="parent" />}
       {/* Content Area */}
-      <div className="scrollbar-quiet flex-1 overflow-auto">
+      <div
+        className="mobile-content-area scrollbar-quiet flex-1 overflow-auto"
+        style={showSubpageNav ? { marginTop: 'var(--kxb-mp-header-height)', minHeight: 0 } : { minHeight: 0 }}
+      >
         {children}
       </div>
       {!isAssistantEmbed && <ParentAiAssistantFab />}

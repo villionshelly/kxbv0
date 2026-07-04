@@ -78,7 +78,7 @@ function SessionDetailSheet({
               <h3 className="font-semibold text-sm flex-1">添加/调整学员</h3>
               <button
                 onClick={handleSaveStudents}
-                className="px-3 py-1.5 bg-primary text-primary-foreground rounded-lg text-xs font-medium"
+                className="px-3 py-1.5 institution-btn-primary rounded-lg text-xs font-medium"
               >
                 保存
               </button>
@@ -315,7 +315,7 @@ function AIScheduleModal({ onClose }: { onClose: () => void }) {
         <div className="px-4 py-4 border-t border-border bg-background">
           <button
             onClick={handleStart}
-            className="w-full h-12 bg-primary text-primary-foreground rounded-xl font-medium flex items-center justify-center gap-2"
+            className="w-full h-12 institution-btn-primary rounded-xl font-medium flex items-center justify-center gap-2"
           >
             <Sparkles className="w-4 h-4" />
             开始AI排课
@@ -325,7 +325,7 @@ function AIScheduleModal({ onClose }: { onClose: () => void }) {
       {step === 'done' && (
         <div className="px-4 py-4 border-t border-border bg-background flex gap-3">
           <button onClick={onClose} className="flex-1 h-12 bg-muted rounded-xl text-sm font-medium">稍后确认</button>
-          <button onClick={onClose} className="flex-1 h-12 bg-primary text-primary-foreground rounded-xl text-sm font-medium">确认生效</button>
+          <button onClick={onClose} className="flex-1 h-12 institution-btn-primary rounded-xl text-sm font-medium">确认生效</button>
         </div>
       )}
     </div>
@@ -366,84 +366,90 @@ export default function InstitutionSchedulePage() {
   )
 
   return (
-    <div className="flex flex-col h-full bg-background relative">
+    <div className="flex h-full flex-col institution-dream-bg relative">
       {/* Header */}
-      <header className="safe-area-top px-4 pb-0">
+      <header className="safe-area-top px-4 pb-3">
         <div className="flex items-center justify-between py-3">
-          <h1 className="text-lg font-semibold">排课管理</h1>
+          <div>
+            <h1 className="text-xl font-bold leading-tight">排课管理</h1>
+            <p className="mt-0.5 text-xs text-muted-foreground">{classSessions.length} 个班次 · {students.length} 位学员</p>
+          </div>
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowAI(true)}
-              className="flex items-center gap-1 px-3 py-1.5 bg-primary/10 text-primary rounded-lg text-sm font-medium"
+              className="flex items-center gap-1 px-3 py-2 bg-card text-primary rounded-full text-sm font-medium shadow-sm"
             >
               <Sparkles className="w-3.5 h-3.5" />
               AI排课
             </button>
             <button
               onClick={() => router.push('/institution/classes')}
-              className="w-8 h-8 rounded-lg bg-secondary text-secondary-foreground flex items-center justify-center"
+              className="w-10 h-10 rounded-full institution-btn-primary flex items-center justify-center shadow-sm"
+              aria-label="新增班次"
             >
               <Plus className="w-5 h-5" />
             </button>
           </div>
         </div>
 
-        {/* Course filter tabs */}
-        <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-3">
-          <button
-            onClick={() => setCourseFilter('all')}
-            className={cn(
-              'px-3 py-1.5 rounded-full text-xs whitespace-nowrap transition-colors shrink-0 font-medium',
-              courseFilter === 'all' ? 'bg-foreground text-background' : 'bg-muted/60 text-muted-foreground'
-            )}
-          >全部</button>
-          {courseCatalog.map(c => (
+        <div className="rounded-3xl bg-card p-3 card-dream">
+          {/* Course filter tabs */}
+          <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-3">
             <button
-              key={c.id}
-              onClick={() => setCourseFilter(c.id)}
+              onClick={() => setCourseFilter('all')}
               className={cn(
                 'px-3 py-1.5 rounded-full text-xs whitespace-nowrap transition-colors shrink-0 font-medium',
-                courseFilter === c.id ? 'text-white' : 'bg-muted/60 text-muted-foreground'
+                courseFilter === 'all' ? 'institution-btn-primary' : 'bg-muted/60 text-muted-foreground'
               )}
-              style={courseFilter === c.id ? { backgroundColor: c.color } : {}}
-            >{c.name}</button>
-          ))}
-        </div>
-
-        {/* Week navigator + view toggle */}
-        <div className="flex items-center gap-3 pb-3">
-          <div className="flex items-center gap-1 flex-1">
-            <button onClick={() => setCurrentWeek(w => w - 1)} className="p-1.5 hover:bg-muted rounded-lg transition-colors">
-              <ChevronLeft className="w-4 h-4 text-muted-foreground" />
-            </button>
-            <span className="text-sm font-medium min-w-[4rem] text-center">
-              {currentWeek === 0 ? '本周' : currentWeek > 0 ? `${currentWeek}周后` : `${-currentWeek}周前`}
-            </span>
-            <button onClick={() => setCurrentWeek(w => w + 1)} className="p-1.5 hover:bg-muted rounded-lg transition-colors">
-              <ChevronRight className="w-4 h-4 text-muted-foreground" />
-            </button>
-          </div>
-          <div className="flex bg-muted/50 rounded-lg p-0.5">
-            {(['week', 'list'] as const).map(m => (
+            >全部</button>
+            {courseCatalog.map(c => (
               <button
-                key={m}
-                onClick={() => setViewMode(m)}
+                key={c.id}
+                onClick={() => setCourseFilter(c.id)}
                 className={cn(
-                  'px-3 py-1 text-xs font-medium rounded-md transition-colors',
-                  viewMode === m ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground'
+                  'px-3 py-1.5 rounded-full text-xs whitespace-nowrap transition-colors shrink-0 font-medium',
+                  courseFilter === c.id ? 'text-white' : 'bg-muted/60 text-muted-foreground'
                 )}
-              >{m === 'week' ? '周视图' : '列表'}</button>
+                style={courseFilter === c.id ? { backgroundColor: c.color } : {}}
+              >{c.name}</button>
             ))}
+          </div>
+
+          {/* Week navigator + view toggle */}
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1 flex-1">
+              <button onClick={() => setCurrentWeek(w => w - 1)} className="p-1.5 hover:bg-muted rounded-full transition-colors">
+                <ChevronLeft className="w-4 h-4 text-muted-foreground" />
+              </button>
+              <span className="text-sm font-medium min-w-[4rem] text-center">
+                {currentWeek === 0 ? '本周' : currentWeek > 0 ? `${currentWeek}周后` : `${-currentWeek}周前`}
+              </span>
+              <button onClick={() => setCurrentWeek(w => w + 1)} className="p-1.5 hover:bg-muted rounded-full transition-colors">
+                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              </button>
+            </div>
+            <div className="flex bg-muted/50 rounded-full p-0.5">
+              {(['week', 'list'] as const).map(m => (
+                <button
+                  key={m}
+                  onClick={() => setViewMode(m)}
+                  className={cn(
+                    'px-3 py-1 text-xs font-medium rounded-full transition-colors',
+                    viewMode === m ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground'
+                  )}
+                >{m === 'week' ? '周视图' : '列表'}</button>
+              ))}
+            </div>
           </div>
         </div>
       </header>
 
       {/* Content */}
-      <div className="flex-1 overflow-auto">
+      <div className="scrollbar-quiet flex-1 overflow-auto px-4 pb-32">
         {viewMode === 'week' ? (
-          <div className="px-1">
+          <div className="overflow-hidden rounded-3xl bg-card card-dream">
             {/* Week header */}
-            <div className="flex sticky top-0 bg-background z-10 border-b border-border">
+            <div className="flex sticky top-0 bg-card z-10 border-b border-border">
               <div className="w-11 shrink-0" />
               {weekDays.map((day, idx) => (
                 <div key={day} className="flex-1 text-center py-2">
@@ -456,7 +462,7 @@ export default function InstitutionSchedulePage() {
             </div>
 
             {/* Time grid */}
-            <div className="relative">
+            <div className="relative bg-card">
               {timeSlots.map((time) => (
                 <div key={time} className="flex h-[52px] border-b border-border/40">
                   <div className="w-11 shrink-0 text-[10px] text-muted-foreground pt-1 text-center leading-tight">
@@ -505,9 +511,9 @@ export default function InstitutionSchedulePage() {
             </div>
           </div>
         ) : (
-          <div className="px-4 py-3 space-y-3">
+          <div className="space-y-3">
             {filteredSessions.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
+              <div className="flex flex-col items-center justify-center rounded-3xl bg-card py-20 text-muted-foreground card-dream">
                 <Users className="w-12 h-12 mb-3 opacity-30" />
                 <p className="text-sm">该课程暂无班次</p>
               </div>
@@ -518,7 +524,7 @@ export default function InstitutionSchedulePage() {
                 <button
                   key={cls.id}
                   onClick={() => setActiveBlock({ session: cls, day: cls.sessions[0]?.dayOfWeek ?? 0 })}
-                  className="w-full p-4 bg-muted/30 rounded-2xl text-left active:bg-muted/50 transition-colors"
+                  className="w-full p-4 bg-card rounded-3xl text-left active:bg-muted/50 transition-colors card-dream"
                 >
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex items-center gap-2">

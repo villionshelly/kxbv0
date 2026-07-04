@@ -91,7 +91,7 @@ export default function InvitePosterPage() {
               'w-full h-12 rounded-xl font-medium flex items-center justify-center gap-2 transition-all',
               downloaded
                 ? 'bg-green-500 text-white'
-                : 'bg-primary text-primary-foreground'
+                : 'institution-btn-primary'
             )}
           >
             {downloading ? (

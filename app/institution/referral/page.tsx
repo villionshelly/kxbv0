@@ -36,7 +36,7 @@ export default function ReferralPage() {
         </div>
         <button
           onClick={() => setShowCreateModal(true)}
-          className="p-2 bg-primary text-primary-foreground rounded-lg"
+          className="p-2 institution-btn-primary rounded-lg"
         >
           <Plus className="w-5 h-5" />
         </button>
@@ -149,7 +149,7 @@ export default function ReferralPage() {
                   <button
                     onClick={handleGeneratePoster}
                     disabled={generating}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium"
+                    className="flex items-center gap-1.5 px-3 py-1.5 institution-btn-primary rounded-lg text-sm font-medium"
                   >
                     <Sparkles className="w-4 h-4" />
                     {generating ? '生成中...' : 'AI生成海报'}
@@ -260,7 +260,7 @@ export default function ReferralPage() {
                   className="w-full mt-1 px-4 py-2 border border-border rounded-lg text-sm"
                 />
               </div>
-              <button className="w-full py-3 bg-primary text-primary-foreground rounded-xl font-medium">
+              <button className="w-full py-3 institution-btn-primary rounded-xl font-medium">
                 创建活动
               </button>
             </div>

@@ -187,7 +187,7 @@ export default function TeacherAssistantPage() {
               <div className={cn(
                 'px-4 py-3 rounded-2xl text-sm whitespace-pre-line leading-relaxed',
                 msg.role === 'user'
-                  ? 'bg-primary text-primary-foreground rounded-tr-sm'
+                  ? 'institution-btn-primary rounded-tr-sm'
                   : 'bg-muted/60 text-foreground rounded-tl-sm'
               )}>
                 {msg.content}
@@ -204,7 +204,7 @@ export default function TeacherAssistantPage() {
                   </div>
                   <button
                     onClick={() => router.push('/institution/teacher')}
-                    className="mt-2 w-full h-8 bg-secondary text-secondary-foreground rounded-lg text-xs font-medium"
+                    className="mt-2 w-full h-8 institution-btn-primary rounded-lg text-xs font-medium"
                   >
                     前往确认核销
                   </button>
@@ -249,7 +249,7 @@ export default function TeacherAssistantPage() {
               />
               <button onClick={() => sendMessage(input)} disabled={!input.trim()}
                 className={cn('p-1.5 rounded-xl transition-colors shrink-0',
-                  input.trim() ? 'bg-primary text-primary-foreground' : 'text-muted-foreground/40')}>
+                  input.trim() ? 'institution-btn-primary' : 'text-muted-foreground/40')}>
                 <Send className="w-4 h-4" />
               </button>
             </div>

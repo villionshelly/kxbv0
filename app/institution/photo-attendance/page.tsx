@@ -210,7 +210,7 @@ export default function PhotoAttendancePage() {
               </button>
               <button
                 onClick={handleCapture}
-                className="flex-1 py-3 bg-secondary text-secondary-foreground rounded-xl font-medium flex items-center justify-center gap-2"
+                className="flex-1 py-3 institution-btn-primary rounded-xl font-medium flex items-center justify-center gap-2"
               >
                 <Camera className="w-5 h-5" />
                 立即拍照
@@ -328,7 +328,7 @@ export default function PhotoAttendancePage() {
             {/* Confirm Button */}
             <button
               onClick={handleConfirmAttendance}
-              className="w-full py-4 bg-secondary text-secondary-foreground rounded-xl font-medium"
+              className="w-full py-4 institution-btn-primary rounded-xl font-medium"
             >
               确认并自动销课
             </button>

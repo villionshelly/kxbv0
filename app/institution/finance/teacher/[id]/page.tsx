@@ -304,7 +304,7 @@ export default function TeacherSettlementPage() {
             </button>
             <button
               onClick={handleOpenSettle}
-              className="flex-1 h-11 bg-primary text-primary-foreground rounded-xl text-sm font-medium flex items-center justify-center gap-2"
+              className="flex-1 h-11 institution-btn-primary rounded-xl text-sm font-medium flex items-center justify-center gap-2"
             >
               <Send className="w-4 h-4" />
               发起结算
@@ -326,7 +326,7 @@ export default function TeacherSettlementPage() {
                 <p className="text-sm text-muted-foreground">已发送给 {teacher.name}，24小时内无异议将自动确认</p>
                 <button
                   onClick={() => setShowSettleModal(false)}
-                  className="mt-4 px-6 py-2 bg-primary text-primary-foreground rounded-xl font-medium"
+                  className="mt-4 px-6 py-2 institution-btn-primary rounded-xl font-medium"
                 >
                   关闭
                 </button>
@@ -464,7 +464,7 @@ export default function TeacherSettlementPage() {
 
                 <button
                   onClick={handleSendConfirmation}
-                  className="w-full h-12 bg-primary text-primary-foreground rounded-xl font-medium flex items-center justify-center gap-2"
+                  className="w-full h-12 institution-btn-primary rounded-xl font-medium flex items-center justify-center gap-2"
                 >
                   <Send className="w-4 h-4" />
                   发送结算确认给教师

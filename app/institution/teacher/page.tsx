@@ -40,7 +40,7 @@ function CancelSessionSheet({ session, onClose }: { session: typeof classSession
             </div>
             <p className="font-semibold">班次已取消</p>
             <p className="text-sm text-muted-foreground">已通知所有学员，课时不扣除</p>
-            <button onClick={onClose} className="mt-2 px-6 py-2 bg-primary text-primary-foreground rounded-xl text-sm font-medium">关闭</button>
+            <button onClick={onClose} className="mt-2 px-6 py-2 institution-btn-primary rounded-xl text-sm font-medium">关闭</button>
           </div>
         ) : (
           <>
@@ -233,7 +233,7 @@ export default function TeacherHomePage() {
                           </span>
                         ) : (
                           <button onClick={() => openCheckIn(session.id)}
-                            className="px-3 py-1.5 bg-secondary text-secondary-foreground rounded-lg text-xs font-medium">
+                            className="px-3 py-1.5 institution-btn-primary rounded-lg text-xs font-medium">
                             {isOpen ? '收起' : '开始核销'}
                           </button>
                         )}
@@ -304,7 +304,7 @@ export default function TeacherHomePage() {
                               取消班次
                             </button>
                             <button onClick={() => saveCheckIn(session.id)}
-                              className="flex-1 h-10 bg-secondary text-secondary-foreground rounded-xl font-medium text-sm">
+                              className="flex-1 h-10 institution-btn-primary rounded-xl font-medium text-sm">
                               确认核销
                             </button>
                           </div>
@@ -845,7 +845,7 @@ export default function TeacherHomePage() {
                 </div>
               </div>
               <button onClick={handleSave}
-                className="w-full h-11 bg-primary text-primary-foreground rounded-xl font-medium text-sm">
+                className="w-full h-11 institution-btn-primary rounded-xl font-medium text-sm">
                 保存修改
               </button>
             </div>
@@ -935,7 +935,7 @@ export default function TeacherHomePage() {
                           </p>
                         </div>
                         {org.isDefault && (
-                          <span className="px-2 py-0.5 bg-primary text-primary-foreground text-xs rounded-full">
+                          <span className="px-2 py-0.5 institution-btn-primary text-xs rounded-full">
                             当前
                           </span>
                         )}
@@ -1033,7 +1033,7 @@ export default function TeacherHomePage() {
                   <button
                     onClick={handleJoinOrg}
                     disabled={!joinCode.trim()}
-                    className="w-full h-12 bg-primary text-primary-foreground rounded-xl font-medium disabled:opacity-40"
+                    className="w-full h-12 institution-btn-primary rounded-xl font-medium disabled:opacity-40"
                   >
                     确认加入
                   </button>

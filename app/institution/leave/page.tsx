@@ -160,7 +160,7 @@ export default function LeaveManagementPage() {
               className={cn(
                 'px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors',
                 filter === f.id
-                  ? 'bg-secondary text-secondary-foreground'
+                  ? 'institution-btn-primary'
                   : 'bg-muted/50 text-muted-foreground hover:bg-muted'
               )}
             >

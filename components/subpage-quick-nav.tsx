@@ -20,6 +20,7 @@ const routeTitleOverrides: Array<[RegExp, string]> = [
   [/^\/parent\/growth$/, '成长档案'],
   [/^\/parent\/growth\/[^/]+$/, '成长详情'],
   [/^\/parent\/invite$/, '邀请机构入驻'],
+  [/^\/parent\/join$/, '家长绑定邀请'],
   [/^\/parent\/institutions$/, '我的机构'],
   [/^\/parent\/leave$/, '请假记录'],
   [/^\/parent\/profile$/, '个人中心'],
@@ -65,9 +66,10 @@ export function SubpageQuickNav({ section }: SubpageQuickNavProps) {
   const homePaths =
     section === 'parent'
       ? ['/parent']
-      : ['/institution', '/institution/teacher']
+      : ['/institution', '/institution/students', '/institution/schedule', '/institution/profile', '/institution/teacher']
 
   const showNav = !homePaths.includes(pathname)
+  const useWarmNav = section === 'parent' && pathname === '/parent/assistant'
 
   useEffect(() => {
     setPageTitle(fallbackTitle)
@@ -162,12 +164,19 @@ export function SubpageQuickNav({ section }: SubpageQuickNavProps) {
   return (
     <div
       className="subpage-top-nav pointer-events-none absolute inset-x-0 z-[90]"
+      data-tone={useWarmNav ? 'warm' : undefined}
       style={{
-        top: 'var(--kxb-mp-status-bar-height)',
-        height: 'var(--kxb-mp-nav-bar-height)',
+        top: 0,
+        height: 'var(--kxb-mp-header-height)',
       }}
     >
-      <div className="subpage-quick-nav pointer-events-auto absolute left-4 top-0 flex h-full items-center gap-3">
+      <div
+        className="subpage-quick-nav pointer-events-auto absolute left-4 flex items-center gap-3"
+        style={{
+          top: 'var(--kxb-mp-status-bar-height)',
+          height: 'var(--kxb-mp-nav-bar-height)',
+        }}
+      >
         <button
           type="button"
           aria-label="返回"
@@ -189,7 +198,13 @@ export function SubpageQuickNav({ section }: SubpageQuickNavProps) {
         </a>
       </div>
       {pageTitle && (
-        <div className="subpage-top-nav__title absolute inset-y-0 left-24 right-24 flex items-center justify-center">
+        <div
+          className="subpage-top-nav__title absolute left-24 right-24 flex items-center justify-center"
+          style={{
+            top: 'var(--kxb-mp-status-bar-height)',
+            height: 'var(--kxb-mp-nav-bar-height)',
+          }}
+        >
           <span>{pageTitle}</span>
         </div>
       )}

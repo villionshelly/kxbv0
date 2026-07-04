@@ -101,7 +101,7 @@ export default function TeacherHighlightsPage() {
               <button
                 onClick={handleGenerate}
                 disabled={uploadCount === 0}
-                className="w-full h-11 bg-primary text-primary-foreground rounded-xl text-sm font-medium disabled:opacity-40 flex items-center justify-center gap-2"
+                className="w-full h-11 institution-btn-primary rounded-xl text-sm font-medium disabled:opacity-40 flex items-center justify-center gap-2"
               >
                 <Sparkles className="w-4 h-4" />
                 开始AI生成
@@ -144,7 +144,7 @@ export default function TeacherHighlightsPage() {
                 <div className="absolute bottom-2 right-2 bg-black/60 text-white text-xs px-1.5 py-0.5 rounded">0:38</div>
               </div>
               <div className="flex gap-2">
-                <button className="flex-1 h-10 bg-primary text-primary-foreground rounded-xl text-sm font-medium flex items-center justify-center gap-1.5">
+                <button className="flex-1 h-10 institution-btn-primary rounded-xl text-sm font-medium flex items-center justify-center gap-1.5">
                   <Share2 className="w-4 h-4" />发送给家长
                 </button>
                 <button onClick={() => { setGenStep('idle'); setUploadCount(0); setProgress(0) }}

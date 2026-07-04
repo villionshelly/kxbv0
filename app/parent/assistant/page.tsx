@@ -742,15 +742,13 @@ export default function ParentAssistantPage() {
         type="button"
         onClick={() => setShowHistory(true)}
         className="absolute left-3 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-card/92 text-primary shadow-sm ring-1 ring-border/60"
-        style={{ top: 'calc(var(--kxb-mp-header-height) + 4px)' }}
+        style={{ top: 8 }}
         aria-label="历史会话"
       >
         <History className="h-[18px] w-[18px]" />
       </button>
 
-      <div className="relative z-10 shrink-0 warm-header" style={{ height: 'var(--kxb-mp-header-height)' }} aria-hidden />
-
-      <main className="scrollbar-quiet relative z-10 flex-1 overflow-auto px-4 pb-3 pt-2">
+      <main className={cn('scrollbar-quiet relative z-10 flex-1 overflow-auto px-4 pb-3', hasConversation ? 'pt-[52px]' : 'pt-2')}>
         {!hasConversation && (
           <section className="flex min-h-[48vh] flex-col items-center justify-center px-2 pb-4 pt-5 text-center">
             <img src={assistantCrabSrc} alt="课小宝 AI 助理" className="h-32 w-32 object-contain mix-blend-multiply" />

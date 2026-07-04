@@ -326,7 +326,7 @@ export default function StudentDetailPage() {
                   <button
                     onClick={handleSubmitCorrection}
                     disabled={newRemainingClasses === String(student.remainingClasses) && newTotalClasses === String(student.totalClasses)}
-                    className="w-full h-12 bg-primary text-primary-foreground rounded-xl font-medium disabled:opacity-40 flex items-center justify-center gap-2"
+                    className="w-full h-12 institution-btn-primary rounded-xl font-medium disabled:opacity-40 flex items-center justify-center gap-2"
                   >
                     <Send className="w-4 h-4" />
                     发送矫正通知给家长

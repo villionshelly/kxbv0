@@ -144,7 +144,7 @@ export default function RenewPage() {
                   }`}
                 >
                   {pkg.tag && pkg.tag !== '自定义' && (
-                    <span className="absolute -top-2 right-4 px-2 py-0.5 bg-primary text-white text-xs rounded-full">
+                    <span className="absolute -top-2 right-4 px-2 py-0.5 institution-btn-primary text-xs rounded-full">
                       {pkg.tag}
                     </span>
                   )}

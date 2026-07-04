@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, Camera, Video, Upload, X, Play, Sparkles, Send, CheckCircle, Image as ImageIcon, Plus, Trash2 } from 'lucide-react'
-import { todayScheduleB, students } from '@/lib/mock-data'
+import { institutionInfo, todayScheduleB, students } from '@/lib/mock-data'
 import { cn } from '@/lib/utils'
 
 export default function HighlightsPage() {
@@ -131,7 +131,7 @@ export default function HighlightsPage() {
                     className={cn(
                       'flex-shrink-0 px-4 py-2 rounded-xl text-sm font-medium transition-colors',
                       selectedClass?.id === item.id
-                        ? 'bg-secondary text-secondary-foreground'
+                        ? 'institution-btn-primary'
                         : 'bg-muted text-muted-foreground'
                     )}
                   >
@@ -207,7 +207,7 @@ export default function HighlightsPage() {
               className={cn(
                 'w-full py-4 rounded-xl font-medium flex items-center justify-center gap-2',
                 uploadedMedia.length > 0
-                  ? 'bg-primary text-primary-foreground'
+                  ? 'institution-btn-primary'
                   : 'bg-muted text-muted-foreground'
               )}
             >
@@ -264,7 +264,7 @@ export default function HighlightsPage() {
               </div>
               <div className="absolute bottom-4 left-4 right-4">
                 <div className="flex items-center gap-2 text-white text-sm">
-                  <img src="/logo.png" alt="课小宝" className="w-6 h-6 object-contain" />
+                  <img src={institutionInfo.logo} alt={institutionInfo.name} className="h-6 w-6 object-cover" />
                   <span>今日精彩瞬间 | {selectedClass?.className}</span>
                 </div>
               </div>
@@ -323,7 +323,7 @@ export default function HighlightsPage() {
               <button
                 onClick={handleSend}
                 disabled={selectedStudents.length === 0}
-                className="flex-1 py-3 bg-secondary text-secondary-foreground rounded-xl font-medium flex items-center justify-center gap-2"
+                className="flex-1 py-3 institution-btn-primary rounded-xl font-medium flex items-center justify-center gap-2"
               >
                 <Send className="w-4 h-4" />
                 发送给家长
@@ -361,7 +361,7 @@ export default function HighlightsPage() {
                   setUploadedMedia([])
                   setGeneratedVideo(null)
                 }}
-                className="w-full py-3 bg-secondary text-secondary-foreground rounded-xl font-medium"
+                className="w-full py-3 institution-btn-primary rounded-xl font-medium"
               >
                 继续发送其他班级
               </button>

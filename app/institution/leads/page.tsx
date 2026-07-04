@@ -69,7 +69,7 @@ export default function LeadsSquarePage() {
             className={cn(
               'px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors',
               filter === item.id
-                ? 'bg-secondary text-secondary-foreground'
+                ? 'institution-btn-primary'
                 : 'bg-muted text-muted-foreground'
             )}
           >
@@ -123,7 +123,7 @@ export default function LeadsSquarePage() {
                       'px-4 py-1.5 rounded-lg text-sm font-medium transition-all',
                       grabbing === lead.id
                         ? 'bg-secondary/50 text-secondary-foreground'
-                        : 'bg-secondary text-secondary-foreground hover:bg-secondary/90'
+                        : 'institution-btn-primary'
                     )}
                   >
                     {grabbing === lead.id ? '抢单中...' : '抢线索'}

@@ -73,26 +73,26 @@ export default function InstitutionProfilePage() {
   ]
 
   return (
-    <div className="flex flex-col h-full bg-background">
+    <div className="flex h-full flex-col institution-dream-bg">
       {/* Header */}
-      <header className="safe-area-top px-4 pb-6 bg-gradient-to-br from-secondary/10 to-primary/5">
+      <header className="safe-area-top px-4 pb-3">
         {/* Institution Info */}
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-2xl overflow-hidden bg-white flex items-center justify-center shadow-sm">
+          <div className="h-16 w-16 overflow-hidden rounded-3xl bg-card shadow-sm ring-2 ring-primary/15">
             <Image 
-              src="/logo.png" 
-              alt="课小宝" 
-              width={48} 
-              height={48}
-              className="object-contain"
+              src={institutionInfo.logo}
+              alt={institutionInfo.name}
+              width={64}
+              height={64}
+              className="h-full w-full object-cover"
             />
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <h2 className="text-lg font-semibold truncate">{institutionInfo.name}</h2>
+              <h2 className="truncate text-xl font-bold leading-tight">{institutionInfo.name}</h2>
             </div>
             <div className="flex items-center gap-2 mt-1">
-              <span className="flex items-center gap-1 px-2 py-0.5 bg-secondary text-secondary-foreground rounded-full text-xs font-medium">
+              <span className="flex items-center gap-1 px-2 py-0.5 bg-card text-primary rounded-full text-xs font-medium shadow-sm">
                 <Crown className="w-3 h-3" />
                 AI增长版
               </span>
@@ -101,7 +101,7 @@ export default function InstitutionProfilePage() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-4 mt-4 p-4 bg-background rounded-xl shadow-sm">
+        <div className="grid grid-cols-3 divide-x divide-border/60 mt-4 rounded-3xl bg-card p-4 card-dream">
           <div className="text-center">
             <p className="text-2xl font-bold text-secondary">{institutionInfo.studentCount}</p>
             <p className="text-xs text-muted-foreground">学员</p>
@@ -118,9 +118,9 @@ export default function InstitutionProfilePage() {
       </header>
 
       {/* Content */}
-      <div className="flex-1 overflow-auto">
+      <div className="scrollbar-quiet flex-1 overflow-auto pb-32">
         {/* AI Points Card */}
-        <div className="mx-4 mt-4 p-4 bg-gradient-to-r from-primary to-primary/80 rounded-2xl text-primary-foreground">
+        <div className="mx-4 mt-1 rounded-3xl bg-gradient-to-br from-blue-600 to-sky-500 p-4 text-white card-dream">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-primary-foreground/70 text-sm">AI积分余额</p>
@@ -128,7 +128,7 @@ export default function InstitutionProfilePage() {
             </div>
             <button 
               onClick={() => router.push('/institution/payment?tab=points')}
-              className="px-4 py-2 bg-white/20 rounded-lg text-sm font-medium hover:bg-white/30 transition-colors"
+              className="px-4 py-2 bg-white/20 rounded-full text-sm font-medium hover:bg-white/30 transition-colors"
             >
               充值
             </button>
@@ -140,22 +140,22 @@ export default function InstitutionProfilePage() {
         </div>
 
         {/* Menu List */}
-        <div className="px-4 py-4 space-y-1">
+        <div className="mx-4 mt-4 rounded-3xl bg-card p-2 card-dream">
           {menuItems.map((item, index) => (
             <button
               key={index}
               onClick={() => item.href && router.push(item.href)}
-              className="w-full flex items-center gap-4 p-3 hover:bg-muted/50 rounded-xl transition-colors"
+              className="w-full flex items-center gap-4 p-3 hover:bg-muted/45 rounded-2xl transition-colors"
             >
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
                 item.highlight 
-                  ? 'bg-secondary/10 text-secondary' 
+                  ? 'bg-primary/10 text-primary'
                   : 'bg-muted text-muted-foreground'
               }`}>
                 <item.icon className="w-5 h-5" />
               </div>
               <div className="flex-1 text-left">
-                <p className={`font-medium ${item.highlight ? 'text-secondary' : ''}`}>
+                <p className={`font-medium ${item.highlight ? 'text-primary' : ''}`}>
                   {item.label}
                 </p>
                 <p className="text-xs text-muted-foreground">{item.description}</p>
@@ -166,10 +166,10 @@ export default function InstitutionProfilePage() {
         </div>
 
         {/* Logout */}
-        <div className="px-4 pb-8">
+        <div className="px-4 pb-8 pt-4">
           <button 
             onClick={() => router.push('/institution/login')}
-            className="w-full flex items-center justify-center gap-2 p-3 text-muted-foreground hover:bg-muted/50 rounded-xl transition-colors"
+            className="w-full flex items-center justify-center gap-2 rounded-2xl bg-card/70 p-3 text-muted-foreground shadow-sm transition-colors hover:bg-card"
           >
             <LogOut className="w-5 h-5" />
             <span>退出登录</span>

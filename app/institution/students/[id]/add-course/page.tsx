@@ -82,7 +82,7 @@ export default function AddCoursePage() {
         <div className="w-full max-w-xs space-y-3">
           <button
             onClick={() => router.push(`/institution/students/${params.id}`)}
-            className="w-full h-12 bg-primary text-primary-foreground rounded-xl font-medium"
+            className="w-full h-12 institution-btn-primary rounded-xl font-medium"
           >
             返回学员详情
           </button>
@@ -119,7 +119,7 @@ export default function AddCoursePage() {
       <div className="flex items-center gap-2 px-4 py-3 bg-muted/20">
         <div className="flex items-center gap-1.5">
           <span className={cn('w-5 h-5 rounded-full text-xs flex items-center justify-center font-medium',
-            step === 'course' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground')}>
+            step === 'course' ? 'institution-btn-primary' : 'institution-btn-primary')}>
             {step === 'course' ? '1' : <CheckCircle className="w-3.5 h-3.5" />}
           </span>
           <span className={cn('text-xs', step === 'course' ? 'text-foreground font-medium' : 'text-muted-foreground')}>选择课程</span>
@@ -127,7 +127,7 @@ export default function AddCoursePage() {
         <div className="flex-1 h-px bg-border" />
         <div className="flex items-center gap-1.5">
           <span className={cn('w-5 h-5 rounded-full text-xs flex items-center justify-center font-medium',
-            step === 'session' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground')}>2</span>
+            step === 'session' ? 'institution-btn-primary' : 'bg-muted text-muted-foreground')}>2</span>
           <span className={cn('text-xs', step === 'session' ? 'text-foreground font-medium' : 'text-muted-foreground')}>选择班次</span>
         </div>
       </div>
@@ -192,7 +192,7 @@ export default function AddCoursePage() {
                     </div>
                     <button
                       onClick={() => openPurchase(course)}
-                      className="px-3 py-2 bg-primary text-primary-foreground rounded-lg text-xs font-medium flex items-center gap-1 shrink-0"
+                      className="px-3 py-2 institution-btn-primary rounded-lg text-xs font-medium flex items-center gap-1 shrink-0"
                     >
                       <Plus className="w-3.5 h-3.5" />
                       购买
@@ -276,7 +276,7 @@ export default function AddCoursePage() {
             <button
               onClick={handleJoinSession}
               disabled={!selectedSession}
-              className="w-full h-12 bg-primary text-primary-foreground rounded-xl font-medium mt-4 disabled:opacity-40"
+              className="w-full h-12 institution-btn-primary rounded-xl font-medium mt-4 disabled:opacity-40"
             >
               确认加入班级
             </button>
@@ -353,7 +353,7 @@ export default function AddCoursePage() {
               <button
                 onClick={handlePurchaseConfirm}
                 disabled={!purchaseClasses || !purchaseAmount}
-                className="w-full h-12 bg-primary text-primary-foreground rounded-xl font-medium disabled:opacity-40"
+                className="w-full h-12 institution-btn-primary rounded-xl font-medium disabled:opacity-40"
               >
                 确认购买并选择班次
               </button>

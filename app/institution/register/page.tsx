@@ -208,7 +208,7 @@ export default function InstitutionRegisterPage() {
         <button
           onClick={handleSubmit}
           disabled={step === 'info' ? !canProceed : verifyCode.length < 6}
-          className="w-full h-12 bg-secondary text-secondary-foreground rounded-xl font-medium disabled:opacity-40 transition-opacity"
+          className="w-full h-12 institution-btn-primary rounded-xl font-medium disabled:opacity-40 transition-opacity"
         >
           {step === 'info' ? '下一步' : '完成注册'}
         </button>

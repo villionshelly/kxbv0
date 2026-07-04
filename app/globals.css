@@ -9,6 +9,13 @@
   --kxb-blue: #0E70C0;
   --kxb-gray: #C4C7C5;
   --kxb-deep-blue: #004172;
+  --institution-action-bg: #dbeafe;
+  --institution-action-bg-hover: #cfe3fb;
+  --institution-action-fg: #1d4f8f;
+  --institution-action-ring: rgba(96, 165, 250, 0.28);
+  --institution-chat-user-bg: #eef7ff;
+  --institution-chat-user-border: #d7eafe;
+  --institution-chat-user-fg: #172033;
   
   --background: oklch(0.99 0 0);
   --foreground: oklch(0.18 0.02 250);
@@ -155,6 +162,8 @@
   overflow: hidden;
   position: relative;
   flex-shrink: 0;
+  transform: translateZ(0);
+  contain: paint;
 }
 
 @media (max-width: 430px) {
@@ -193,12 +202,75 @@
   pointer-events: none !important;
 }
 
+.mobile-frame[data-global-quick-nav='true'] .mobile-content-area {
+  margin-top: var(--kxb-mp-header-height);
+  min-height: 0;
+  scroll-padding-top: var(--kxb-mp-header-height);
+  overscroll-behavior: contain;
+}
+
 .mobile-frame[data-global-quick-nav='true'] .safe-area-top {
+  padding-top: 0;
+}
+
+.institution-frame[data-root-tab-page='true'] .safe-area-top {
+  position: relative;
   padding-top: var(--kxb-mp-header-height);
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    linear-gradient(135deg, rgba(222, 237, 255, 0.92) 0%, rgba(243, 248, 255, 0.88) 46%, rgba(255, 255, 255, 0.76) 100%),
+    repeating-linear-gradient(135deg, rgba(56, 121, 202, 0.07) 0 1px, transparent 1px 12px);
+  border-bottom: 1px solid rgba(173, 205, 241, 0.32);
+  box-shadow: 0 16px 34px -34px rgba(37, 99, 155, 0.55);
+}
+
+.institution-frame[data-root-tab-page='true'] .safe-area-top::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(90deg, transparent 0 58%, rgba(255, 255, 255, 0.42) 58% 100%),
+    repeating-linear-gradient(90deg, rgba(37, 99, 235, 0.045) 0 1px, transparent 1px 20px);
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.92), rgba(0, 0, 0, 0.18));
+}
+
+.institution-frame[data-root-tab-page='true'] .safe-area-top::after {
+  content: '';
+  position: absolute;
+  left: 16px;
+  right: 128px;
+  top: calc(var(--kxb-mp-status-bar-height) + 10px);
+  z-index: -1;
+  height: 24px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.28);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.44);
 }
 
 .subpage-top-nav {
   color: color-mix(in oklab, var(--foreground) 92%, var(--kxb-deep-blue) 8%);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0.94)),
+    color-mix(in oklab, var(--background) 90%, white 10%);
+  border-bottom: 1px solid color-mix(in oklab, var(--border) 78%, transparent);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 10px 22px -26px rgba(15, 23, 42, 0.35);
+}
+
+.institution-frame .subpage-top-nav {
+  background:
+    linear-gradient(180deg, rgba(229, 241, 255, 0.98) 0%, rgba(240, 247, 255, 0.96) 100%),
+    #eef6ff;
+  border-bottom-color: rgba(181, 209, 242, 0.52);
+  box-shadow: 0 10px 20px -24px rgba(37, 99, 155, 0.42);
+}
+
+.subpage-top-nav[data-tone='warm'] {
+  background: linear-gradient(180deg, #fce7d4 0%, #fdf1e6 100%);
+  border-bottom-color: rgba(248, 126, 49, 0.12);
+  box-shadow: 0 12px 28px -26px rgba(232, 122, 52, 0.52);
 }
 
 .subpage-top-nav__title {
@@ -248,6 +320,21 @@
   stroke: currentColor;
 }
 
+.mobile-frame button,
+.mobile-frame a,
+.mobile-frame input,
+.mobile-frame textarea,
+.mobile-frame select {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.mobile-frame .safe-area-bottom,
+.mobile-frame .tab-bar {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
 .dark .subpage-quick-nav {
   color: color-mix(in oklab, var(--foreground) 94%, white 6%);
 }
@@ -274,7 +361,7 @@
 /* Tab bar styling */
 .tab-bar {
   backdrop-filter: blur(20px);
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(248, 250, 255, 0.98);
 }
 
 /* Shield shape for icons (VI element) */
@@ -289,6 +376,44 @@
 
 .warm-header {
   background: linear-gradient(180deg, #fce7d4 0%, #fdf1e6 100%);
+}
+
+/* Institution app cool dreamy theme */
+.institution-dream-bg {
+  background:
+    linear-gradient(180deg, rgba(224, 238, 255, 0.72) 0%, rgba(224, 238, 255, 0) 168px),
+    #f6f8fb;
+}
+
+.card-dream {
+  box-shadow: 0 12px 30px -22px rgba(30, 64, 120, 0.28);
+}
+
+/* Institution-side low-key blue action system.
+   Use for tappable primary actions; chat/user bubbles stay separate. */
+.institution-btn-primary {
+  background: var(--institution-action-bg);
+  color: var(--institution-action-fg);
+  box-shadow: inset 0 0 0 1px var(--institution-action-ring);
+}
+
+.institution-btn-primary:hover {
+  background: var(--institution-action-bg-hover);
+}
+
+.institution-btn-primary:active {
+  background: var(--institution-action-bg-hover);
+  transform: scale(0.99);
+}
+
+.institution-btn-primary:disabled {
+  opacity: 0.4;
+}
+
+.institution-chat-user-bubble {
+  border: 1px solid var(--institution-chat-user-border);
+  background: var(--institution-chat-user-bg);
+  color: var(--institution-chat-user-fg);
 }
 
 .assistant-page-texture {

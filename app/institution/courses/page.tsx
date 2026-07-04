@@ -105,7 +105,7 @@ function CourseFormModal({
                     onClick={() => { setCategory(cat); setColor(categoryColors[cat] ?? '#6B7280') }}
                     className={cn(
                       'px-3 py-1.5 rounded-lg text-sm transition-colors',
-                      category === cat ? 'bg-primary text-primary-foreground' : 'bg-muted/50 text-muted-foreground hover:bg-muted'
+                      category === cat ? 'institution-btn-primary' : 'bg-muted/50 text-muted-foreground hover:bg-muted'
                     )}
                   >{cat}</button>
                 ))}
@@ -231,7 +231,7 @@ function CourseFormModal({
             <button
               onClick={handleSave}
               disabled={!canSave}
-              className="w-full h-12 bg-primary text-primary-foreground rounded-xl font-medium disabled:opacity-40"
+              className="w-full h-12 institution-btn-primary rounded-xl font-medium disabled:opacity-40"
             >
               保存课程
             </button>
@@ -280,7 +280,7 @@ export default function InstitutionCoursesPage() {
         <h1 className="text-base font-semibold flex-1">课程管理</h1>
         <button
           onClick={() => { setEditCourse(undefined); setShowForm(true) }}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium"
+          className="flex items-center gap-1.5 px-3 py-1.5 institution-btn-primary rounded-lg text-sm font-medium"
         >
           <Plus className="w-4 h-4" />
           新建课程
@@ -295,7 +295,7 @@ export default function InstitutionCoursesPage() {
             onClick={() => setFilter(cat)}
             className={cn(
               'px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-colors shrink-0',
-              filter === cat ? 'bg-primary text-primary-foreground' : 'bg-muted/50 text-muted-foreground'
+              filter === cat ? 'institution-btn-primary' : 'bg-muted/50 text-muted-foreground'
             )}
           >{cat}</button>
         ))}

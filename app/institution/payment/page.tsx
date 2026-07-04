@@ -178,7 +178,7 @@ export default function InstitutionPaymentPage() {
                           <div className="flex items-center gap-2">
                             <span className="font-semibold">{plan.name}</span>
                             {plan.popular && (
-                              <span className="px-1.5 py-0.5 bg-secondary text-secondary-foreground text-xs rounded font-medium">
+                              <span className="px-1.5 py-0.5 institution-btn-primary text-xs rounded font-medium">
                                 推荐
                               </span>
                             )}
@@ -298,7 +298,7 @@ export default function InstitutionPaymentPage() {
             <button
               onClick={handlePay}
               disabled={selectedPlan === 'trial'}
-              className="px-8 h-12 bg-secondary text-secondary-foreground rounded-xl font-medium disabled:opacity-40"
+              className="px-8 h-12 institution-btn-primary rounded-xl font-medium disabled:opacity-40"
             >
               {selectedPlan === 'trial' ? '免费使用' : '立即订阅'}
             </button>

@@ -140,7 +140,7 @@ export default function InstitutionLoginPage() {
                 <button
                   onClick={sendCode}
                   disabled={phone.length !== 11}
-                  className="w-full h-12 bg-secondary text-secondary-foreground rounded-xl font-medium disabled:opacity-40 transition-all"
+                  className="w-full h-12 institution-btn-primary rounded-xl font-medium disabled:opacity-40 transition-all"
                 >
                   获取验证码
                 </button>
@@ -203,7 +203,7 @@ export default function InstitutionLoginPage() {
                 <button
                   onClick={verifyCode}
                   disabled={code.length !== 6}
-                  className="w-full h-12 bg-secondary text-secondary-foreground rounded-xl font-medium disabled:opacity-40 transition-all"
+                  className="w-full h-12 institution-btn-primary rounded-xl font-medium disabled:opacity-40 transition-all"
                 >
                   登录 / 注册
                 </button>
@@ -257,7 +257,7 @@ export default function InstitutionLoginPage() {
                         onClick={() => setCategory(c)}
                         className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${
                           category === c
-                            ? 'bg-secondary text-secondary-foreground'
+                            ? 'institution-btn-primary'
                             : 'bg-muted/50 text-muted-foreground hover:bg-muted'
                         }`}
                       >
@@ -284,7 +284,7 @@ export default function InstitutionLoginPage() {
                 <button
                   onClick={completeRegister}
                   disabled={!institutionName.trim() || !ownerName.trim()}
-                  className="w-full h-12 bg-secondary text-secondary-foreground rounded-xl font-medium disabled:opacity-40 transition-all"
+                  className="w-full h-12 institution-btn-primary rounded-xl font-medium disabled:opacity-40 transition-all"
                 >
                   完成注册，开始使用
                 </button>

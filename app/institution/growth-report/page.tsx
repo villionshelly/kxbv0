@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, Sparkles, Send, CheckCircle, Clock, FileText, RefreshCw, Eye } from 'lucide-react'
-import { growthReports, students } from '@/lib/mock-data'
+import { growthReports, institutionInfo, students } from '@/lib/mock-data'
 import { cn } from '@/lib/utils'
 
 export default function GrowthReportPage() {
@@ -94,7 +94,7 @@ export default function GrowthReportPage() {
           <Sparkles className="w-4 h-4" />
           一键生成全部
         </button>
-        <button className="flex-1 flex items-center justify-center gap-2 py-2 bg-secondary text-secondary-foreground rounded-lg text-sm font-medium">
+        <button className="flex-1 flex items-center justify-center gap-2 py-2 institution-btn-primary rounded-lg text-sm font-medium">
           <Send className="w-4 h-4" />
           一键发送全部
         </button>
@@ -187,7 +187,7 @@ export default function GrowthReportPage() {
                       <button
                         onClick={() => handleSend(report.id)}
                         disabled={sending === report.id}
-                        className="flex-1 flex items-center justify-center gap-2 py-2 bg-secondary text-secondary-foreground rounded-lg text-sm font-medium"
+                        className="flex-1 flex items-center justify-center gap-2 py-2 institution-btn-primary rounded-lg text-sm font-medium"
                       >
                         {sending === report.id ? (
                           '发送中...'
@@ -258,7 +258,7 @@ export default function GrowthReportPage() {
 
               <div className="flex items-center justify-between pt-4 border-t border-border">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <img src="/logo.png" alt="课小宝" className="w-6 h-6" />
+                  <img src={institutionInfo.logo} alt={institutionInfo.name} className="h-6 w-6 object-cover" />
                   <span>课小宝AI教培管理</span>
                 </div>
                 <span className="text-xs text-muted-foreground">

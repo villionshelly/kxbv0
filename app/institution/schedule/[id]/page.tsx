@@ -100,7 +100,7 @@ export default function AttendancePage() {
         <div className="w-full max-w-xs space-y-3">
           <button
             onClick={() => router.push('/institution')}
-            className="w-full h-12 bg-primary text-primary-foreground rounded-xl font-medium"
+            className="w-full h-12 institution-btn-primary rounded-xl font-medium"
           >
             返回首页
           </button>
@@ -242,7 +242,7 @@ export default function AttendancePage() {
         {phase === 'checkin' ? (
           <button
             onClick={handleConfirmCheckIn}
-            className="w-full h-12 bg-secondary text-secondary-foreground rounded-xl font-medium"
+            className="w-full h-12 institution-btn-primary rounded-xl font-medium"
           >
             确认核销（到课 {attendedCount} 人）
           </button>
@@ -252,7 +252,7 @@ export default function AttendancePage() {
             return (
               <button
                 onClick={() => setAllDone(true)}
-                className="w-full h-12 bg-primary text-primary-foreground rounded-xl font-medium"
+                className="w-full h-12 institution-btn-primary rounded-xl font-medium"
               >
                 {pendingFeedback > 0 ? `稍后反馈（还剩 ${pendingFeedback} 人未反馈）` : '完成'}
               </button>

@@ -75,7 +75,7 @@ export default function TeacherPhotoAttendancePage() {
             <div className="text-center"><p className="text-xl font-bold text-red-500">{absentCount}</p><p className="text-muted-foreground">缺勤</p></div>
           </div>
           <button onClick={() => router.push('/institution/teacher')}
-            className="mt-4 px-8 h-12 bg-primary text-primary-foreground rounded-2xl font-medium">
+            className="mt-4 px-8 h-12 institution-btn-primary rounded-2xl font-medium">
             返回首页
           </button>
         </div>
@@ -155,7 +155,7 @@ export default function TeacherPhotoAttendancePage() {
             disabled={scanning || !session}
             className={cn(
               'w-full h-12 rounded-2xl font-medium flex items-center justify-center gap-2 transition-all',
-              scanning ? 'bg-muted text-muted-foreground' : 'bg-secondary text-secondary-foreground'
+              scanning ? 'bg-muted text-muted-foreground' : 'institution-btn-primary'
             )}
           >
             {scanDone ? (
@@ -212,7 +212,7 @@ export default function TeacherPhotoAttendancePage() {
       {scanDone && (
         <div className="px-4 py-4 border-t border-border bg-background safe-area-bottom">
           <button onClick={handleSave}
-            className="w-full h-12 bg-primary text-primary-foreground rounded-2xl font-medium">
+            className="w-full h-12 institution-btn-primary rounded-2xl font-medium">
             确认提交点名（{attendedCount}人到课）
           </button>
         </div>

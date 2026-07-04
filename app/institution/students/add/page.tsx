@@ -2,9 +2,11 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, UserPlus, QrCode, Link2, CheckCircle, ChevronDown, Plus } from 'lucide-react'
+import { ArrowLeft, UserPlus, QrCode, Link2, CheckCircle, Plus } from 'lucide-react'
 import { classes } from '@/lib/mock-data'
 import { cn } from '@/lib/utils'
+
+const parentRelationOptions = ['爸爸', '妈妈', '爷爷', '奶奶', '其他'] as const
 
 const coursePackages = [
   { id: 'p1', name: '钢琴启蒙', classes: 48, price: 7200 },
@@ -21,6 +23,8 @@ export default function AddStudentPage() {
   // Form fields
   const [name, setName] = useState('')
   const [parentName, setParentName] = useState('')
+  const [parentRelation, setParentRelation] = useState<typeof parentRelationOptions[number] | ''>('')
+  const [customParentRelation, setCustomParentRelation] = useState('')
   const [phone, setPhone] = useState('')
   const [gender, setGender] = useState<'male' | 'female' | ''>('')
   const [birthYear, setBirthYear] = useState('')
@@ -37,7 +41,10 @@ export default function AddStudentPage() {
   const [isTransfer, setIsTransfer] = useState(false)
   const [alreadyUsedClasses, setAlreadyUsedClasses] = useState('')
 
-  const canProceedBasic = name.trim() && parentName.trim() && phone.trim().length === 11
+  const actualParentRelation = parentRelation === '其他' ? customParentRelation.trim() : parentRelation
+  const resolvedParentName = parentName.trim() || (name.trim() && actualParentRelation ? `${name.trim()}${actualParentRelation}` : '')
+  const phoneDigits = phone.trim()
+  const canProceedBasic = Boolean(name.trim()) && Boolean(actualParentRelation) && (phoneDigits === '' || phoneDigits.length === 11)
 
   const handleDone = () => {
     setStep('done')
@@ -52,7 +59,7 @@ export default function AddStudentPage() {
         </div>
         <h2 className="text-xl font-bold mb-2">学员已添加</h2>
         <p className="text-muted-foreground text-sm">
-          {name} 已成功入班，入班通知已发送给 {parentName}
+          {name} 已成功入班，入班通知已发送给 {resolvedParentName}
         </p>
       </div>
     )
@@ -157,7 +164,7 @@ export default function AddStudentPage() {
                   onClick={() => setGender(g)}
                   className={cn(
                     'flex-1 h-11 rounded-xl text-sm font-medium transition-colors',
-                    gender === g ? 'bg-primary text-primary-foreground' : 'bg-muted/40 text-muted-foreground'
+                    gender === g ? 'institution-btn-primary' : 'bg-muted/40 text-muted-foreground'
                   )}
                 >
                   {g === 'male' ? '男' : '女'}
@@ -181,25 +188,62 @@ export default function AddStudentPage() {
             <p className="text-sm font-medium text-muted-foreground mb-3">家长信息</p>
             <div className="space-y-3">
               <div>
-                <label className="text-xs text-muted-foreground block mb-1.5">家长姓名 *</label>
+                <label className="text-xs text-muted-foreground block mb-1.5">家长姓名（选填）</label>
                 <input
                   type="text"
-                  placeholder="请输入家长姓名"
+                  placeholder="不填时自动使用 学员姓名+称谓"
                   value={parentName}
                   onChange={e => setParentName(e.target.value)}
                   className="w-full h-11 px-4 bg-muted/40 rounded-xl text-sm outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
               <div>
-                <label className="text-xs text-muted-foreground block mb-1.5">手机号码 *</label>
+                <label className="text-xs text-muted-foreground block mb-1.5">称谓 *</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {parentRelationOptions.map(relation => (
+                    <button
+                      key={relation}
+                      type="button"
+                      onClick={() => setParentRelation(relation)}
+                      className={cn(
+                        'h-10 rounded-xl text-sm font-medium transition-colors',
+                        parentRelation === relation
+                          ? 'institution-btn-primary'
+                          : 'bg-muted/40 text-muted-foreground'
+                      )}
+                    >
+                      {relation}
+                    </button>
+                  ))}
+                </div>
+                {parentRelation === '其他' && (
+                  <input
+                    type="text"
+                    placeholder="请输入称谓，如：姑姑、外婆"
+                    value={customParentRelation}
+                    onChange={e => setCustomParentRelation(e.target.value)}
+                    className="mt-2 w-full h-11 px-4 bg-muted/40 rounded-xl text-sm outline-none focus:ring-2 focus:ring-primary/20"
+                  />
+                )}
+                {resolvedParentName && (
+                  <p className="mt-1.5 text-xs text-muted-foreground">
+                    家长显示名：{resolvedParentName}
+                  </p>
+                )}
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground block mb-1.5">手机号码（选填）</label>
                 <input
                   type="tel"
-                  placeholder="请输入11位手机号"
+                  placeholder="请输入11位手机号，可稍后补充"
                   value={phone}
-                  onChange={e => setPhone(e.target.value)}
+                  onChange={e => setPhone(e.target.value.replace(/\D/g, '').slice(0, 11))}
                   maxLength={11}
                   className="w-full h-11 px-4 bg-muted/40 rounded-xl text-sm outline-none focus:ring-2 focus:ring-primary/20"
                 />
+                {phoneDigits && phoneDigits.length !== 11 && (
+                  <p className="mt-1.5 text-xs text-destructive">手机号需为 11 位，或留空稍后补充</p>
+                )}
               </div>
             </div>
           </div>
@@ -479,7 +523,7 @@ export default function AddStudentPage() {
             <button
               onClick={() => setStep('class')}
               disabled={!canProceedBasic}
-              className="w-full h-12 bg-primary text-primary-foreground rounded-xl font-medium disabled:opacity-40 transition-opacity"
+              className="w-full h-12 institution-btn-primary rounded-xl font-medium disabled:opacity-40 transition-opacity"
             >
               下一步
             </button>
@@ -495,7 +539,7 @@ export default function AddStudentPage() {
               <button
                 onClick={() => setStep('course')}
                 disabled={!selectedClass}
-                className="flex-1 h-12 bg-primary text-primary-foreground rounded-xl font-medium disabled:opacity-40"
+                className="flex-1 h-12 institution-btn-primary rounded-xl font-medium disabled:opacity-40"
               >
                 下一步
               </button>
@@ -511,7 +555,7 @@ export default function AddStudentPage() {
               </button>
               <button
                 onClick={handleDone}
-                className="flex-1 h-12 bg-primary text-primary-foreground rounded-xl font-medium"
+                className="flex-1 h-12 institution-btn-primary rounded-xl font-medium"
               >
                 完成
               </button>

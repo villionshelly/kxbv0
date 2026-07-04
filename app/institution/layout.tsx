@@ -1,17 +1,46 @@
 'use client'
 
 import Link from 'next/link'
+import Image, { type StaticImageData } from 'next/image'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Users, Calendar, BarChart3, User, Sparkles } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { SubpageQuickNav } from '@/components/subpage-quick-nav'
+import navWorkbenchSelected from '@/png_256/nav_workbench_selected.png'
+import navWorkbenchUnselected from '@/png_256/nav_workbench_unselected.png'
+import navStudentsSelected from '@/png_256/nav_students_selected.png'
+import navStudentsUnselected from '@/png_256/nav_students_unselected.png'
+import navScheduleSelected from '@/png_256/nav_schedule_selected.png'
+import navScheduleUnselected from '@/png_256/nav_schedule_unselected.png'
+import navProfileSelected from '@/png_256/nav_profile_selected.png'
+import navProfileUnselected from '@/png_256/nav_profile_unselected.png'
 
-const tabs = [
-  { id: 'home', label: '工作台', icon: LayoutDashboard, href: '/institution' },
-  { id: 'students', label: '学员', icon: Users, href: '/institution/students' },
-  { id: 'assistant', label: 'AI助理', icon: Sparkles, href: '/institution/assistant', highlight: true },
-  { id: 'schedule', label: '排课', icon: Calendar, href: '/institution/schedule' },
-  { id: 'profile', label: '我的', icon: User, href: '/institution/profile' },
+const aiAssistantIcon = '/images/ai/ai_crab_加油加油.gif'
+const tabIconSize = 37
+const aiAssistantIconSize = 53
+
+type TabItem = {
+  id: 'home' | 'students' | 'assistant' | 'schedule' | 'profile'
+  label: string
+  href: string
+} & (
+  | {
+      iconSrc: string
+      selectedIcon?: never
+      unselectedIcon?: never
+    }
+  | {
+      iconSrc?: never
+      selectedIcon: StaticImageData
+      unselectedIcon: StaticImageData
+    }
+)
+
+const tabs: TabItem[] = [
+  { id: 'home', label: '工作台', href: '/institution', selectedIcon: navWorkbenchSelected, unselectedIcon: navWorkbenchUnselected },
+  { id: 'students', label: '学员', href: '/institution/students', selectedIcon: navStudentsSelected, unselectedIcon: navStudentsUnselected },
+  { id: 'assistant', label: 'AI助理', href: '/institution/assistant', iconSrc: aiAssistantIcon },
+  { id: 'schedule', label: '排课', href: '/institution/schedule', selectedIcon: navScheduleSelected, unselectedIcon: navScheduleUnselected },
+  { id: 'profile', label: '我的', href: '/institution/profile', selectedIcon: navProfileSelected, unselectedIcon: navProfileUnselected },
 ]
 
 export default function InstitutionLayout({
@@ -32,49 +61,55 @@ export default function InstitutionLayout({
 
   // Hide tab bar on all sub-detail pages and assistant page
   const rootPaths = ['/institution', '/institution/students', '/institution/schedule', '/institution/profile']
+  const isRootTabPath = rootPaths.includes(pathname)
+  const showSubpageNav = !rootPaths.includes(pathname)
   const hideTabBar = pathname.includes('/login') || pathname.includes('/payment') || pathname.includes('/assistant') || !rootPaths.includes(pathname)
 
   return (
     <div className="min-h-screen bg-muted/30 flex items-start justify-center">
-      <div className="mobile-frame bg-background flex flex-col">
+      <div
+        className="mobile-frame institution-frame bg-background flex flex-col"
+        data-root-tab-page={isRootTabPath ? 'true' : undefined}
+        style={{ transform: 'translateZ(0)', contain: 'paint' }}
+      >
         <SubpageQuickNav section="institution" />
         {/* Content Area */}
-        <div className="flex-1 overflow-auto">
+        <div
+          className="mobile-content-area scrollbar-quiet flex-1 overflow-auto"
+          style={showSubpageNav ? { marginTop: 'var(--kxb-mp-header-height)', minHeight: 0 } : { minHeight: 0 }}
+        >
           {children}
         </div>
 
         {/* Tab Bar - Hidden on detail pages */}
         {!hideTabBar && (
-        <div className="tab-bar border-t border-border safe-area-bottom">
-          <nav className="flex items-center justify-around h-14">
+        <div className="tab-bar border-t border-white/70 safe-area-bottom shadow-[0_-14px_34px_-24px_rgba(232,122,52,0.58)]">
+          <nav className="flex items-center justify-around h-[72px]">
             {tabs.map((tab) => {
               const isActive = getActiveTab() === tab.id
-              const isHighlight = 'highlight' in tab && tab.highlight
+              const iconSize = tab.iconSrc ? aiAssistantIconSize : tabIconSize
               return (
                 <Link
                   key={tab.id}
                   href={tab.href}
                   className={cn(
                     'flex flex-col items-center justify-center gap-0.5 w-14 py-1 transition-colors',
-                    isActive 
-                      ? isHighlight ? 'text-secondary' : 'text-secondary' 
-                      : isHighlight ? 'text-secondary/70' : 'text-muted-foreground'
+                    isActive ? 'text-secondary' : 'text-muted-foreground'
                   )}
                 >
-                  {isHighlight ? (
-                    <div className={cn(
-                      'w-8 h-8 rounded-full flex items-center justify-center -mt-3',
-                      isActive ? 'bg-secondary' : 'bg-secondary/80'
-                    )}>
-                      <tab.icon className="w-4 h-4 text-white" />
-                    </div>
-                  ) : (
-                    <tab.icon className={cn('w-5 h-5', isActive && 'stroke-[2.5]')} />
-                  )}
-                  <span className={cn(
-                    'text-[10px] font-medium',
-                    isHighlight && '-mt-0.5'
-                  )}>{tab.label}</span>
+                  <Image
+                    src={tab.iconSrc ?? (isActive ? tab.selectedIcon : tab.unselectedIcon)}
+                    alt=""
+                    width={iconSize}
+                    height={iconSize}
+                    unoptimized={Boolean(tab.iconSrc)}
+                    className={cn(
+                      'object-contain',
+                      tab.iconSrc ? 'h-[53px] w-[53px]' : 'h-[37px] w-[37px]'
+                    )}
+                    aria-hidden="true"
+                  />
+                  <span className="text-[10px] font-medium">{tab.label}</span>
                 </Link>
               )
             })}
