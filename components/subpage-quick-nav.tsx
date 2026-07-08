@@ -27,6 +27,7 @@ const routeTitleOverrides: Array<[RegExp, string]> = [
   [/^\/parent\/assistant$/, 'AI助理'],
   [/^\/institution\/assistant$/, 'AI助理'],
   [/^\/institution\/teacher\/assistant$/, 'AI助理'],
+  [/^\/institution\/contracts$/, '合同管理'],
   [/^\/institution\/profile$/, '我的'],
   [/^\/institution\/profile\/institution-info$/, '机构信息'],
   [/^\/institution\/profile\/account$/, '个人资料'],

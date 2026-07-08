@@ -4,72 +4,16 @@ import { useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { ArrowLeft, Plus, CheckCircle, XCircle, X, Edit3, Send, Clock, AlertTriangle, Wallet, ChevronDown } from 'lucide-react'
 import { students, courseCatalog } from '@/lib/mock-data'
+import { type PurchaseRecord, type PurchaseRecordStatus, useStudentPurchaseRecords } from '@/lib/purchase-record-store'
 import { cn } from '@/lib/utils'
-
-type RecordStatus = 'active' | 'completed' | 'refunded'
-type PurchaseRecord = {
-  id: string
-  date: string
-  packageName: string
-  amount: number
-  totalClasses: number
-  usedClasses: number
-  remainingClasses: number
-  unitPrice: number
-  status: RecordStatus
-  note: string
-  source: 'manual' | 'system'
-}
-
-// Mock purchase records
-const initialPurchaseRecords: PurchaseRecord[] = [
-  {
-    id: 'pr1',
-    date: '2025-01-15',
-    packageName: '钢琴启蒙课包',
-    amount: 3000,
-    totalClasses: 34,
-    usedClasses: 34,
-    remainingClasses: 0,
-    unitPrice: 88,
-    status: 'completed',
-    note: '首次购买，9月消费完成',
-    source: 'manual',
-  },
-  {
-    id: 'pr2',
-    date: '2025-10-08',
-    packageName: '钢琴启蒙续费',
-    amount: 1000,
-    totalClasses: 12,
-    usedClasses: 0,
-    remainingClasses: 12,
-    unitPrice: 83,
-    status: 'active',
-    note: '迁移系统后续费，课时在系统消课',
-    source: 'manual',
-  },
-  {
-    id: 'pr3',
-    date: '2026-03-20',
-    packageName: '钢琴进阶课包',
-    amount: 4800,
-    totalClasses: 48,
-    usedClasses: 6,
-    remainingClasses: 42,
-    unitPrice: 100,
-    status: 'active',
-    note: '系统续费邀请成功',
-    source: 'system',
-  },
-]
 
 export default function PurchaseRecordsPage() {
   const params = useParams()
   const router = useRouter()
   const student = students.find(s => s.id === params.id) || students[0]
+  const studentId = String(params.id || student.id)
 
-  const [purchaseRecords, setPurchaseRecords] = useState<PurchaseRecord[]>(initialPurchaseRecords)
+  const { records: purchaseRecords, setPurchaseRecords } = useStudentPurchaseRecords(studentId)
   const [showAddPurchase, setShowAddPurchase] = useState(false)
   const [showCourseDropdown, setShowCourseDropdown] = useState(false)
   const [showRefund, setShowRefund] = useState<PurchaseRecord | null>(null)
@@ -84,8 +28,10 @@ export default function PurchaseRecordsPage() {
   const [newAmount, setNewAmount] = useState('')
   const [newTotalClassesInput, setNewTotalClassesInput] = useState('')
   const [newUsedClasses, setNewUsedClasses] = useState('')
+  const [newValidFrom, setNewValidFrom] = useState('')
+  const [newValidTo, setNewValidTo] = useState('')
   const [newNote, setNewNote] = useState('')
-  const [newStatus, setNewStatus] = useState<RecordStatus>('active')
+  const [newStatus, setNewStatus] = useState<PurchaseRecordStatus>('active')
 
   // Refund form
   const [refundReason, setRefundReason] = useState('')
@@ -104,8 +50,14 @@ export default function PurchaseRecordsPage() {
   const totalPaid = purchaseRecords.filter(r => r.status !== 'refunded').reduce((sum, r) => sum + r.amount, 0)
   const totalRefunded = purchaseRecords.filter(r => r.status === 'refunded').reduce((sum, r) => sum + r.amount, 0)
 
+  const getCourseNameFromPackage = (packageName: string) => {
+    const matchedCourse = courseCatalog.find(course => packageName.includes(course.name))
+    return matchedCourse?.name || packageName.replace(/(课包|续费|课程)$/g, '') || packageName
+  }
+
   const handleAddPurchase = () => {
-    if (!newPurchaseDate || !newPackageName || !newAmount || !newTotalClassesInput) return
+    if (!newPurchaseDate || !newPackageName || !newAmount || !newTotalClassesInput || !newValidFrom || !newValidTo) return
+    if (newValidTo < newValidFrom) return
 
     const totalCls = Number(newTotalClassesInput)
     const usedCls = Number(newUsedClasses) || 0
@@ -114,13 +66,18 @@ export default function PurchaseRecordsPage() {
 
     const newRecord: PurchaseRecord = {
       id: `pr${Date.now()}`,
+      studentId,
       date: newPurchaseDate,
+      courseName: getCourseNameFromPackage(newPackageName),
       packageName: newPackageName,
       amount: Number(newAmount),
       totalClasses: totalCls,
       usedClasses: usedCls,
       remainingClasses: remainingCls,
       unitPrice,
+      validFrom: newValidFrom,
+      validTo: newValidTo,
+      validPeriod: `${newValidFrom} 至 ${newValidTo}`,
       status: remainingCls === 0 ? 'completed' : newStatus,
       note: newNote,
       source: 'manual',
@@ -137,6 +94,8 @@ export default function PurchaseRecordsPage() {
     setNewAmount('')
     setNewTotalClassesInput('')
     setNewUsedClasses('')
+    setNewValidFrom('')
+    setNewValidTo('')
     setNewNote('')
     setNewStatus('active')
     setShowCourseDropdown(false)
@@ -206,7 +165,7 @@ export default function PurchaseRecordsPage() {
     setCorrectionReason('')
   }
 
-  const getStatusBadge = (status: RecordStatus) => {
+  const getStatusBadge = (status: PurchaseRecordStatus) => {
     switch (status) {
       case 'active':
         return <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">进行中</span>
@@ -283,6 +242,7 @@ export default function PurchaseRecordsPage() {
                     )}
                   </div>
                   <p className="text-sm text-muted-foreground mt-1">{record.date}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">有效期：{record.validPeriod}</p>
                 </div>
                 <div className="text-right">
                   <p className={cn(
@@ -388,7 +348,10 @@ export default function PurchaseRecordsPage() {
                 <input
                   type="date"
                   value={newPurchaseDate}
-                  onChange={e => setNewPurchaseDate(e.target.value)}
+                  onChange={e => {
+                    setNewPurchaseDate(e.target.value)
+                    if (!newValidFrom) setNewValidFrom(e.target.value)
+                  }}
                   className="w-full h-11 px-4 bg-muted/40 rounded-xl text-sm outline-none focus:ring-2 focus:ring-primary/20"
                 />
                 <p className="text-xs text-muted-foreground mt-1">支持录入历史日期（如去年的付款记录）</p>
@@ -491,6 +454,30 @@ export default function PurchaseRecordsPage() {
               </div>
 
               <div>
+                <label className="text-xs text-muted-foreground block mb-1.5">课包有效期 *</label>
+                <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+                  <input
+                    type="date"
+                    value={newValidFrom}
+                    onChange={e => setNewValidFrom(e.target.value)}
+                    className="h-11 min-w-0 rounded-xl bg-muted/40 px-3 text-sm outline-none focus:ring-2 focus:ring-primary/20"
+                  />
+                  <span className="text-xs text-muted-foreground">至</span>
+                  <input
+                    type="date"
+                    value={newValidTo}
+                    min={newValidFrom || undefined}
+                    onChange={e => setNewValidTo(e.target.value)}
+                    className="h-11 min-w-0 rounded-xl bg-muted/40 px-3 text-sm outline-none focus:ring-2 focus:ring-primary/20"
+                  />
+                </div>
+                {newValidFrom && newValidTo && newValidTo < newValidFrom && (
+                  <p className="mt-1 text-xs text-red-500">结束日期不能早于开始日期</p>
+                )}
+                <p className="text-xs text-muted-foreground mt-1">创建模板合同时会自动作为服务周期带入。</p>
+              </div>
+
+              <div>
                 <label className="text-xs text-muted-foreground block mb-1.5">记录状态</label>
                 <div className="flex gap-2">
                   {[
@@ -499,7 +486,7 @@ export default function PurchaseRecordsPage() {
                   ].map(opt => (
                     <button
                       key={opt.value}
-                      onClick={() => setNewStatus(opt.value as RecordStatus)}
+                      onClick={() => setNewStatus(opt.value as PurchaseRecordStatus)}
                       className={cn(
                         'px-4 py-2 rounded-lg text-sm border-2 transition-all',
                         newStatus === opt.value ? opt.color + ' border-current' : 'bg-muted/30 text-muted-foreground border-transparent'
@@ -524,7 +511,7 @@ export default function PurchaseRecordsPage() {
 
               <button
                 onClick={handleAddPurchase}
-                disabled={!newPurchaseDate || !newPackageName || !newAmount || !newTotalClassesInput}
+                disabled={!newPurchaseDate || !newPackageName || !newAmount || !newTotalClassesInput || !newValidFrom || !newValidTo || newValidTo < newValidFrom}
                 className="w-full h-12 institution-btn-primary rounded-xl font-medium disabled:opacity-40"
               >
                 保存记录

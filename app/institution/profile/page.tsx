@@ -44,8 +44,8 @@ export default function InstitutionProfilePage() {
     {
       icon: FileText,
       label: '合同管理',
-      description: '查看学员合同',
-      href: undefined,
+      description: '发起签约、上传纸质合同',
+      href: '/institution/contracts',
     },
     {
       icon: UserCog,
