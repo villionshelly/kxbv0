@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Building2, CheckCircle, Clock, XCircle, Link2, Send, ChevronRight, Plus, AlertTriangle } from 'lucide-react'
+import { Building2, CheckCircle, Clock, XCircle, Link2, Send, ChevronRight, Plus, AlertTriangle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface Institution {
@@ -63,16 +63,6 @@ export default function MyInstitutionsPage() {
 
   return (
     <div className="flex flex-col h-full bg-background">
-      {/* Header */}
-      <header className="safe-area-top px-4 py-3 border-b border-border">
-        <div className="flex items-center gap-3">
-          <button onClick={() => router.back()} className="p-1">
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <h1 className="text-lg font-semibold">我的机构</h1>
-        </div>
-      </header>
-
       {/* Stats */}
       <div className="px-4 py-4">
         <div className="grid grid-cols-3 gap-3">

@@ -1,7 +1,6 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
-import { ArrowLeft, Calendar, Clock, CheckCircle, XCircle, HourglassIcon } from 'lucide-react'
+import { Calendar, Clock, CheckCircle, XCircle, HourglassIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 // 模拟家长端的请假记录
@@ -38,8 +37,6 @@ const myLeaveRequests = [
 ]
 
 export default function LeaveHistoryPage() {
-  const router = useRouter()
-
   const getStatusConfig = (status: string) => {
     switch (status) {
       case 'pending':
@@ -55,16 +52,6 @@ export default function LeaveHistoryPage() {
 
   return (
     <div className="flex flex-col h-full bg-background">
-      {/* Header */}
-      <header className="safe-area-top px-4 py-3 border-b border-border bg-background">
-        <div className="flex items-center gap-3">
-          <button onClick={() => router.back()} className="p-1">
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <h1 className="text-lg font-semibold">请假记录</h1>
-        </div>
-      </header>
-
       {/* List */}
       <div className="flex-1 overflow-auto px-4 py-4">
         <div className="space-y-3">

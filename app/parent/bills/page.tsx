@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Building2, CheckCircle2, ChevronRight, Clock3, ReceiptText, WalletCards } from 'lucide-react'
+import { Building2, CheckCircle2, ChevronRight, Clock3, ReceiptText, WalletCards } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const bills = [
@@ -42,13 +42,6 @@ export default function ParentBillsPage() {
   return (
     <div className="flex h-full flex-col warm-bg">
       <header className="safe-area-top px-4 pb-3 warm-header">
-        <div className="flex items-center gap-2 py-2">
-          <button onClick={() => router.back()} className="-ml-1.5 rounded-lg p-1.5 hover:bg-card/60" aria-label="返回">
-            <ArrowLeft className="h-5 w-5" />
-          </button>
-          <h1 className="text-lg font-semibold">我的账单</h1>
-        </div>
-
         <div className="relative overflow-hidden rounded-[28px] bg-[linear-gradient(135deg,#fff,#fff1df)] p-4 ring-1 ring-white/75">
           <div className="absolute -right-10 -top-12 h-32 w-32 rounded-full bg-primary/12" />
           <div className="relative flex items-center gap-3">

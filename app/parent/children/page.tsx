@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, CalendarDays, ChevronRight, GraduationCap, Plus, UserRoundCog } from 'lucide-react'
+import { CalendarDays, ChevronRight, GraduationCap, Plus, UserRoundCog } from 'lucide-react'
 import { children, courses, medals } from '@/lib/mock-data'
 
 export default function ParentChildrenPage() {
@@ -9,15 +9,6 @@ export default function ParentChildrenPage() {
 
   return (
     <div className="flex h-full flex-col warm-bg">
-      <header className="safe-area-top px-4 pb-3 warm-header">
-        <div className="flex items-center gap-2 py-2">
-          <button onClick={() => router.back()} className="rounded-lg p-1.5 -ml-1.5 hover:bg-card/60" aria-label="返回">
-            <ArrowLeft className="h-5 w-5" />
-          </button>
-          <h1 className="text-lg font-semibold">孩子管理</h1>
-        </div>
-      </header>
-
       <main className="flex-1 overflow-auto px-4 pb-24">
         <section className="pt-2">
           <div className="relative overflow-hidden rounded-[30px] bg-[linear-gradient(135deg,rgba(255,255,255,0.92),rgba(238,248,255,0.76))] p-4 ring-1 ring-white/75">

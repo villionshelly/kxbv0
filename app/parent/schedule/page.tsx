@@ -223,8 +223,6 @@ export default function ParentSchedulePage() {
 
   return (
     <div className="flex h-full flex-col warm-bg">
-      <div className="h-[88px] shrink-0 warm-header" aria-hidden />
-
       <main className="flex-1 overflow-auto px-4 pb-24 pt-2">
         <div className="space-y-2.5">
           <div className="px-0">
