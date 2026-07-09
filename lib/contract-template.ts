@@ -1,4 +1,4 @@
-import type { TemplateContract } from '@/lib/contract-store'
+import type { ContractPartyVerification, TemplateContract } from '@/lib/contract-store'
 
 export const contractEffectNotice = '合同为电子合同有同等效力，如需盖章合同，请联系机构出具。'
 
@@ -46,20 +46,49 @@ function run(text: string, highlight = false): ContractTextRun {
   return { text, highlight }
 }
 
+function resolvePartyVerification(contract: TemplateContract): ContractPartyVerification {
+  return contract.partyVerification || {
+    status: 'verified',
+    type: 'company',
+    verifiedAt: contract.generatedAt,
+    licenseName: contract.institutionName,
+    unifiedSocialCreditCode: '历史合同未记录',
+    legalRepresentative: '李道一',
+    phone: '0571-88888888',
+    signatoryName: '李道一',
+    signatoryPhone: '0571-88888888',
+  }
+}
+
 export function buildTemplateContractDocument(contract: TemplateContract): ContractDocument {
   const fields = contract.templateFields
   const amount = fields.amount ? `人民币 ${fields.amount} 元` : '以双方确认金额为准'
   const hours = fields.hours ? `${fields.hours} 课时` : '以实际课包为准'
-  const contactName = '李道一'
+  const verification = resolvePartyVerification(contract)
+  const isPersonal = verification.type === 'personal'
+  const partyName = isPersonal ? verification.realName : verification.licenseName
+  const contactName = isPersonal ? verification.realName : verification.signatoryName
+  const contactPhone = isPersonal ? verification.phone : verification.signatoryPhone
+  const partyRows: ContractLine[] = isPersonal
+    ? [
+        { label: '甲方（实名认证个人）', value: verification.realName },
+        { label: '身份证号', value: verification.idNumber },
+        { label: '甲方联系电话', value: verification.phone },
+      ]
+    : [
+        { label: '甲方（营业执照名称）', value: verification.licenseName },
+        { label: '法定代表人', value: verification.legalRepresentative },
+        { label: '甲方联系电话', value: verification.phone },
+        { label: '签约联系人', value: `${verification.signatoryName}（${verification.signatoryPhone}）` },
+      ]
 
   return {
     title: contract.title || '课程服务协议',
     contractNo: getTemplateContractNumber(contract),
-    intro:
-      '甲乙双方基于平等、自愿、诚实信用原则，就甲方向乙方学员提供课程培训服务事宜，达成本协议。乙方通过家长端确认后，本协议即视为双方共同确认的课程服务约定。',
+    intro: `甲方已完成${isPersonal ? '个人实名认证' : '企业实名认证'}。甲乙双方基于平等、自愿、诚实信用原则，就甲方向乙方学员提供课程培训服务事宜，达成本协议。乙方通过家长端确认后，本协议即视为双方共同确认的课程服务约定。`,
     partyRows: [
-      { label: '甲方（培训机构）', value: contract.institutionName },
-      { label: '甲方联系人', value: contactName },
+      ...partyRows,
+      { label: '机构展示名称', value: contract.institutionName },
       { label: '乙方（家长/监护人）', value: contract.parentName },
       { label: '学员姓名', value: contract.studentName },
       { label: '生成日期', value: contract.generatedAt },
@@ -133,6 +162,13 @@ export function buildTemplateContractDocument(contract: TemplateContract): Contr
       {
         title: '第八条 电子确认与合同效力',
         paragraphs: [
+          [
+            run('本合同甲方签约主体为'),
+            run(partyName, true),
+            run('，签约联系人为'),
+            run(`${contactName}（${contactPhone}）`, true),
+            run('。甲方认证信息已由系统记录。'),
+          ],
           [run('乙方在家长端点击“确认签约”即表示已阅读、理解并同意本协议全部内容，确认后系统记录确认时间。')],
           [run(contractEffectNotice)],
         ],
@@ -145,8 +181,8 @@ export function buildTemplateContractDocument(contract: TemplateContract): Contr
       },
     ],
     signatureRows: [
-      { label: '甲方', value: contract.institutionName },
-      { label: '甲方联系人', value: contactName },
+      { label: '甲方', value: partyName },
+      { label: '甲方签约人', value: `${contactName}（${contactPhone}）` },
       { label: '乙方', value: contract.parentName },
       { label: '学员', value: contract.studentName },
     ],

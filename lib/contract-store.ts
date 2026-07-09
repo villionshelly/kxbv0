@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { institutionInfo } from '@/lib/mock-data'
+import type { InstitutionVerification } from '@/lib/institution-profile-store'
 
 const storageKey = 'kxb-contracts-v1'
 
@@ -18,6 +19,8 @@ export type TemplateContractFields = {
   servicePeriod: string
   extraTerms: string
 }
+
+export type ContractPartyVerification = Exclude<InstitutionVerification, { status: 'unverified' }>
 
 type ContractBase = {
   id: string
@@ -43,6 +46,7 @@ export type TemplateContract = ContractBase & {
   type: 'template'
   status: 'pending' | 'signed' | 'sealed'
   templateFields: TemplateContractFields
+  partyVerification?: ContractPartyVerification
   generatedAt: string
   signedAt?: string
   sealedPhoto?: string
@@ -60,10 +64,12 @@ export type NewPaperContractInput = {
 
 export type NewTemplateContractInput = {
   title: string
+  institutionName: string
   studentId: string
   studentName: string
   parentName: string
   fields: TemplateContractFields
+  partyVerification: ContractPartyVerification
 }
 
 export type UpdatePaperContractInput = Omit<NewPaperContractInput, 'photo'> & {
@@ -132,6 +138,17 @@ export const defaultContracts: ContractRecord[] = [
     generatedAt: '2026-07-01',
     signedAt: '2026-07-02 10:24',
     status: 'signed',
+    partyVerification: {
+      status: 'verified',
+      type: 'company',
+      verifiedAt: '2026-06-30 09:00',
+      licenseName: '杭州七彩艺术培训有限公司',
+      unifiedSocialCreditCode: '91330106MA2KXB001A',
+      legalRepresentative: '李道一',
+      phone: '13888888888',
+      signatoryName: '李道一',
+      signatoryPhone: '13888888888',
+    },
     templateFields: {
       courseName: '钢琴启蒙',
       packageName: '48课时课包',
@@ -152,6 +169,17 @@ export const defaultContracts: ContractRecord[] = [
     createdAt: '2026-07-04',
     generatedAt: '2026-07-04',
     status: 'pending',
+    partyVerification: {
+      status: 'verified',
+      type: 'company',
+      verifiedAt: '2026-07-03 14:30',
+      licenseName: '杭州酷码教育科技有限公司',
+      unifiedSocialCreditCode: '91330106MA2KXB002B',
+      legalRepresentative: '陈明',
+      phone: '13966666666',
+      signatoryName: '王老师',
+      signatoryPhone: '13955555555',
+    },
     templateFields: {
       courseName: '少儿编程',
       packageName: '24课时续费包',
@@ -223,7 +251,7 @@ export function useContractStore() {
       id: `template-${Date.now()}`,
       type: 'template',
       title: input.title,
-      institutionName: institutionInfo.name,
+      institutionName: input.institutionName,
       studentId: input.studentId,
       studentName: input.studentName,
       parentName: input.parentName,
@@ -231,6 +259,7 @@ export function useContractStore() {
       generatedAt: todayText(),
       status: 'pending',
       templateFields: input.fields,
+      partyVerification: input.partyVerification,
     }
     commit([nextContract, ...contracts])
   }
@@ -260,6 +289,8 @@ export function useContractStore() {
         parentName: input.parentName,
         status: 'pending',
         templateFields: input.fields,
+        institutionName: input.institutionName,
+        partyVerification: input.partyVerification,
         generatedAt: todayText(),
         updatedAt: nowText(),
         signedAt: undefined,

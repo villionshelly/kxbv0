@@ -1,9 +1,13 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import {
+  AlertCircle,
   Archive,
+  BadgeCheck,
   CheckCircle2,
+  ChevronRight,
   Clock3,
   Download,
   Edit3,
@@ -13,12 +17,13 @@ import {
   FileText,
   Printer,
   Search,
+  ShieldCheck,
   Trash2,
   UploadCloud,
   X,
 } from 'lucide-react'
 import { ContractTemplatePreview } from '@/components/contract-template-preview'
-import { institutionInfo, students } from '@/lib/mock-data'
+import { students } from '@/lib/mock-data'
 import { cn } from '@/lib/utils'
 import {
   paperPhotoMock,
@@ -29,6 +34,7 @@ import {
 } from '@/lib/contract-store'
 import { downloadTemplateContractDocx } from '@/lib/contract-docx'
 import { type PurchaseRecord, useStudentPurchaseRecords } from '@/lib/purchase-record-store'
+import { useInstitutionProfileSettings } from '@/lib/institution-profile-store'
 
 type ComposerMode = 'paper' | 'template' | null
 
@@ -48,6 +54,8 @@ function getStatusClass(contract: ContractRecord) {
 }
 
 export default function InstitutionContractsPage() {
+  const router = useRouter()
+  const { settings } = useInstitutionProfileSettings()
   const {
     contracts,
     addPaperContract,
@@ -68,6 +76,9 @@ export default function InstitutionContractsPage() {
   const [studentQuery, setStudentQuery] = useState('')
   const [showStudentDropdown, setShowStudentDropdown] = useState(false)
   const [selectedPurchaseRecordId, setSelectedPurchaseRecordId] = useState('')
+  const [manualEntry, setManualEntry] = useState(false)
+  const [formError, setFormError] = useState('')
+  const [showVerificationGate, setShowVerificationGate] = useState(false)
   const [courseName, setCourseName] = useState('钢琴启蒙')
   const [packageName, setPackageName] = useState('48课时课包')
   const [hours, setHours] = useState('48')
@@ -99,13 +110,16 @@ export default function InstitutionContractsPage() {
       id: 'template-preview',
       type: 'template',
       title: templateTitle.trim() || `${courseName}课程服务协议`,
-      institutionName: institutionInfo.name,
+      institutionName: settings.institutionName,
       studentId: selectedStudent.id,
       studentName: selectedStudent.name,
       parentName: selectedStudent.parentName,
       createdAt: new Date().toISOString().slice(0, 10),
       generatedAt: new Date().toISOString().slice(0, 10),
       status: 'pending',
+      partyVerification: settings.verification.status === 'verified'
+        ? settings.verification
+        : undefined,
       templateFields: {
         courseName: courseName.trim(),
         packageName: packageName.trim(),
@@ -115,7 +129,7 @@ export default function InstitutionContractsPage() {
         extraTerms: extraTerms.trim(),
       },
     }
-  }, [amount, courseName, extraTerms, hours, packageName, selectedStudent, servicePeriod, templateTitle])
+  }, [amount, courseName, extraTerms, hours, packageName, selectedStudent, servicePeriod, settings.institutionName, settings.verification, templateTitle])
   const filteredContracts = useMemo(() => {
     const keyword = searchQuery.trim().toLowerCase()
     if (!keyword) return contracts
@@ -141,6 +155,8 @@ export default function InstitutionContractsPage() {
     setEditingContract(null)
     setShowStudentDropdown(false)
     setSelectedPurchaseRecordId('')
+    setManualEntry(false)
+    setFormError('')
   }
 
   const selectStudent = (id: string) => {
@@ -150,10 +166,22 @@ export default function InstitutionContractsPage() {
     setStudentQuery(`${nextStudent.name} · ${nextStudent.parentName}`)
     setSelectedPurchaseRecordId('')
     setShowStudentDropdown(false)
+    if (composerMode === 'template') {
+      setManualEntry(true)
+      setCourseName('')
+      setPackageName('')
+      setHours('')
+      setAmount('')
+      setServicePeriod('')
+      setTemplateTitle('课程服务协议')
+      setFormError('')
+    }
   }
 
   const applyPurchaseRecord = (record: PurchaseRecord) => {
     setSelectedPurchaseRecordId(record.id)
+    setManualEntry(false)
+    setFormError('')
     setCourseName(record.courseName)
     setPackageName(record.packageName)
     setHours(String(record.totalClasses))
@@ -165,6 +193,10 @@ export default function InstitutionContractsPage() {
   }
 
   const openCreateComposer = (mode: Exclude<ComposerMode, null>) => {
+    if (mode === 'template' && settings.verification.status !== 'verified') {
+      setShowVerificationGate(true)
+      return
+    }
     setEditingContract(null)
     setComposerMode(mode)
     if (selectedStudent) {
@@ -173,6 +205,10 @@ export default function InstitutionContractsPage() {
   }
 
   const openEditContract = (contract: ContractRecord) => {
+    if (contract.type === 'template' && settings.verification.status !== 'verified') {
+      setShowVerificationGate(true)
+      return
+    }
     setEditingContract(contract)
     setComposerMode(contract.type)
     setStudentId(contract.studentId)
@@ -183,6 +219,7 @@ export default function InstitutionContractsPage() {
     }
 
     setTemplateTitle(contract.title)
+    setManualEntry(true)
     setCourseName(contract.templateFields.courseName)
     setPackageName(contract.templateFields.packageName)
     setHours(contract.templateFields.hours)
@@ -217,6 +254,14 @@ export default function InstitutionContractsPage() {
 
   const submitTemplateContract = () => {
     if (!selectedStudent) return
+    if (settings.verification.status !== 'verified') {
+      setShowVerificationGate(true)
+      return
+    }
+    if (!courseName.trim() || !packageName.trim() || !hours.trim() || !amount.trim() || !servicePeriod.trim()) {
+      setFormError('请完整填写课程名称、课包、课时、金额和服务周期后再发起合同。')
+      return
+    }
     const nextTitle = templateTitle.trim() || `${courseName}课程服务协议`
     const nextFields = {
       courseName: courseName.trim(),
@@ -231,10 +276,12 @@ export default function InstitutionContractsPage() {
       updateTemplateContract({
         id: editingContract.id,
         title: nextTitle,
+        institutionName: settings.institutionName,
         studentId: selectedStudent.id,
         studentName: selectedStudent.name,
         parentName: selectedStudent.parentName,
         fields: nextFields,
+        partyVerification: settings.verification,
       })
       closeComposer()
       return
@@ -242,10 +289,12 @@ export default function InstitutionContractsPage() {
 
     addTemplateContract({
       title: nextTitle,
+      institutionName: settings.institutionName,
       studentId: selectedStudent.id,
       studentName: selectedStudent.name,
       parentName: selectedStudent.parentName,
       fields: nextFields,
+      partyVerification: settings.verification,
     })
     closeComposer()
   }
@@ -269,6 +318,36 @@ export default function InstitutionContractsPage() {
             </div>
           </div>
         </section>
+
+        <button
+          type="button"
+          onClick={() => router.push('/institution/profile/institution-info/verification')}
+          className={cn(
+            'mt-3 flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-left',
+            settings.verification.status === 'verified'
+              ? 'bg-emerald-50 text-emerald-700'
+              : 'bg-amber-50 text-amber-700'
+          )}
+        >
+          {settings.verification.status === 'verified'
+            ? <BadgeCheck className="h-5 w-5 shrink-0" />
+            : <ShieldCheck className="h-5 w-5 shrink-0" />}
+          <span className="min-w-0 flex-1">
+            <span className="block text-xs font-semibold">
+              {settings.verification.status === 'verified'
+                ? settings.verification.type === 'personal' ? '个人主体已认证' : '企业主体已认证'
+                : '机构主体未实名认证'}
+            </span>
+            <span className="mt-0.5 block truncate text-[10px] opacity-80">
+              {settings.verification.status === 'verified'
+                ? settings.verification.type === 'personal'
+                  ? settings.verification.realName
+                  : settings.verification.licenseName
+                : '完成认证后才可发起模板合同'}
+            </span>
+          </span>
+          <ChevronRight className="h-4 w-4 shrink-0" />
+        </button>
 
         <section className="mt-4 grid grid-cols-2 gap-3">
           <button
@@ -511,37 +590,76 @@ export default function InstitutionContractsPage() {
                       <p className="text-xs font-semibold text-muted-foreground">选择购买记录自动回填</p>
                       <span className="text-[10px] text-muted-foreground">进行中优先</span>
                     </div>
-                    <div className="space-y-2">
-                      {selectedStudentPurchaseRecords.map(record => (
+                    {selectedStudentPurchaseRecords.length > 0 ? (
+                      <div className="space-y-2">
+                        {selectedStudentPurchaseRecords.map(record => (
+                          <button
+                            key={record.id}
+                            type="button"
+                            onClick={() => applyPurchaseRecord(record)}
+                            className={cn(
+                              'w-full rounded-2xl border bg-white px-3 py-2 text-left text-xs transition',
+                              selectedPurchaseRecord?.id === record.id ? 'border-primary ring-2 ring-primary/15' : 'border-border'
+                            )}
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="min-w-0">
+                                <p className="truncate text-sm font-semibold text-foreground">{record.packageName}</p>
+                                <p className="mt-0.5 text-muted-foreground">{record.courseName} · {record.totalClasses}课时 · ￥{record.amount}</p>
+                                <p className="mt-0.5 text-muted-foreground">有效期：{record.validPeriod}</p>
+                              </div>
+                              <span className={cn(
+                                'shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold',
+                                record.status === 'active' ? 'bg-emerald-100 text-emerald-700' :
+                                record.status === 'completed' ? 'bg-slate-100 text-slate-600' :
+                                'bg-red-100 text-red-600'
+                              )}>
+                                {record.status === 'active' ? '进行中' : record.status === 'completed' ? '已完成' : '已退课'}
+                              </span>
+                            </div>
+                          </button>
+                        ))}
                         <button
-                          key={record.id}
                           type="button"
-                          onClick={() => applyPurchaseRecord(record)}
+                          onClick={() => {
+                            setSelectedPurchaseRecordId('')
+                            setManualEntry(true)
+                            setFormError('')
+                          }}
                           className={cn(
-                            'w-full rounded-2xl border bg-white px-3 py-2 text-left text-xs transition',
-                            selectedPurchaseRecord?.id === record.id ? 'border-primary ring-2 ring-primary/15' : 'border-border'
+                            'flex h-10 w-full items-center justify-center rounded-xl border border-dashed text-xs font-semibold',
+                            manualEntry
+                              ? 'border-primary bg-orange-50 text-primary'
+                              : 'border-border bg-white text-muted-foreground'
                           )}
                         >
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="min-w-0">
-                              <p className="truncate text-sm font-semibold text-foreground">{record.packageName}</p>
-                              <p className="mt-0.5 text-muted-foreground">{record.courseName} · {record.totalClasses}课时 · ￥{record.amount}</p>
-                              <p className="mt-0.5 text-muted-foreground">有效期：{record.validPeriod}</p>
-                            </div>
-                            <span className={cn(
-                              'shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold',
-                              record.status === 'active' ? 'bg-emerald-100 text-emerald-700' :
-                              record.status === 'completed' ? 'bg-slate-100 text-slate-600' :
-                              'bg-red-100 text-red-600'
-                            )}>
-                              {record.status === 'active' ? '进行中' : record.status === 'completed' ? '已完成' : '已退课'}
-                            </span>
-                          </div>
+                          不关联购买记录，手动填写
                         </button>
-                      ))}
-                    </div>
+                      </div>
+                    ) : (
+                      <div className="rounded-2xl border border-dashed border-orange-200 bg-orange-50/70 p-3">
+                        <div className="flex items-start gap-2">
+                          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                          <div>
+                            <p className="text-xs font-semibold text-foreground">该学员暂无购买记录</p>
+                            <p className="mt-1 text-[11px] leading-5 text-muted-foreground">
+                              不影响创建合同，请在下方手动填写课程、课包、金额和服务周期。
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
+                  <div className="flex items-center justify-between pt-1">
+                    <p className="text-sm font-bold">合同字段</p>
+                    <span className={cn(
+                      'rounded-full px-2 py-1 text-[10px] font-semibold',
+                      selectedPurchaseRecord ? 'bg-blue-50 text-blue-700' : 'bg-orange-50 text-primary'
+                    )}>
+                      {selectedPurchaseRecord ? '购买记录已回填' : '机构手动填写'}
+                    </span>
+                  </div>
                   <label className="block">
                     <span className="mb-1.5 block text-xs font-medium text-muted-foreground">合同标题</span>
                     <input value={templateTitle} onChange={(event) => setTemplateTitle(event.target.value)} className="h-11 w-full rounded-xl bg-muted/35 px-3 text-sm outline-none" />
@@ -572,6 +690,9 @@ export default function InstitutionContractsPage() {
                     <span className="mb-1.5 block text-xs font-medium text-muted-foreground">补充约定</span>
                     <textarea value={extraTerms} onChange={(event) => setExtraTerms(event.target.value)} className="min-h-20 w-full rounded-xl bg-muted/35 px-3 py-2 text-sm outline-none" />
                   </label>
+                  {formError && (
+                    <p className="rounded-2xl bg-red-50 px-3 py-2 text-xs leading-5 text-red-600">{formError}</p>
+                  )}
                   {templatePreviewContract && (
                     <div>
                       <p className="mb-2 text-xs font-semibold text-muted-foreground">合同正文预览</p>
@@ -604,6 +725,34 @@ export default function InstitutionContractsPage() {
             </div>
 
             <ContractTemplatePreview contract={activeTemplateContract} />
+          </div>
+        </div>
+      )}
+
+      {showVerificationGate && (
+        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/45 px-5">
+          <div className="w-full max-w-sm rounded-3xl bg-background p-5 shadow-2xl">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-50 text-primary">
+              <ShieldCheck className="h-6 w-6" />
+            </div>
+            <h2 className="mt-4 text-center text-lg font-bold">请先完成机构实名认证</h2>
+            <p className="mt-2 text-center text-sm leading-6 text-muted-foreground">
+              模板合同需要明确真实签约主体。个人实名认证或企业实名认证通过后，才可以发起及重新发起合同。
+            </p>
+            <button
+              type="button"
+              onClick={() => router.push('/institution/profile/institution-info/verification')}
+              className="mt-5 h-12 w-full rounded-2xl bg-primary text-sm font-semibold text-primary-foreground"
+            >
+              前往实名认证
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowVerificationGate(false)}
+              className="mt-2 h-11 w-full text-sm font-medium text-muted-foreground"
+            >
+              暂不认证
+            </button>
           </div>
         </div>
       )}

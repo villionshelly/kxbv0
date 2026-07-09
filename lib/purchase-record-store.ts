@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { students } from '@/lib/mock-data'
 
 const storageKey = 'kxb-purchase-records-v1'
 
@@ -129,29 +128,6 @@ export const defaultPurchaseRecordsByStudent: RecordsByStudent = {
   ],
 }
 
-function fallbackRecordsForStudent(studentId: string): PurchaseRecord[] {
-  const student = students.find(item => item.id === studentId)
-  if (!student) return []
-
-  return student.courses.map((courseName, index) => createRecord({
-    id: `fallback-${studentId}-${index}`,
-    studentId,
-    date: student.joinDate || '2026-07-01',
-    courseName,
-    packageName: `${courseName}课包`,
-    amount: Math.max(student.totalClasses, 1) * 120,
-    totalClasses: student.totalClasses,
-    usedClasses: Math.max(student.totalClasses - student.remainingClasses, 0),
-    remainingClasses: student.remainingClasses,
-    validFrom: student.joinDate || '2026-07-01',
-    validTo: '2027-06-30',
-    validPeriod: `${student.joinDate || '2026-07-01'} 至 2027-06-30`,
-    status: student.remainingClasses > 0 ? 'active' : 'completed',
-    note: '系统根据学员课时生成的默认购买记录。',
-    source: 'system',
-  }))
-}
-
 function sortRecords(records: PurchaseRecord[]) {
   return [...records].sort((a, b) => {
     if (a.status !== b.status) {
@@ -201,8 +177,7 @@ export function useStudentPurchaseRecords(studentId: string) {
   }, [])
 
   const records = useMemo(() => {
-    const storedRecords = recordsByStudent[studentId]
-    return sortRecords(storedRecords && storedRecords.length > 0 ? storedRecords : fallbackRecordsForStudent(studentId))
+    return sortRecords(recordsByStudent[studentId] || [])
   }, [recordsByStudent, studentId])
 
   const commit = (next: RecordsByStudent) => {
@@ -212,7 +187,7 @@ export function useStudentPurchaseRecords(studentId: string) {
   }
 
   const setPurchaseRecords = (update: PurchaseRecord[] | ((current: PurchaseRecord[]) => PurchaseRecord[])) => {
-    const current = recordsByStudent[studentId] || fallbackRecordsForStudent(studentId)
+    const current = recordsByStudent[studentId] || []
     const nextRecords = typeof update === 'function' ? update(current) : update
     commit({ ...recordsByStudent, [studentId]: sortRecords(nextRecords) })
   }

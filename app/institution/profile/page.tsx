@@ -24,10 +24,10 @@ export default function InstitutionProfilePage() {
       href: '/institution/classes',
     },
     {
-      icon: Building2,
-      label: '机构信息',
-      description: '编辑门店信息、联系方式',
-      href: '/institution/profile/institution-info',
+      icon: FileText,
+      label: '合同管理',
+      description: '发起签约、上传合同',
+      href: '/institution/contracts',
     },
     {
       icon: Users,
@@ -42,10 +42,10 @@ export default function InstitutionProfilePage() {
       href: '/institution/payment?tab=points',
     },
     {
-      icon: FileText,
-      label: '合同管理',
-      description: '发起签约、上传纸质合同',
-      href: '/institution/contracts',
+      icon: Building2,
+      label: '机构信息',
+      description: '门店、认证与联系方式',
+      href: '/institution/profile/institution-info',
     },
     {
       icon: UserCog,
@@ -74,10 +74,10 @@ export default function InstitutionProfilePage() {
   ]
 
   const quickItems = menuItems.filter(item =>
-    ['课程管理', '班次管理', '员工管理', '机构信息'].includes(item.label)
+    ['课程管理', '班次管理', '员工管理', '合同管理'].includes(item.label)
   )
   const settingItems = menuItems.filter(item =>
-    !['课程管理', '班次管理', '员工管理', '机构信息'].includes(item.label)
+    !['课程管理', '班次管理', '员工管理', '合同管理'].includes(item.label)
   )
 
   return (
