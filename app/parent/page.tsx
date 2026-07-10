@@ -3,14 +3,15 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Settings, MapPin, Clock, Calendar, FileText, CalendarDays, Wallet, MessageSquare, ChevronRight, ChevronDown, GraduationCap } from 'lucide-react'
-import { children, schedule, parentProfile, growthFeed } from '@/lib/mock-data'
+import { children, parentProfile, growthFeed } from '@/lib/mock-data'
 import { getLessonDisplayStatus, getLessonStatusClassName, lessonStatusLabels } from '@/lib/parent-data'
 import { useSelectedChild } from '@/hooks/use-selected-child'
 import { cn } from '@/lib/utils'
+import { useParentCourseStore, type ParentScheduleItem } from '@/lib/parent-course-store'
 
 const weekDays = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
 
-type ScheduleItem = (typeof schedule)[number]
+type ScheduleItem = ParentScheduleItem
 
 function getWeekDates() {
   const today = new Date()
@@ -33,6 +34,7 @@ function getWeekDates() {
 export default function ParentHomePage() {
   const router = useRouter()
   const { selectedChild, switchChild } = useSelectedChild()
+  const { schedule } = useParentCourseStore()
   const weekDates = getWeekDates()
   const todayDate = weekDates.find(d => d.isToday)?.fullDate || weekDates[0].fullDate
 
@@ -181,11 +183,11 @@ export default function ParentHomePage() {
                     >
                       <span className="flex items-center gap-1">
                         <MapPin className="w-3.5 h-3.5" />
-                        {item.classroom}
+                        {item.locationName || item.classroom}
                       </span>
                       <span className="flex items-center gap-1">
                         <Clock className="w-3.5 h-3.5" />
-                        {item.institution}
+                        {item.className}
                       </span>
                     </button>
                   </div>

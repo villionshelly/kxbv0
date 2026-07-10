@@ -11,7 +11,7 @@ import {
   MapPin,
   Search,
 } from 'lucide-react'
-import { children, schedule } from '@/lib/mock-data'
+import { children } from '@/lib/mock-data'
 import {
   allChildrenValue,
   getChildById,
@@ -22,6 +22,7 @@ import {
 } from '@/lib/parent-data'
 import { useSelectedChild } from '@/hooks/use-selected-child'
 import { cn } from '@/lib/utils'
+import { useParentCourseStore } from '@/lib/parent-course-store'
 
 const weekDays = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
 const fullWeekDays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
@@ -93,6 +94,7 @@ function getLessonDateLabel(date: string) {
 export default function ParentSchedulePage() {
   const router = useRouter()
   const { selectedChild, setSelectedChildId } = useSelectedChild()
+  const { schedule } = useParentCourseStore()
   const today = useMemo(() => new Date(), [])
   const todayDate = formatDate(today)
   const [viewMode, setViewMode] = useState<'month' | 'week'>('month')
@@ -116,7 +118,7 @@ export default function ParentSchedulePage() {
     .filter((item) => childFilter === allChildrenValue || item.childId === childFilter)
     .filter((item) => {
       if (!normalizedQuery) return true
-      return [item.courseName, item.institution, item.teacher, item.classroom]
+      return [item.courseName, item.institution, item.teacher, item.classroom, item.className, item.locationName, item.address]
         .some((value) => value.toLowerCase().includes(normalizedQuery))
     })
     .filter((item) => !leaveOnly || getLessonDisplayStatus(item) === 'leave')
@@ -207,14 +209,14 @@ export default function ParentSchedulePage() {
             onClick={() => router.push(`/parent/course/${item.courseId}`)}
             className="mt-1.5 flex w-full items-center gap-3 text-left text-[11px] text-muted-foreground"
           >
-            <span className="flex min-w-0 items-center gap-1">
-              <MapPin className="h-3.5 w-3.5 shrink-0" />
-              <span className="truncate">{item.classroom}</span>
-            </span>
-            <span className="flex min-w-0 items-center gap-1">
-              <Clock className="h-3.5 w-3.5 shrink-0" />
-              <span className="truncate">{item.institution}</span>
-            </span>
+              <span className="flex min-w-0 items-center gap-1">
+                <MapPin className="h-3.5 w-3.5 shrink-0" />
+                <span className="truncate">{item.locationName || item.classroom}</span>
+              </span>
+              <span className="flex min-w-0 items-center gap-1">
+                <Clock className="h-3.5 w-3.5 shrink-0" />
+                <span className="truncate">{item.className}</span>
+              </span>
           </button>
         </div>
       </div>

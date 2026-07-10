@@ -1,7 +1,8 @@
 import { childGrowthProfiles, children, classRecords, courses, growthReports, medals, schedule } from '@/lib/mock-data'
+import type { ParentCourse, ParentScheduleItem } from '@/lib/parent-course-store'
 
-export type CourseItem = (typeof courses)[number]
-export type ScheduleItem = (typeof schedule)[number]
+export type CourseItem = ParentCourse
+export type ScheduleItem = ParentScheduleItem
 export type ClassRecordItem = (typeof classRecords)[number]
 export type ChildItem = (typeof children)[number]
 export type GrowthReportItem = (typeof growthReports)[number]

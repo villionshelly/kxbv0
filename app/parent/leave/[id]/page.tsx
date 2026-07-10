@@ -3,11 +3,11 @@
 import { useState } from 'react'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { ArrowLeft, Calendar, Clock, MapPin, AlertCircle, CheckCircle, ArrowRight, RefreshCw } from 'lucide-react'
-import { schedule } from '@/lib/mock-data'
+import { useParentCourseStore, type ParentScheduleItem } from '@/lib/parent-course-store'
 import { cn } from '@/lib/utils'
 
 // Future sessions available for makeup (any upcoming slot of the same course)
-function getMakeupOptions(lesson: typeof schedule[0]) {
+function getMakeupOptions(lesson: ParentScheduleItem, schedule: ParentScheduleItem[]) {
   return schedule
     .filter(s => s.courseId === lesson.courseId && s.date > lesson.date && s.status === 'upcoming')
     .slice(0, 5)
@@ -17,14 +17,15 @@ export default function LeaveRequestPage() {
   const params = useParams()
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { schedule } = useParentCourseStore()
 
   const lesson = schedule.find(s => s.id === params.id) || schedule[0]
-  const makeupOptions = getMakeupOptions(lesson)
+  const makeupOptions = lesson ? getMakeupOptions(lesson, schedule) : []
   
   // Check if this is a self-accounting course (auto-approve)
-  const isSelfAccounting = searchParams.get('type') === 'self' || lesson.courseType === 'self'
+  const isSelfAccounting = searchParams.get('type') === 'self' || lesson?.courseType === 'self'
   // Check if bound to institution (no makeup allowed, leave auto-approved)
-  const isBoundToInstitution = searchParams.get('bound') === '1' || lesson.courseType === 'institution'
+  const isBoundToInstitution = searchParams.get('bound') === '1' || lesson?.courseType === 'institution'
 
   const [tab, setTab] = useState<'leave' | 'makeup'>('leave')
   const [reason, setReason] = useState('')
@@ -33,6 +34,10 @@ export default function LeaveRequestPage() {
 
   // If bound to institution, only leave is available (no makeup tab)
   const showMakeupTab = isSelfAccounting && !isBoundToInstitution
+
+  if (!lesson) {
+    return <div className="flex h-full items-center justify-center text-sm text-muted-foreground">暂无课程安排</div>
+  }
 
   const handleSubmit = () => {
     setSubmitted(true)

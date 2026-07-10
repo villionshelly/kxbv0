@@ -85,6 +85,23 @@ export default function InstitutionContractsPage() {
   const [amount, setAmount] = useState('8640')
   const [servicePeriod, setServicePeriod] = useState('2026-07-01 至 2027-06-30')
   const [extraTerms, setExtraTerms] = useState('如遇法定节假日或机构统一调课，以双方沟通后的排课为准。')
+  const [signatoryName, setSignatoryName] = useState('')
+  const [signatoryPhone, setSignatoryPhone] = useState('')
+  const defaultSignatory = useMemo(() => {
+    if (settings.verification.status !== 'verified') {
+      return { name: '', phone: '' }
+    }
+    if (settings.verification.type === 'personal') {
+      return {
+        name: settings.verification.realName,
+        phone: settings.verification.phone,
+      }
+    }
+    return {
+      name: settings.verification.signatoryName,
+      phone: settings.verification.signatoryPhone,
+    }
+  }, [settings.verification])
   const selectedStudent = useMemo(
     () => students.find(student => student.id === studentId) || students[0],
     [studentId]
@@ -127,9 +144,11 @@ export default function InstitutionContractsPage() {
         amount: amount.trim(),
         servicePeriod: servicePeriod.trim(),
         extraTerms: extraTerms.trim(),
+        signatoryName: signatoryName.trim(),
+        signatoryPhone: signatoryPhone.trim(),
       },
     }
-  }, [amount, courseName, extraTerms, hours, packageName, selectedStudent, servicePeriod, settings.institutionName, settings.verification, templateTitle])
+  }, [amount, courseName, extraTerms, hours, packageName, selectedStudent, servicePeriod, settings.institutionName, settings.verification, signatoryName, signatoryPhone, templateTitle])
   const filteredContracts = useMemo(() => {
     const keyword = searchQuery.trim().toLowerCase()
     if (!keyword) return contracts
@@ -199,6 +218,10 @@ export default function InstitutionContractsPage() {
     }
     setEditingContract(null)
     setComposerMode(mode)
+    if (mode === 'template') {
+      setSignatoryName(defaultSignatory.name)
+      setSignatoryPhone(defaultSignatory.phone)
+    }
     if (selectedStudent) {
       setStudentQuery(`${selectedStudent.name} · ${selectedStudent.parentName}`)
     }
@@ -226,6 +249,8 @@ export default function InstitutionContractsPage() {
     setAmount(contract.templateFields.amount)
     setServicePeriod(contract.templateFields.servicePeriod)
     setExtraTerms(contract.templateFields.extraTerms)
+    setSignatoryName(contract.templateFields.signatoryName || defaultSignatory.name)
+    setSignatoryPhone(contract.templateFields.signatoryPhone || defaultSignatory.phone)
   }
 
   const submitPaperContract = () => {
@@ -262,6 +287,14 @@ export default function InstitutionContractsPage() {
       setFormError('请完整填写课程名称、课包、课时、金额和服务周期后再发起合同。')
       return
     }
+    if (!signatoryName.trim()) {
+      setFormError('请填写本合同签约联系人姓名。')
+      return
+    }
+    if (!/^1[3-9]\d{9}$/.test(signatoryPhone.trim())) {
+      setFormError('请填写本合同签约联系人正确的11位手机号。')
+      return
+    }
     const nextTitle = templateTitle.trim() || `${courseName}课程服务协议`
     const nextFields = {
       courseName: courseName.trim(),
@@ -270,6 +303,8 @@ export default function InstitutionContractsPage() {
       amount: amount.trim(),
       servicePeriod: servicePeriod.trim(),
       extraTerms: extraTerms.trim(),
+      signatoryName: signatoryName.trim(),
+      signatoryPhone: signatoryPhone.trim(),
     }
 
     if (editingContract?.type === 'template') {
@@ -664,6 +699,33 @@ export default function InstitutionContractsPage() {
                     <span className="mb-1.5 block text-xs font-medium text-muted-foreground">合同标题</span>
                     <input value={templateTitle} onChange={(event) => setTemplateTitle(event.target.value)} className="h-11 w-full rounded-xl bg-muted/35 px-3 text-sm outline-none" />
                   </label>
+                  <div>
+                    <div className="mb-2">
+                      <p className="text-xs font-semibold text-foreground">合同签约人</p>
+                      <p className="mt-0.5 text-[10px] text-muted-foreground">默认取实名认证联系人，本合同可单独修改</p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <label className="block">
+                        <span className="mb-1.5 block text-xs font-medium text-muted-foreground">姓名</span>
+                        <input
+                          value={signatoryName}
+                          onChange={(event) => setSignatoryName(event.target.value)}
+                          className="h-11 w-full rounded-xl bg-muted/35 px-3 text-sm outline-none"
+                          placeholder="签约人姓名"
+                        />
+                      </label>
+                      <label className="block">
+                        <span className="mb-1.5 block text-xs font-medium text-muted-foreground">手机号</span>
+                        <input
+                          value={signatoryPhone}
+                          inputMode="numeric"
+                          onChange={(event) => setSignatoryPhone(event.target.value.replace(/\D/g, '').slice(0, 11))}
+                          className="h-11 w-full rounded-xl bg-muted/35 px-3 text-sm outline-none"
+                          placeholder="11位手机号"
+                        />
+                      </label>
+                    </div>
+                  </div>
                   <label className="block">
                     <span className="mb-1.5 block text-xs font-medium text-muted-foreground">课程名称</span>
                     <input value={courseName} onChange={(event) => setCourseName(event.target.value)} className="h-11 w-full rounded-xl bg-muted/35 px-3 text-sm outline-none" />

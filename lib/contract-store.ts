@@ -18,6 +18,8 @@ export type TemplateContractFields = {
   amount: string
   servicePeriod: string
   extraTerms: string
+  signatoryName?: string
+  signatoryPhone?: string
 }
 
 export type ContractPartyVerification = Exclude<InstitutionVerification, { status: 'unverified' }>

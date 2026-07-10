@@ -67,19 +67,20 @@ export function buildTemplateContractDocument(contract: TemplateContract): Contr
   const verification = resolvePartyVerification(contract)
   const isPersonal = verification.type === 'personal'
   const partyName = isPersonal ? verification.realName : verification.licenseName
-  const contactName = isPersonal ? verification.realName : verification.signatoryName
-  const contactPhone = isPersonal ? verification.phone : verification.signatoryPhone
+  const defaultContactName = isPersonal ? verification.realName : verification.signatoryName
+  const defaultContactPhone = isPersonal ? verification.phone : verification.signatoryPhone
+  const contactName = fields.signatoryName?.trim() || defaultContactName
+  const contactPhone = fields.signatoryPhone?.trim() || defaultContactPhone
   const partyRows: ContractLine[] = isPersonal
     ? [
         { label: '甲方（实名认证个人）', value: verification.realName },
         { label: '身份证号', value: verification.idNumber },
-        { label: '甲方联系电话', value: verification.phone },
+        { label: '签约联系人', value: `${contactName}（${contactPhone}）` },
       ]
     : [
         { label: '甲方（营业执照名称）', value: verification.licenseName },
         { label: '法定代表人', value: verification.legalRepresentative },
-        { label: '甲方联系电话', value: verification.phone },
-        { label: '签约联系人', value: `${verification.signatoryName}（${verification.signatoryPhone}）` },
+        { label: '签约联系人', value: `${contactName}（${contactPhone}）` },
       ]
 
   return {
@@ -88,7 +89,6 @@ export function buildTemplateContractDocument(contract: TemplateContract): Contr
     intro: `甲方已完成${isPersonal ? '个人实名认证' : '企业实名认证'}。甲乙双方基于平等、自愿、诚实信用原则，就甲方向乙方学员提供课程培训服务事宜，达成本协议。乙方通过家长端确认后，本协议即视为双方共同确认的课程服务约定。`,
     partyRows: [
       ...partyRows,
-      { label: '机构展示名称', value: contract.institutionName },
       { label: '乙方（家长/监护人）', value: contract.parentName },
       { label: '学员姓名', value: contract.studentName },
       { label: '生成日期', value: contract.generatedAt },

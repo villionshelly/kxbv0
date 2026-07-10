@@ -3,13 +3,15 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ChevronDown, AlertCircle, TrendingDown, ArrowDownRight, Plus, ArrowLeft, Sparkles } from 'lucide-react'
-import { children, courses, classRecords } from '@/lib/mock-data'
+import { children, classRecords } from '@/lib/mock-data'
+import { useParentCourseStore } from '@/lib/parent-course-store'
 import { useSelectedChild } from '@/hooks/use-selected-child'
 import { cn } from '@/lib/utils'
 
 export default function ParentAssetsPage() {
   const router = useRouter()
   const { selectedChild, setSelectedChildId } = useSelectedChild()
+  const { courses } = useParentCourseStore()
   const [showChildSelector, setShowChildSelector] = useState(false)
   const [activeTab, setActiveTab] = useState<'overview' | 'records'>('overview')
 

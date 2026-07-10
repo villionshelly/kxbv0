@@ -1,9 +1,11 @@
 'use client'
 
-import { Suspense, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { ArrowLeft, CheckCircle, ChevronDown, Building2, Plus, X } from 'lucide-react'
+import { ArrowLeft, CheckCircle, ChevronDown, Building2, MapPin, Plus, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useSelectedChild } from '@/hooks/use-selected-child'
+import { useParentCourseStore } from '@/lib/parent-course-store'
 
 const courseCategories = ['音乐', '美术', '舞蹈', 'STEM', '体育', '语言', '学科补习', '其他']
 
@@ -16,13 +18,13 @@ const defaultInstitutions = [
 const colors = ['#F87E31', '#0E70C0', '#10B981', '#8B5CF6', '#EC4899', '#F59E0B', '#06B6D4', '#EF4444']
 
 const weekDayOptions = [
-  { label: '周一', value: 0 },
-  { label: '周二', value: 1 },
-  { label: '周三', value: 2 },
-  { label: '周四', value: 3 },
-  { label: '周五', value: 4 },
-  { label: '周六', value: 5 },
-  { label: '周日', value: 6 },
+  { label: '周一', value: 1 },
+  { label: '周二', value: 2 },
+  { label: '周三', value: 3 },
+  { label: '周四', value: 4 },
+  { label: '周五', value: 5 },
+  { label: '周六', value: 6 },
+  { label: '周日', value: 0 },
 ]
 
 const timeOptions = [
@@ -44,7 +46,11 @@ type DaySession = { dayOfWeek: number; time: string; duration: number }
 function AddCourseContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { selectedChild } = useSelectedChild()
+  const { courses, addCourse, updateCourse, updateCourseNotes } = useParentCourseStore()
   const isEdit = searchParams.get('edit') === '1'
+  const editId = searchParams.get('id') || ''
+  const existingCourse = courses.find(course => course.id === editId)
 
   const [step, setStep] = useState<'info' | 'schedule' | 'done'>('info')
   const [courseName, setCourseName] = useState(isEdit ? '钢琴启蒙' : '')
@@ -54,19 +60,52 @@ function AddCourseContent() {
   const [totalClasses, setTotalClasses] = useState(isEdit ? '48' : '')
   const [price, setPrice] = useState(isEdit ? '7200' : '')
   const [color, setColor] = useState(isEdit ? '#F87E31' : colors[0])
+  const [className, setClassName] = useState(isEdit ? '钢琴启蒙班次' : '')
+  const [classType, setClassType] = useState('1对1')
+  const [locationName, setLocationName] = useState('')
+  const [address, setAddress] = useState('')
+  const [notes, setNotes] = useState('')
   const [showInstitutionPicker, setShowInstitutionPicker] = useState(false)
+  const [hydratedEdit, setHydratedEdit] = useState(false)
 
   // Per-day sessions
   const [daySessions, setDaySessions] = useState<DaySession[]>(
-    isEdit
+      isEdit
       ? [
-          { dayOfWeek: 1, time: '10:00', duration: 60 },
-          { dayOfWeek: 5, time: '10:00', duration: 60 },
+          { dayOfWeek: 2, time: '10:00', duration: 60 },
+          { dayOfWeek: 6, time: '10:00', duration: 60 },
         ]
       : []
   )
 
-  const selectedInstitution = defaultInstitutions.find(i => i.id === institution)
+  const selectedInstitution = defaultInstitutions.find(i => i.id === institution) || (
+    existingCourse?.courseType === 'institution'
+      ? { id: existingCourse.institutionId || institution, name: existingCourse.institution }
+      : undefined
+  )
+  const isInstitutionCourse = existingCourse?.courseType === 'institution'
+
+  useEffect(() => {
+    if (!isEdit || hydratedEdit || !existingCourse) return
+    setCourseName(existingCourse.name)
+    setCategory(existingCourse.sessions[0]?.type === '机构课程' ? '音乐' : category)
+    setInstitution(existingCourse.courseType === 'self' ? 'self' : existingCourse.institutionId || '1')
+    setTeacher(existingCourse.teacher)
+    setTotalClasses(String(existingCourse.totalClasses))
+    setPrice(String(existingCourse.price * existingCourse.totalClasses))
+    setColor(existingCourse.color)
+    setNotes(existingCourse.notes || '')
+    setDaySessions(existingCourse.sessions.map(session => ({
+      dayOfWeek: session.dayOfWeek,
+      time: session.time,
+      duration: session.duration,
+    })))
+    setClassName(existingCourse.sessions[0]?.className || `${existingCourse.name}班次`)
+    setClassType(existingCourse.sessions[0]?.type === '个人安排' ? '1对1' : existingCourse.sessions[0]?.type || '1对1')
+    setLocationName(existingCourse.sessions[0]?.locationName || existingCourse.sessions[0]?.classroom || '')
+    setAddress(existingCourse.sessions[0]?.address || '')
+    setHydratedEdit(true)
+  }, [existingCourse, hydratedEdit, isEdit])
 
   const toggleDay = (val: number) => {
     if (daySessions.find(s => s.dayOfWeek === val)) {
@@ -82,7 +121,55 @@ function AddCourseContent() {
 
   const canProceedStep1 = courseName.trim() && category && totalClasses && price
 
-  const sortedSessions = [...daySessions].sort((a, b) => a.dayOfWeek - b.dayOfWeek)
+  const sortedSessions = [...daySessions].sort((a, b) => {
+    const order = (value: number) => value === 0 ? 7 : value
+    return order(a.dayOfWeek) - order(b.dayOfWeek)
+  })
+
+  const handleComplete = () => {
+    if (isEdit && isInstitutionCourse && editId) {
+      updateCourseNotes(editId, notes.trim())
+      setStep('done')
+      return
+    }
+
+    if (sortedSessions.length === 0) return
+    const sessionRules = sortedSessions.map(session => ({
+      courseId: editId,
+      classSessionId: existingCourse?.classSessionId,
+      className: className.trim() || `${courseName.trim()}班次`,
+      type: classType,
+      teacher: teacher.trim(),
+      classroom: locationName.trim(),
+      locationName: locationName.trim(),
+      address: address.trim(),
+      dayOfWeek: session.dayOfWeek,
+      time: session.time,
+      duration: session.duration,
+      source: institution === 'self' ? 'self' as const : 'institution' as const,
+    }))
+    const payload = {
+      childId: existingCourse?.childId || selectedChild.id,
+      name: courseName.trim(),
+      institution: selectedInstitution?.name || '自主记账',
+      teacher: teacher.trim(),
+      color,
+      totalClasses: Number(totalClasses),
+      remainingClasses: existingCourse
+        ? Math.max(Number(totalClasses) - Math.max(existingCourse.totalClasses - existingCourse.remainingClasses, 0), 0)
+        : Number(totalClasses),
+      price: Number(price) / Math.max(Number(totalClasses), 1),
+      courseType: institution === 'self' ? 'self' as const : 'institution' as const,
+      institutionId: institution === 'self' ? undefined : institution,
+      institutionCourseId: existingCourse?.institutionCourseId,
+      classSessionId: existingCourse?.classSessionId,
+      notes: notes.trim(),
+      sessions: sessionRules,
+    }
+    if (isEdit && editId) updateCourse(editId, payload)
+    else addCourse(payload)
+    setStep('done')
+  }
 
   return (
     <div className="flex flex-col h-full bg-background">
@@ -141,6 +228,7 @@ function AddCourseContent() {
             <label className="text-sm font-medium text-muted-foreground block mb-2">课程名称</label>
             <div className="flex items-center gap-3">
               <button
+                disabled={isInstitutionCourse}
                 onClick={() => {
                   const idx = colors.indexOf(color)
                   setColor(colors[(idx + 1) % colors.length])
@@ -153,6 +241,7 @@ function AddCourseContent() {
                 placeholder="如：钢琴启蒙、英语口语"
                 value={courseName}
                 onChange={e => setCourseName(e.target.value)}
+                disabled={isInstitutionCourse}
                 className="flex-1 h-10 px-4 bg-muted/40 rounded-xl text-sm outline-none focus:ring-2 focus:ring-primary/20"
               />
             </div>
@@ -164,8 +253,9 @@ function AddCourseContent() {
             <label className="text-sm font-medium text-muted-foreground block mb-2">课程分类</label>
             <div className="flex flex-wrap gap-2">
               {courseCategories.map(cat => (
-                <button
-                  key={cat}
+                  <button
+                    key={cat}
+                    disabled={isInstitutionCourse}
                   onClick={() => setCategory(cat)}
                   className={cn(
                     'px-3 py-1.5 rounded-lg text-sm transition-colors',
@@ -184,6 +274,7 @@ function AddCourseContent() {
           <div>
             <label className="text-sm font-medium text-muted-foreground block mb-2">所属机构</label>
             <button
+              disabled={isInstitutionCourse}
               onClick={() => setShowInstitutionPicker(!showInstitutionPicker)}
               className="w-full flex items-center justify-between h-11 px-4 bg-muted/40 rounded-xl text-sm"
             >
@@ -226,17 +317,18 @@ function AddCourseContent() {
             )}
           </div>
 
-          {/* Teacher */}
-          <div>
-            <label className="text-sm font-medium text-muted-foreground block mb-2">老师姓名（选填）</label>
-            <input
-              type="text"
-              placeholder="如：李老师"
-              value={teacher}
-              onChange={e => setTeacher(e.target.value)}
-              className="w-full h-11 px-4 bg-muted/40 rounded-xl text-sm outline-none focus:ring-2 focus:ring-primary/20"
-            />
-          </div>
+          {isInstitutionCourse && (
+            <div>
+              <label className="text-sm font-medium text-muted-foreground block mb-2">我的备注（选填）</label>
+              <textarea
+                value={notes}
+                onChange={e => setNotes(e.target.value)}
+                rows={3}
+                placeholder="记录接送、练习或其他提醒"
+                className="w-full resize-none rounded-xl bg-muted/40 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary/20"
+              />
+            </div>
+          )}
 
           {/* Classes & Price */}
           <div className="grid grid-cols-2 gap-3">
@@ -248,6 +340,7 @@ function AddCourseContent() {
                   placeholder="48"
                   value={totalClasses}
                   onChange={e => setTotalClasses(e.target.value)}
+                  disabled={isInstitutionCourse}
                   className="w-full h-11 px-4 pr-8 bg-muted/40 rounded-xl text-sm outline-none focus:ring-2 focus:ring-primary/20"
                 />
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">节</span>
@@ -262,6 +355,7 @@ function AddCourseContent() {
                   placeholder="7200"
                   value={price}
                   onChange={e => setPrice(e.target.value)}
+                  disabled={isInstitutionCourse}
                   className="w-full h-11 pl-7 pr-4 bg-muted/40 rounded-xl text-sm outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
@@ -272,8 +366,79 @@ function AddCourseContent() {
         /* Step 2: Per-day schedule */
         <div className="flex-1 overflow-auto px-4 py-4 space-y-5">
           <p className="text-sm text-muted-foreground">
-            选择上课的日期，每天可以独立设置不同的上课时间（可跳过）
+            {isInstitutionCourse ? '以下班次由机构分配，家长端仅可查看' : '设置个人班次，保存后会同步到课表和课程详情'}
           </p>
+
+          <div className="space-y-4 rounded-2xl bg-muted/30 p-3">
+            <div>
+              <label className="text-sm font-medium text-muted-foreground block mb-2">班次名称 *</label>
+              <input
+                type="text"
+                value={className}
+                onChange={e => setClassName(e.target.value)}
+                disabled={isInstitutionCourse}
+                placeholder={`${courseName || '课程'}班次`}
+                className="w-full h-11 px-4 bg-background rounded-xl text-sm outline-none disabled:text-muted-foreground"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-muted-foreground block mb-2">班次类型</label>
+              <div className="flex gap-2">
+                {['1对1', '小班课', '大班课'].map(type => (
+                  <button
+                    key={type}
+                    type="button"
+                    disabled={isInstitutionCourse}
+                    onClick={() => setClassType(type)}
+                    className={cn(
+                      'flex-1 h-9 rounded-lg text-xs font-medium disabled:opacity-70',
+                      classType === type ? 'bg-primary text-primary-foreground' : 'bg-background text-muted-foreground'
+                    )}
+                  >
+                    {type}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-muted-foreground block mb-2">老师姓名（选填）</label>
+              <input
+                type="text"
+                placeholder="如：李老师"
+                value={teacher}
+                onChange={e => setTeacher(e.target.value)}
+                disabled={isInstitutionCourse}
+                className="w-full h-11 px-4 bg-background rounded-xl text-sm outline-none disabled:text-muted-foreground"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <label className="block">
+                <span className="text-sm font-medium text-muted-foreground block mb-2">上课地点</span>
+                <input
+                  value={locationName}
+                  onChange={e => setLocationName(e.target.value)}
+                  disabled={isInstitutionCourse}
+                  placeholder="如：琴房 / 线上"
+                  className="w-full h-11 px-3 bg-background rounded-xl text-sm outline-none disabled:text-muted-foreground"
+                />
+              </label>
+              <label className="block">
+                <span className="text-sm font-medium text-muted-foreground block mb-2">详细地址</span>
+                <input
+                  value={address}
+                  onChange={e => setAddress(e.target.value)}
+                  disabled={isInstitutionCourse}
+                  placeholder="选填"
+                  className="w-full h-11 px-3 bg-background rounded-xl text-sm outline-none disabled:text-muted-foreground"
+                />
+              </label>
+            </div>
+            {isInstitutionCourse && (
+              <div className="rounded-xl bg-blue-50 px-3 py-2 text-xs leading-5 text-blue-700">
+                机构课程的班次、老师、教室和地址由机构维护，如需调整请联系机构。
+              </div>
+            )}
+          </div>
 
           {/* Day picker */}
           <div>
@@ -284,6 +449,7 @@ function AddCourseContent() {
                 return (
                   <button
                     key={d.value}
+                    disabled={isInstitutionCourse}
                     onClick={() => toggleDay(d.value)}
                     className={cn(
                       'flex-1 h-10 rounded-xl text-xs font-medium transition-colors',
@@ -315,22 +481,24 @@ function AddCourseContent() {
                       {weekDayOptions.find(d => d.value === s.dayOfWeek)?.label}
                     </div>
                     {/* Time select */}
-                    <select
-                      value={s.time}
+                      <select
+                        value={s.time}
+                        disabled={isInstitutionCourse}
                       onChange={e => updateSession(s.dayOfWeek, 'time', e.target.value)}
                       className="flex-1 h-9 px-3 bg-background rounded-lg text-sm outline-none border border-border"
                     >
                       {timeOptions.map(t => <option key={t} value={t}>{t}</option>)}
                     </select>
                     {/* Duration select */}
-                    <select
-                      value={s.duration}
+                      <select
+                        value={s.duration}
+                        disabled={isInstitutionCourse}
                       onChange={e => updateSession(s.dayOfWeek, 'duration', Number(e.target.value))}
                       className="w-20 h-9 px-2 bg-background rounded-lg text-sm outline-none border border-border"
                     >
                       {durationOptions.map(d => <option key={d.value} value={d.value}>{d.label}</option>)}
                     </select>
-                    <button onClick={() => toggleDay(s.dayOfWeek)} className="p-1.5 hover:bg-red-50 rounded-lg shrink-0">
+                    <button disabled={isInstitutionCourse} onClick={() => toggleDay(s.dayOfWeek)} className="p-1.5 hover:bg-red-50 rounded-lg shrink-0 disabled:opacity-40">
                       <X className="w-4 h-4 text-red-400" />
                     </button>
                   </div>
@@ -369,20 +537,13 @@ function AddCourseContent() {
               下一步，设置上课时间
             </button>
           ) : (
-            <div className="flex gap-3">
-              <button
-                onClick={() => setStep('done')}
-                className="flex-1 h-12 bg-muted text-muted-foreground rounded-xl font-medium"
-              >
-                跳过
-              </button>
-              <button
-                onClick={() => setStep('done')}
-                className="flex-1 h-12 bg-primary text-primary-foreground rounded-xl font-medium"
-              >
-                {isEdit ? '保存修改' : '完成添加'}
-              </button>
-            </div>
+            <button
+              onClick={handleComplete}
+              disabled={sortedSessions.length === 0}
+              className="w-full h-12 bg-primary text-primary-foreground rounded-xl font-medium disabled:opacity-40"
+            >
+              {isEdit ? '保存修改' : '完成添加'}
+            </button>
           )}
         </div>
       )}

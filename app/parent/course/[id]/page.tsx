@@ -3,14 +3,20 @@
 import { useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import {
-  ArrowLeft, User, FileText, Camera, ChevronRight,
-  Pencil, Trash2, MapPin, CheckCircle, XCircle, AlertCircle, RefreshCw, RotateCcw, Clock,
+  ArrowLeft, FileText, Camera, ChevronRight,
+  Pencil, Trash2, MapPin, Navigation, CheckCircle, XCircle, AlertCircle, RefreshCw, RotateCcw, Clock,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { courses, schedule, classRecords, growthPhotos } from '@/lib/mock-data'
+import { classRecords, growthPhotos } from '@/lib/mock-data'
+import { useParentCourse } from '@/lib/parent-course-store'
 import { cn } from '@/lib/utils'
 
 type RecordStatus = 'attended' | 'absent' | 'leave' | 'makeup'
+const weekDayLabels = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
+
+function weekDayLabel(dayOfWeek: number) {
+  return weekDayLabels[dayOfWeek] || '未设置日期'
+}
 
 const STATUS_CONFIG: Record<RecordStatus, { label: string; color: string; icon: typeof CheckCircle }> = {
   attended: { label: '已消课', color: 'text-green-600 bg-green-50', icon: CheckCircle },
@@ -22,14 +28,14 @@ const STATUS_CONFIG: Record<RecordStatus, { label: string; color: string; icon: 
 export default function CourseDetailPage() {
   const params = useParams()
   const router = useRouter()
-  const course = courses.find(c => c.id === params.id) || courses[0]
+  const courseId = String(params.id)
+  const { course, courseSchedule, deleteCourse } = useParentCourse(courseId)
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   // local override: recordId -> new status (simulate correction)
   const [corrections, setCorrections] = useState<Record<string, RecordStatus>>({})
   const [correctingId, setCorrectingId] = useState<string | null>(null)
 
-  const courseSchedule = schedule.filter(s => s.courseId === course.id)
   const coursePhotos = growthPhotos.filter(p => p.course === course.name)
 
   // Build records: merge classRecords + auto-generate self records from past schedule
@@ -65,7 +71,15 @@ export default function CourseDetailPage() {
 
   const handleDelete = () => {
     setShowDeleteConfirm(false)
+    deleteCourse(course.id)
     router.push('/parent/assets')
+  }
+
+  const getNavigationHref = (address: string, longitude?: number, latitude?: number) => {
+    if (longitude !== undefined && latitude !== undefined) {
+      return `https://uri.amap.com/marker?position=${longitude},${latitude}&name=${encodeURIComponent(address)}&src=kxb&coordinate=gaode&callnative=0`
+    }
+    return `https://uri.amap.com/search?keyword=${encodeURIComponent(address)}&src=kxb&coordinate=gaode&callnative=0`
   }
 
   return (
@@ -101,7 +115,12 @@ export default function CourseDetailPage() {
           </div>
           <div>
             <h2 className="text-xl font-bold">{course.name}</h2>
-            <p className="text-sm text-muted-foreground mt-0.5">{course.institution}</p>
+            <div className="mt-1 flex items-center gap-2">
+              <span className={cn('rounded-full px-2 py-0.5 text-[10px] font-medium', course.courseType === 'self' ? 'bg-orange-50 text-primary' : 'bg-blue-50 text-blue-700')}>
+                {course.courseType === 'self' ? '自主记账' : '机构同步'}
+              </span>
+              <span className="truncate text-sm text-muted-foreground">{course.institution}</span>
+            </div>
           </div>
         </div>
 
@@ -119,18 +138,55 @@ export default function CourseDetailPage() {
           ))}
         </div>
 
-        {/* Info */}
-        <div className="space-y-2">
-          <div className="flex items-center gap-3 p-3 bg-muted/20 rounded-xl">
-            <User className="w-5 h-5 text-primary shrink-0" />
-            <span className="text-sm text-muted-foreground">授课教师</span>
-            <span className="ml-auto font-medium text-sm">{course.teacher}</span>
+        {/* Class sessions and locations */}
+        <div>
+          <div className="mb-3 flex items-center justify-between">
+            <h3 className="font-semibold text-sm">班次与上课地点</h3>
+            {course.courseType === 'institution' && (
+              <span className="text-[10px] text-muted-foreground">机构维护</span>
+            )}
           </div>
-          <div className="flex items-center gap-3 p-3 bg-muted/20 rounded-xl">
-            <MapPin className="w-5 h-5 text-primary shrink-0" />
-            <span className="text-sm text-muted-foreground">上课地点</span>
-            <span className="ml-auto font-medium text-sm text-right">{course.institution}</span>
-          </div>
+          {course.sessions.length > 0 ? (
+            <div className="space-y-2">
+              {course.sessions.map(session => {
+                const address = session.address || session.locationName || session.classroom
+                const canNavigate = Boolean(session.address || (session.longitude !== undefined && session.latitude !== undefined))
+                return (
+                  <div key={session.id} className="rounded-2xl bg-muted/20 p-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="font-semibold text-sm">{session.className}</p>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          {session.type} · {session.teacher || course.teacher || '未设置老师'}
+                        </p>
+                      </div>
+                      <span className="shrink-0 rounded-full bg-card px-2 py-1 text-[10px] text-muted-foreground">
+                        {weekDayLabel(session.dayOfWeek)} {session.time}
+                      </span>
+                    </div>
+                    <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
+                      <MapPin className="h-3.5 w-3.5 shrink-0 text-primary" />
+                      <span className="min-w-0 flex-1 truncate">{address || '待补充上课地点'}</span>
+                      {canNavigate && (
+                        <a
+                          href={getNavigationHref(address, session.longitude, session.latitude)}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex shrink-0 items-center gap-1 font-medium text-primary"
+                        >
+                          <Navigation className="h-3.5 w-3.5" />导航
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          ) : (
+            <div className="rounded-2xl bg-muted/20 p-4 text-center text-sm text-muted-foreground">
+              待补充上课安排
+            </div>
+          )}
         </div>
 
         {/* Upcoming classes */}
