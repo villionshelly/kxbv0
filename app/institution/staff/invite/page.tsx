@@ -44,6 +44,9 @@ function fitFontSize(
 
 export default function InstitutionStaffInvitePage() {
   const { settings } = useInstitutionProfileSettings()
+  const displayInstitutionName = settings.institutionName.trim() || '七彩培训中心'
+  const rawInstitutionCode = settings.institutionCode.replace(/\D/g, '')
+  const displayInstitutionCode = rawInstitutionCode.length === 8 ? rawInstitutionCode : '73918426'
   const [showQr, setShowQr] = useState(false)
   const [showWechatShare, setShowWechatShare] = useState(false)
   const [downloaded, setDownloaded] = useState(false)
@@ -68,9 +71,8 @@ export default function InstitutionStaffInvitePage() {
         context.drawImage(posterImage, 0, 0, canvas.width, canvas.height)
 
         const centerX = canvas.width / 2
-        const institutionName = settings.institutionName.trim() || '七彩培训中心'
-        const rawInstitutionCode = settings.institutionCode.replace(/\D/g, '')
-        const institutionCode = rawInstitutionCode.length === 8 ? rawInstitutionCode : '73918426'
+        const institutionName = displayInstitutionName
+        const institutionCode = displayInstitutionCode
         const nameMaxWidth = canvas.width * 0.52
         const nameFontSize = fitFontSize(context, institutionName, nameMaxWidth, Math.round(canvas.width * 0.045), Math.round(canvas.width * 0.031))
 
@@ -87,9 +89,9 @@ export default function InstitutionStaffInvitePage() {
         context.letterSpacing = '0px'
 
         // Keep the source poster's dashed positioning frame visible around the QR code.
-        const qrBoxSize = canvas.width * 0.155
-        const qrBoxX = canvas.width * 0.1825
-        const qrBoxY = canvas.height * 0.818
+        const qrBoxSize = canvas.width * 0.152
+        const qrBoxX = canvas.width * 0.1765
+        const qrBoxY = canvas.height * 0.812
         const qrPadding = canvas.width * 0.019
         context.fillStyle = '#ffffff'
         context.fillRect(qrBoxX, qrBoxY, qrBoxSize, qrBoxSize)
@@ -108,7 +110,7 @@ export default function InstitutionStaffInvitePage() {
     return () => {
       cancelled = true
     }
-  }, [settings.institutionCode, settings.institutionName])
+  }, [displayInstitutionCode, displayInstitutionName])
 
   const handleDownload = () => {
     const anchor = document.createElement('a')
@@ -126,10 +128,18 @@ export default function InstitutionStaffInvitePage() {
       <main className="scrollbar-quiet flex-1 overflow-auto px-4 pb-8 pt-4">
         <section className="rounded-2xl bg-card/90 px-4 py-3.5 card-dream">
           <div className="flex items-center justify-between gap-3">
-            <p className="text-base font-bold text-foreground">邀请教师加入机构</p>
+            <p className="text-base font-bold text-foreground">选择教师邀请方式</p>
             <span className="shrink-0 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">机构代码长期有效</span>
           </div>
-          <p className="mt-1.5 text-sm leading-5 text-muted-foreground">将邀请海报发送给老师，老师扫码或通过微信授权后即可加入教师团队。</p>
+          <p className="mt-1.5 text-sm leading-5 text-muted-foreground">现场可直接出示二维码；远程邀请可发送或下载下方海报，老师微信授权后即可加入团队。</p>
+          <button
+            type="button"
+            onClick={() => setShowQr(true)}
+            className="mt-3 flex h-11 w-full items-center justify-center gap-2 rounded-xl institution-btn-primary text-sm font-semibold transition-transform active:scale-[0.99]"
+          >
+            <QrCode className="h-[18px] w-[18px]" />
+            出示二维码，邀请教师扫码加入
+          </button>
         </section>
 
         <section className="mt-4 overflow-hidden rounded-3xl bg-card p-2 card-dream">
@@ -138,18 +148,10 @@ export default function InstitutionStaffInvitePage() {
 
         <section className="mt-4">
           <div className="mb-2 flex items-center justify-between px-1">
-            <p className="text-sm font-semibold text-foreground">发送邀请</p>
-            <p className="text-xs text-muted-foreground">海报内容已固定生成</p>
+            <p className="text-sm font-semibold text-foreground">远程发送邀请海报</p>
+            <p className="text-xs text-muted-foreground">内容已固定生成</p>
           </div>
-          <div className="grid grid-cols-3 gap-2.5">
-          <button
-            type="button"
-            onClick={() => setShowQr(true)}
-            className="flex h-20 flex-col items-center justify-center gap-1.5 rounded-2xl bg-card text-xs font-semibold text-secondary card-dream transition-transform active:scale-[0.98]"
-          >
-            <QrCode className="h-5 w-5" />
-            扫码加入
-          </button>
+          <div className="grid grid-cols-2 gap-2.5">
           <button
             type="button"
             onClick={() => setShowWechatShare(true)}
@@ -178,19 +180,42 @@ export default function InstitutionStaffInvitePage() {
       </main>
 
       {showQr && (
-        <div className="absolute inset-0 z-[110] flex items-center justify-center bg-black/40 p-6" onClick={() => setShowQr(false)}>
-          <div className="w-full max-w-xs rounded-3xl bg-background p-5 text-center shadow-xl" onClick={(event) => event.stopPropagation()}>
+        <div className="absolute inset-0 z-[110] flex items-center justify-center bg-black/40 p-5" onClick={() => setShowQr(false)}>
+          <div className="max-h-full w-full max-w-xs overflow-auto rounded-3xl bg-background p-5 text-center shadow-xl" onClick={(event) => event.stopPropagation()}>
             <div className="mb-4 flex items-center justify-between text-left">
               <div>
-                <p className="font-semibold">教师邀请二维码</p>
-                <p className="mt-1 text-xs text-muted-foreground">扫码授权加入机构</p>
+                <p className="font-semibold">出示教师邀请二维码</p>
+                <p className="mt-1 text-xs text-muted-foreground">请老师使用微信扫码授权</p>
               </div>
               <button type="button" onClick={() => setShowQr(false)} className="rounded-full p-2 hover:bg-muted" aria-label="关闭">
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <img src={parentInviteQrSrc} alt="教师邀请二维码" className="mx-auto h-52 w-52 bg-white p-4 ring-1 ring-border" />
-            <p className="mt-4 text-sm font-medium">{settings.institutionName}</p>
+            <img src={parentInviteQrSrc} alt="教师邀请二维码" className="mx-auto h-44 w-44 bg-white p-3 ring-1 ring-border" />
+            <div className="mt-4 rounded-2xl bg-blue-50/80 p-3 text-left">
+              <div className="mb-2 flex items-center justify-between">
+                <p className="text-xs font-semibold text-blue-700">教师扫码后页面预览</p>
+                <span className="rounded-full bg-white px-2 py-0.5 text-[10px] font-medium text-blue-600">教师端</span>
+              </div>
+              <div className="rounded-xl bg-card p-3 shadow-sm">
+                <div className="flex items-center gap-2.5">
+                  <img src={settings.institutionLogo} alt="" className="h-9 w-9 rounded-lg object-cover" />
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-bold text-foreground">{displayInstitutionName}</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">邀请你加入教师团队</p>
+                  </div>
+                </div>
+                <div className="mt-3 flex items-center justify-between rounded-lg bg-muted/60 px-2.5 py-2">
+                  <span className="text-xs text-muted-foreground">机构代码</span>
+                  <span className="font-mono text-sm font-bold tracking-[0.14em] text-foreground">{displayInstitutionCode}</span>
+                </div>
+                <div className="mt-3 flex h-9 items-center justify-center gap-1.5 rounded-lg bg-[#07C160] text-xs font-semibold text-white">
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                  微信授权登录并加入
+                </div>
+              </div>
+              <p className="mt-2 text-center text-[11px] leading-4 text-muted-foreground">老师确认授权后，会自动加入当前机构的教师团队。</p>
+            </div>
           </div>
         </div>
       )}

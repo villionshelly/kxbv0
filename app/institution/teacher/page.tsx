@@ -141,34 +141,39 @@ export default function TeacherHomePage() {
   }
 
   // —— HOME TAB ——
-  const HomeTab = () => (
-    <div className="teacher-root-tab-scroll flex-1 overflow-auto">
+  const HomeTab = () => {
+    const pendingCheckIns = todaySessions.filter(session => !savedSessions.includes(session.id)).length
+
+    return (
+    <div className="teacher-root-tab-scroll teacher-home-scroll flex-1 overflow-auto">
       {/* Header */}
-      <header className="teacher-brand-header px-4 pb-4 pt-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img src={ME.avatar} alt={ME.name} className="h-11 w-11 rounded-2xl bg-muted object-cover ring-2 ring-white/80" />
-            <div>
-              <div className="flex items-center gap-2">
-                <p className="font-bold">{ME.name}</p>
-                <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-semibold text-blue-700">教师工作台</span>
-              </div>
-              <p className="text-xs text-slate-500">{ME.title} · 七彩培训中心</p>
+      <header className="teacher-home-hero px-4 pb-5 pt-5">
+        <div className="teacher-home-profile">
+          <div className="teacher-home-avatar-wrap">
+            <img src={ME.avatar} alt={ME.name} className="h-[72px] w-[72px] rounded-[28px] bg-muted object-cover" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="text-[28px] font-black leading-none text-slate-950">{ME.name}</p>
+              <span className="rounded-full bg-white/72 px-2.5 py-1 text-[10px] font-semibold text-blue-700 shadow-sm">教师工作台</span>
+            </div>
+            <p className="mt-1.5 truncate text-sm text-slate-600">{ME.title} · 七彩培训中心</p>
+            <div className="mt-3 flex flex-wrap gap-2 text-[11px] font-semibold">
+              <span className="rounded-full bg-white/68 px-2.5 py-1 text-blue-700">今日 {todaySessions.length} 节课</span>
+              <span className="rounded-full bg-white/54 px-2.5 py-1 text-slate-600">待核销 {pendingCheckIns}</span>
             </div>
           </div>
-          <button onClick={() => router.push('/institution/login')} aria-label="退出登录" className="flex h-9 w-9 items-center justify-center rounded-full bg-white/75 shadow-sm transition-colors hover:bg-white">
-            <LogOut className="w-5 h-5 text-muted-foreground" />
-          </button>
         </div>
-        <div className="teacher-card mt-4 grid grid-cols-3 gap-2 p-2">
+
+        <div className="mt-5 grid grid-cols-3 gap-2">
           {[
-            { label: '我的班次', value: mySessions.length, color: 'text-blue-700' },
-            { label: '我的学员', value: myStudents.length, color: 'text-sky-600' },
-            { label: '今日课程', value: todaySessions.length, color: 'text-slate-800' },
+            { label: '班次', value: mySessions.length, color: 'text-blue-700' },
+            { label: '学员', value: myStudents.length, color: 'text-sky-600' },
+            { label: '今日课', value: todaySessions.length, color: 'text-slate-900' },
           ].map(stat => (
-            <div key={stat.label} className="teacher-soft-card rounded-2xl p-2.5 text-center">
-              <p className={cn('text-xl font-bold', stat.color)}>{stat.value}</p>
-              <p className="text-xs text-muted-foreground">{stat.label}</p>
+            <div key={stat.label} className="teacher-home-stat">
+              <p className={cn('text-xl font-bold leading-none', stat.color)}>{stat.value}</p>
+              <p className="mt-1 text-[11px] text-slate-500">{stat.label}</p>
             </div>
           ))}
         </div>
@@ -176,22 +181,28 @@ export default function TeacherHomePage() {
 
       <div className="teacher-subpage-content space-y-4">
         {/* Quick Actions */}
-        <section className="teacher-card p-3">
-          <div className="mb-3 flex items-center justify-between"><h2 className="text-sm font-bold">教学工具</h2><span className="text-xs text-slate-400">高效完成今天的课</span></div>
-          <div className="grid grid-cols-4 gap-2">
+        <section className="teacher-card p-4">
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-sm font-bold">教学工具</h2>
+            <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-semibold text-blue-600">常用</span>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
             {[
-              { icon: Camera, label: '拍照点名', color: 'bg-blue-100 text-blue-700', onClick: () => router.push('/institution/teacher/photo-attendance') },
-              { icon: Video, label: '精彩瞬间', color: 'bg-sky-100 text-sky-700', onClick: () => router.push('/institution/teacher/highlights') },
-              { icon: CheckSquare, label: '销课记录', color: 'bg-blue-50 text-blue-600', onClick: () => router.push('/institution/teacher/consumption-records') },
-              { icon: FileText, label: '成长报告', color: 'bg-indigo-50 text-indigo-600', onClick: () => router.push('/institution/teacher/growth-report') },
+              { icon: Camera, label: '拍照点名', desc: '快速核销', color: 'bg-blue-100 text-blue-700', onClick: () => router.push('/institution/teacher/photo-attendance') },
+              { icon: Video, label: '精彩瞬间', desc: '生成素材', color: 'bg-sky-100 text-sky-700', onClick: () => router.push('/institution/teacher/highlights') },
+              { icon: CheckSquare, label: '销课记录', desc: '历史明细', color: 'bg-blue-50 text-blue-600', onClick: () => router.push('/institution/teacher/consumption-records') },
+              { icon: FileText, label: '成长报告', desc: '学员反馈', color: 'bg-indigo-50 text-indigo-600', onClick: () => router.push('/institution/teacher/growth-report') },
             ].map(action => (
               <button key={action.label} onClick={action.onClick}
-                className="flex min-w-0 flex-col items-center gap-2 rounded-2xl p-2 transition-colors hover:bg-blue-50/70"
+                className="flex min-w-0 items-center gap-2.5 rounded-2xl bg-blue-50/45 p-2.5 text-left transition-colors hover:bg-blue-50"
               >
-                <div className={cn('w-11 h-11 rounded-xl flex items-center justify-center', action.color)}>
+                <div className={cn('flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl', action.color)}>
                   <action.icon className="w-5 h-5" />
                 </div>
-                <span className="text-xs text-muted-foreground">{action.label}</span>
+                <div className="min-w-0">
+                  <p className="truncate text-xs font-semibold text-slate-900">{action.label}</p>
+                  <p className="mt-0.5 truncate text-[10px] text-slate-500">{action.desc}</p>
+                </div>
               </button>
             ))}
           </div>
@@ -391,7 +402,8 @@ export default function TeacherHomePage() {
         </div>
       </div>
     </div>
-  )
+    )
+  }
 
   // —— CLASSES TAB — 7-column week calendar + list toggle ——
   const ClassesTab = () => {
