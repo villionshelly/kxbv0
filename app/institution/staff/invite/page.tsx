@@ -71,25 +71,26 @@ export default function InstitutionStaffInvitePage() {
         const institutionName = settings.institutionName.trim() || '七彩培训中心'
         const rawInstitutionCode = settings.institutionCode.replace(/\D/g, '')
         const institutionCode = rawInstitutionCode.length === 8 ? rawInstitutionCode : '73918426'
-        const nameMaxWidth = canvas.width * 0.34
-        const nameFontSize = fitFontSize(context, institutionName, nameMaxWidth, Math.round(canvas.width * 0.031), Math.round(canvas.width * 0.021))
+        const nameMaxWidth = canvas.width * 0.52
+        const nameFontSize = fitFontSize(context, institutionName, nameMaxWidth, Math.round(canvas.width * 0.045), Math.round(canvas.width * 0.031))
 
         context.textAlign = 'center'
         context.textBaseline = 'middle'
         context.fillStyle = '#15327a'
         context.font = `900 ${nameFontSize}px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`
-        context.fillText(institutionName, canvas.width * 0.665, canvas.height * 0.272)
+        context.fillText(institutionName, centerX, canvas.height * 0.268)
 
         context.fillStyle = '#ff741c'
-        context.font = `1000 ${Math.round(canvas.width * 0.053)}px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`
+        context.font = `1000 ${Math.round(canvas.width * 0.044)}px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`
         context.letterSpacing = `${Math.round(canvas.width * 0.004)}px`
-        context.fillText(institutionCode, centerX, canvas.height * 0.487)
+        context.fillText(institutionCode, centerX, canvas.height * 0.438)
         context.letterSpacing = '0px'
 
-        const qrBoxSize = canvas.width * 0.19
-        const qrBoxX = canvas.width * 0.165
-        const qrBoxY = canvas.height * 0.807
-        const qrPadding = canvas.width * 0.035
+        // Keep the source poster's dashed positioning frame visible around the QR code.
+        const qrBoxSize = canvas.width * 0.155
+        const qrBoxX = canvas.width * 0.1825
+        const qrBoxY = canvas.height * 0.818
+        const qrPadding = canvas.width * 0.019
         context.fillStyle = '#ffffff'
         context.fillRect(qrBoxX, qrBoxY, qrBoxSize, qrBoxSize)
         context.drawImage(qrImage, qrBoxX + qrPadding, qrBoxY + qrPadding, qrBoxSize - qrPadding * 2, qrBoxSize - qrPadding * 2)
@@ -123,11 +124,24 @@ export default function InstitutionStaffInvitePage() {
   return (
     <div className="flex h-full flex-col institution-dream-bg">
       <main className="scrollbar-quiet flex-1 overflow-auto px-4 pb-8 pt-4">
-        <section className="overflow-hidden rounded-3xl bg-card p-2 card-dream">
+        <section className="rounded-2xl bg-card/90 px-4 py-3.5 card-dream">
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-base font-bold text-foreground">邀请教师加入机构</p>
+            <span className="shrink-0 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">机构代码长期有效</span>
+          </div>
+          <p className="mt-1.5 text-sm leading-5 text-muted-foreground">将邀请海报发送给老师，老师扫码或通过微信授权后即可加入教师团队。</p>
+        </section>
+
+        <section className="mt-4 overflow-hidden rounded-3xl bg-card p-2 card-dream">
           <img src={composedPosterSrc} alt="教师邀请海报" className="block w-full rounded-2xl" />
         </section>
 
-        <section className="mt-4 grid grid-cols-3 gap-2.5">
+        <section className="mt-4">
+          <div className="mb-2 flex items-center justify-between px-1">
+            <p className="text-sm font-semibold text-foreground">发送邀请</p>
+            <p className="text-xs text-muted-foreground">海报内容已固定生成</p>
+          </div>
+          <div className="grid grid-cols-3 gap-2.5">
           <button
             type="button"
             onClick={() => setShowQr(true)}
@@ -152,6 +166,7 @@ export default function InstitutionStaffInvitePage() {
             <Download className="h-5 w-5" />
             下载海报
           </button>
+          </div>
         </section>
 
         {downloaded && (
