@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Phone, ArrowRight, CheckCircle, Building2, Users, Sparkles, Shield } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { TeacherPageShell } from '@/components/teacher-page-shell'
 
 function JoinContent() {
   const router = useRouter()
@@ -45,7 +46,7 @@ function JoinContent() {
 
   if (step === 'verifying') {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-8">
+      <TeacherPageShell variant="onboarding" className="flex items-center justify-center p-8">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-4" />
           <p className="font-medium">正在验证...</p>
@@ -53,15 +54,15 @@ function JoinContent() {
             {isNewUser ? '正在为您创建账号' : '正在获取您的信息'}
           </p>
         </div>
-      </div>
+      </TeacherPageShell>
     )
   }
 
   if (step === 'login') {
     return (
-      <div className="min-h-screen bg-background flex flex-col">
+      <TeacherPageShell variant="onboarding" className="flex flex-col">
         {/* Header */}
-        <div className="px-6 pt-12 pb-6">
+        <div className="teacher-brand-header px-6 pt-12 pb-6">
           <h1 className="text-2xl font-bold">手机号登录</h1>
           <p className="text-muted-foreground mt-1">首次使用将自动注册账号</p>
         </div>
@@ -111,7 +112,7 @@ function JoinContent() {
           <button
             onClick={handleVerify}
             disabled={verifyCode.length !== 6}
-            className="w-full h-14 bg-primary text-primary-foreground rounded-2xl font-semibold disabled:opacity-40 flex items-center justify-center gap-2"
+            className="w-full h-14 institution-btn-primary font-semibold disabled:opacity-40 flex items-center justify-center gap-2"
           >
             {isNewUser ? '注册并加入' : '登录并加入'}
             <ArrowRight className="w-5 h-5" />
@@ -129,16 +130,16 @@ function JoinContent() {
             登录即表示同意《用户协议》和《隐私政策》
           </p>
         </div>
-      </div>
+      </TeacherPageShell>
     )
   }
 
   // Welcome step
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 flex flex-col">
+    <TeacherPageShell variant="onboarding" className="flex flex-col">
       {/* Header illustration */}
       <div className="flex-1 flex flex-col items-center justify-center px-6 pt-12">
-        <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-xl mb-6">
+        <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-blue-500 to-sky-500 flex items-center justify-center shadow-xl mb-6">
           <Building2 className="w-10 h-10 text-white" />
         </div>
         
@@ -180,7 +181,7 @@ function JoinContent() {
             // 模拟微信授权获取手机号，直接进入信息填写
             router.push(`/teacher/join/info?code=${inviteCode}&org=${encodeURIComponent(orgName)}&phone=13800138001&isNew=false`)
           }}
-          className="w-full h-14 bg-[#07C160] text-white rounded-2xl font-semibold flex items-center justify-center gap-2 shadow-lg shadow-green-500/20"
+          className="w-full h-14 institution-btn-primary font-semibold flex items-center justify-center gap-2"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
             <path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348zM5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178A1.17 1.17 0 0 1 4.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178 1.17 1.17 0 0 1-1.162-1.178c0-.651.52-1.18 1.162-1.18zm5.34 2.867c-1.797-.052-3.746.512-5.28 1.786-1.72 1.428-2.687 3.72-1.78 6.22.942 2.453 3.666 4.229 6.884 4.229.826 0 1.622-.12 2.361-.336a.722.722 0 0 1 .598.082l1.584.926a.272.272 0 0 0 .14.047c.134 0 .24-.111.24-.247 0-.06-.023-.12-.038-.177l-.327-1.233a.582.582 0 0 1-.023-.156.49.49 0 0 1 .201-.398C23.024 18.48 24 16.82 24 14.98c0-3.21-2.931-5.837-6.656-6.088V8.89l-.407-.032zM13.12 12.653c.536 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.433-.982.97-.982zm4.844 0c.536 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.433-.982.97-.982z"/>
@@ -189,7 +190,7 @@ function JoinContent() {
         </button>
         <button
           onClick={() => setStep('login')}
-          className="w-full h-14 bg-primary text-primary-foreground rounded-2xl font-semibold flex items-center justify-center gap-2 shadow-lg shadow-primary/30"
+          className="w-full h-14 institution-btn-primary font-semibold flex items-center justify-center gap-2"
         >
           手机号登录加入
           <ArrowRight className="w-5 h-5" />
@@ -198,7 +199,7 @@ function JoinContent() {
           点击加入即表示您同意《用户协议》《隐私政策》，授权获取手机号成为该机构的教师成员
         </p>
       </div>
-    </div>
+    </TeacherPageShell>
   )
 }
 

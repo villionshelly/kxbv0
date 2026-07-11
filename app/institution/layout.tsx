@@ -60,10 +60,11 @@ export default function InstitutionLayout({
   }
 
   // Hide tab bar on all sub-detail pages and assistant page
-  const rootPaths = ['/institution', '/institution/students', '/institution/schedule', '/institution/profile']
+  const rootPaths = ['/institution', '/institution/students', '/institution/schedule', '/institution/profile', '/institution/teacher']
   const isRootTabPath = rootPaths.includes(pathname)
   const showSubpageNav = !rootPaths.includes(pathname)
-  const hideTabBar = pathname.includes('/login') || pathname.includes('/payment') || pathname.includes('/assistant') || !rootPaths.includes(pathname)
+  const isTeacherWorkspace = pathname.startsWith('/institution/teacher')
+  const hideTabBar = pathname.includes('/login') || pathname.includes('/payment') || pathname.includes('/assistant') || isTeacherWorkspace || !rootPaths.includes(pathname)
 
   return (
     <div className="min-h-screen bg-muted/30 flex items-start justify-center">
@@ -75,8 +76,11 @@ export default function InstitutionLayout({
         <SubpageQuickNav section="institution" />
         {/* Content Area */}
         <div
-          className="mobile-content-area scrollbar-quiet flex-1 overflow-auto"
-          style={showSubpageNav ? { marginTop: 'var(--kxb-mp-header-height)', minHeight: 0 } : { minHeight: 0 }}
+          className={cn(
+            'mobile-content-area scrollbar-quiet flex-1 overflow-auto',
+            isTeacherWorkspace && 'flex min-h-0 flex-col overflow-hidden',
+          )}
+          style={showSubpageNav ? { paddingTop: 'var(--kxb-mp-total-nav-height)', minHeight: 0 } : { minHeight: 0 }}
         >
           {children}
         </div>

@@ -5,13 +5,14 @@ import { useRouter } from 'next/navigation'
 import {
   LogOut, CheckCircle, XCircle, Clock, ChevronRight,
   Users, CalendarDays, BookOpen, CheckSquare, Home,
-  Camera, Video, Sparkles, FileText, RefreshCw, UserCheck,
+  Camera, Video, FileText, RefreshCw, UserCheck,
   MessageCircle, ChevronDown, Plus, AlertCircle, Building2, QrCode, UserX,
 } from 'lucide-react'
 import { teachers, classSessions, students, teacherCheckIns, leaveRecords } from '@/lib/mock-data'
 import { cn } from '@/lib/utils'
 import { FeedbackEditor } from '@/components/feedback-editor'
 import { useFeedbackStore, saveRecordFeedback } from '@/lib/feedback-store'
+import { TeacherPageShell } from '@/components/teacher-page-shell'
 
 const ME = teachers[0] // 模拟：李雪（管理员兼教师）登录
 const weekDayNames = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
@@ -141,28 +142,31 @@ export default function TeacherHomePage() {
 
   // —— HOME TAB ——
   const HomeTab = () => (
-    <div className="flex-1 overflow-auto">
+    <div className="teacher-root-tab-scroll flex-1 overflow-auto">
       {/* Header */}
-      <header className="safe-area-top px-4 pb-4 bg-gradient-to-br from-primary/8 to-secondary/5">
+      <header className="teacher-brand-header px-4 pb-4 pt-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src={ME.avatar} alt={ME.name} className="w-10 h-10 rounded-full bg-muted ring-2 ring-primary/20" />
+            <img src={ME.avatar} alt={ME.name} className="h-11 w-11 rounded-2xl bg-muted object-cover ring-2 ring-white/80" />
             <div>
-              <p className="font-semibold">{ME.name}</p>
-              <p className="text-xs text-muted-foreground">{ME.title} · 七彩培训中心</p>
+              <div className="flex items-center gap-2">
+                <p className="font-bold">{ME.name}</p>
+                <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-semibold text-blue-700">教师工作台</span>
+              </div>
+              <p className="text-xs text-slate-500">{ME.title} · 七彩培训中心</p>
             </div>
           </div>
-          <button onClick={() => router.push('/institution/login')} className="p-2 rounded-lg hover:bg-muted transition-colors">
+          <button onClick={() => router.push('/institution/login')} aria-label="退出登录" className="flex h-9 w-9 items-center justify-center rounded-full bg-white/75 shadow-sm transition-colors hover:bg-white">
             <LogOut className="w-5 h-5 text-muted-foreground" />
           </button>
         </div>
-        <div className="grid grid-cols-3 gap-3 mt-4">
+        <div className="teacher-card mt-4 grid grid-cols-3 gap-2 p-2">
           {[
-            { label: '我的班次', value: mySessions.length, color: 'text-primary' },
-            { label: '我的学员', value: myStudents.length, color: 'text-secondary' },
-            { label: '今日课程', value: todaySessions.length, color: 'text-foreground' },
+            { label: '我的班次', value: mySessions.length, color: 'text-blue-700' },
+            { label: '我的学员', value: myStudents.length, color: 'text-sky-600' },
+            { label: '今日课程', value: todaySessions.length, color: 'text-slate-800' },
           ].map(stat => (
-            <div key={stat.label} className="bg-background rounded-xl p-3 shadow-sm text-center">
+            <div key={stat.label} className="teacher-soft-card rounded-2xl p-2.5 text-center">
               <p className={cn('text-xl font-bold', stat.color)}>{stat.value}</p>
               <p className="text-xs text-muted-foreground">{stat.label}</p>
             </div>
@@ -170,18 +174,19 @@ export default function TeacherHomePage() {
         </div>
       </header>
 
-      <div className="px-4 py-4 space-y-5">
+      <div className="teacher-subpage-content space-y-4">
         {/* Quick Actions */}
-        <div>
+        <section className="teacher-card p-3">
+          <div className="mb-3 flex items-center justify-between"><h2 className="text-sm font-bold">教学工具</h2><span className="text-xs text-slate-400">高效完成今天的课</span></div>
           <div className="grid grid-cols-4 gap-2">
             {[
-              { icon: Camera, label: '拍照点名', color: 'bg-secondary/10 text-secondary', onClick: () => router.push('/institution/teacher/photo-attendance') },
-              { icon: Video, label: '精彩瞬间', color: 'bg-primary/10 text-primary', onClick: () => router.push('/institution/teacher/highlights') },
-              { icon: Sparkles, label: 'AI助理', color: 'bg-amber-500/10 text-amber-600', onClick: () => router.push('/institution/teacher/assistant') },
-              { icon: FileText, label: '成长报告', color: 'bg-purple-500/10 text-purple-600', onClick: () => router.push('/institution/teacher/growth-report') },
+              { icon: Camera, label: '拍照点名', color: 'bg-blue-100 text-blue-700', onClick: () => router.push('/institution/teacher/photo-attendance') },
+              { icon: Video, label: '精彩瞬间', color: 'bg-sky-100 text-sky-700', onClick: () => router.push('/institution/teacher/highlights') },
+              { icon: CheckSquare, label: '销课记录', color: 'bg-blue-50 text-blue-600', onClick: () => router.push('/institution/teacher/consumption-records') },
+              { icon: FileText, label: '成长报告', color: 'bg-indigo-50 text-indigo-600', onClick: () => router.push('/institution/teacher/growth-report') },
             ].map(action => (
               <button key={action.label} onClick={action.onClick}
-                className="flex flex-col items-center gap-2 p-3 bg-muted/30 rounded-2xl hover:bg-muted/50 transition-colors"
+                className="flex min-w-0 flex-col items-center gap-2 rounded-2xl p-2 transition-colors hover:bg-blue-50/70"
               >
                 <div className={cn('w-11 h-11 rounded-xl flex items-center justify-center', action.color)}>
                   <action.icon className="w-5 h-5" />
@@ -190,7 +195,7 @@ export default function TeacherHomePage() {
               </button>
             ))}
           </div>
-        </div>
+        </section>
 
         {/* Today's check-in */}
         <div>
@@ -212,7 +217,7 @@ export default function TeacherHomePage() {
                 const leaveCount = leaveRecords.filter(l => l.sessionId === session.id && l.dayOfWeek === todayDow).length
 
                 return (
-                  <div key={session.id} className="bg-background border border-border rounded-2xl overflow-hidden shadow-sm">
+                  <div key={session.id} className="teacher-card overflow-hidden">
                     <div className="p-4">
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-3">
@@ -417,12 +422,12 @@ export default function TeacherHomePage() {
     )
 
     return (
-      <div className="flex flex-col flex-1 overflow-hidden">
+      <div className="teacher-root-tab-scroll flex flex-col flex-1 overflow-hidden">
         {/* Header */}
-        <div className="px-4 pt-4 pb-0 border-b border-border bg-background">
+        <div className="teacher-brand-header px-4 pb-3 pt-4">
           <div className="flex items-center justify-between mb-3">
             <h1 className="text-base font-semibold">我的课表</h1>
-            <div className="flex bg-muted/50 rounded-lg p-0.5">
+              <div className="rounded-xl bg-white/70 p-0.5 shadow-sm">
               {(['week', 'list'] as const).map(m => (
                 <button
                   key={m}
@@ -456,7 +461,7 @@ export default function TeacherHomePage() {
               <div className="flex sticky top-0 bg-background z-10 border-b border-border">
                 <div className="w-11 shrink-0" />
                 {weekDayNames.map((day, idx) => (
-                  <div key={day} className="flex-1 text-center py-2">
+                <div key={day} className="flex-1 text-center py-2">
                     <span className={cn(
                       'text-[11px] font-medium',
                       idx === todayDow ? 'text-primary font-bold' : idx >= 5 ? 'text-secondary' : 'text-muted-foreground'
@@ -529,7 +534,7 @@ export default function TeacherHomePage() {
                   <button
                     key={cs.id}
                     onClick={() => setDetailSession({ session: cs, day: cs.sessions[0]?.dayOfWeek ?? 0 })}
-                    className="w-full p-4 bg-muted/30 rounded-2xl text-left active:bg-muted/50 transition-colors"
+                    className="teacher-card w-full p-4 text-left transition-colors active:bg-blue-50"
                   >
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex items-center gap-2">
@@ -643,13 +648,15 @@ export default function TeacherHomePage() {
 
   // —— STUDENTS TAB ——
   const StudentsTab = () => (
-    <div className="flex-1 overflow-auto px-4 py-4">
-      <h1 className="text-base font-semibold mb-4">我的学员 <span className="text-muted-foreground font-normal text-sm">({myStudents.length}人)</span></h1>
-      <div className="space-y-3">
+    <div className="teacher-root-tab-scroll flex-1 overflow-auto">
+      <div className="teacher-brand-header px-4 pb-4 pt-4">
+        <h1 className="text-base font-bold">我的学员 <span className="text-slate-500 font-normal text-sm">({myStudents.length}人)</span></h1>
+      </div>
+      <div className="teacher-subpage-content space-y-3">
         {myStudents.map(student => {
           const studentSessions = mySessions.filter(cs => cs.studentIds.includes(student.id))
           return (
-            <div key={student.id} className="p-4 bg-background border border-border rounded-2xl shadow-sm">
+            <div key={student.id} className="teacher-card p-4">
               <div className="flex items-center gap-3 mb-3">
                 <img src={student.avatar} alt={student.name} className="w-11 h-11 rounded-full bg-muted" />
                 <div className="flex-1">
@@ -673,15 +680,15 @@ export default function TeacherHomePage() {
               </div>
               <div className="flex gap-2">
                 <button onClick={() => router.push('/institution/teacher/growth-report')}
-                  className="flex-1 h-8 bg-purple-50 text-purple-600 rounded-lg text-xs font-medium border border-purple-100">
+                  className="flex-1 h-8 institution-btn-primary text-xs font-medium">
                   成长报告
                 </button>
                 <button onClick={() => router.push('/institution/teacher/highlights')}
-                  className="flex-1 h-8 bg-primary/5 text-primary rounded-lg text-xs font-medium border border-primary/10">
+                  className="flex-1 h-8 institution-btn-primary text-xs font-medium">
                   精彩瞬间
                 </button>
                 <button onClick={() => router.push('/institution/teacher/assistant')}
-                  className="flex-1 h-8 bg-amber-50 text-amber-600 rounded-lg text-xs font-medium border border-amber-100">
+                  className="flex-1 h-8 institution-btn-primary text-xs font-medium">
                   AI助理
                 </button>
               </div>
@@ -747,9 +754,9 @@ export default function TeacherHomePage() {
     }
 
     return (
-      <div className="flex-1 overflow-auto">
+      <div className="teacher-root-tab-scroll flex-1 overflow-auto">
         {/* Profile header */}
-        <div className="px-4 pt-6 pb-5 bg-gradient-to-br from-primary/8 to-secondary/5">
+        <div className="teacher-brand-header px-4 pb-5 pt-4">
           <div className="flex items-center gap-4">
             <img src={ME.avatar} alt={ME.name} className="w-16 h-16 rounded-full bg-muted ring-2 ring-primary/20" />
             <div className="flex-1">
@@ -778,7 +785,7 @@ export default function TeacherHomePage() {
           {/* Current organization */}
           <button
             onClick={() => setShowOrgSheet(true)}
-            className="w-full flex items-center gap-3 p-4 bg-gradient-to-r from-secondary/10 to-primary/10 rounded-2xl"
+            className="teacher-card w-full flex items-center gap-3 p-4"
           >
             <div className="w-10 h-10 rounded-xl bg-secondary/20 flex items-center justify-center">
               <Building2 className="w-5 h-5 text-secondary" />
@@ -868,9 +875,8 @@ export default function TeacherHomePage() {
             {[
               { icon: Camera, label: '拍照点名', desc: 'AI识别自动核销', href: '/institution/teacher/photo-attendance', color: 'text-secondary', bg: 'bg-secondary/10' },
               { icon: Video, label: '精彩瞬间', desc: 'AI生成课堂精彩视频', href: '/institution/teacher/highlights', color: 'text-primary', bg: 'bg-primary/10' },
-              { icon: Sparkles, label: 'AI助理', desc: '智能回复、内容生成', href: '/institution/teacher/assistant', color: 'text-amber-600', bg: 'bg-amber-500/10' },
               { icon: FileText, label: 'AI成长报告', desc: '为学员生成月度报告', href: '/institution/teacher/growth-report', color: 'text-purple-600', bg: 'bg-purple-500/10' },
-              { icon: CheckSquare, label: '消课记录', desc: '查看历史核销记录', href: '/institution/teacher', color: 'text-green-600', bg: 'bg-green-500/10' },
+              { icon: CheckSquare, label: '销课记录', desc: '查看历史核销记录', href: '/institution/teacher/consumption-records', color: 'text-blue-600', bg: 'bg-blue-500/10' },
             ].map(item => (
               <button key={item.label} onClick={() => router.push(item.href)}
                 className="w-full flex items-center gap-4 p-4 bg-muted/30 rounded-2xl hover:bg-muted/50 transition-colors text-left">
@@ -1061,14 +1067,15 @@ export default function TeacherHomePage() {
   }
 
   const tabConfig = [
-    { id: 'home' as Tab, label: '���页', icon: Home },
-    { id: 'classes' as Tab, label: '班级', icon: CalendarDays },
-    { id: 'students' as Tab, label: '学员', icon: Users },
-    { id: 'mine' as Tab, label: '我的', icon: UserCheck },
+    { id: 'home' as const, label: '首页', icon: Home },
+    { id: 'classes' as const, label: '班级', icon: CalendarDays },
+    { id: 'assistant' as const, label: 'AI助理', iconSrc: '/images/ai/ai_crab_加油加油.gif', href: '/institution/teacher/assistant' },
+    { id: 'students' as const, label: '学员', icon: Users },
+    { id: 'mine' as const, label: '我的', icon: UserCheck },
   ]
 
   return (
-    <div className="flex flex-col h-full bg-background">
+    <TeacherPageShell className="min-h-0 flex-1" variant="workspace">
       {/* Tab Content */}
       {activeTab === 'home' && <HomeTab />}
       {activeTab === 'classes' && <ClassesTab />}
@@ -1076,13 +1083,23 @@ export default function TeacherHomePage() {
       {activeTab === 'mine' && <MineTab />}
 
       {/* Bottom Tab Bar */}
-      <nav className="shrink-0 border-t border-border bg-background safe-area-bottom">
+      <nav className="teacher-tab-bar shrink-0 border-t safe-area-bottom">
         <div className="flex">
           {tabConfig.map(tab => (
-            <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-              className={cn('flex-1 flex flex-col items-center gap-1 py-3 transition-colors',
-                activeTab === tab.id ? 'text-primary' : 'text-muted-foreground')}>
-              <tab.icon className="w-5 h-5" />
+            <button key={tab.id} onClick={() => {
+              if (tab.id === 'assistant') {
+                router.push(tab.href)
+                return
+              }
+              setActiveTab(tab.id)
+            }}
+              className={cn('flex-1 flex flex-col items-center justify-center gap-1 py-2 transition-colors',
+                tab.id !== 'assistant' && activeTab === tab.id ? 'text-blue-700' : 'text-muted-foreground')}>
+              {tab.id === 'assistant' ? (
+                <img src={tab.iconSrc} alt="" className="h-11 w-11 object-contain" aria-hidden="true" />
+              ) : (
+                <tab.icon className="w-5 h-5" />
+              )}
               <span className="text-xs">{tab.label}</span>
             </button>
           ))}
@@ -1105,6 +1122,6 @@ export default function TeacherHomePage() {
           onClose={() => setActiveFeedbackCheckIn(null)}
         />
       )}
-    </div>
+    </TeacherPageShell>
   )
 }

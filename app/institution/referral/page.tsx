@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { ArrowLeft, Plus, Gift, Users, Share2, CheckCircle, Clock, Sparkles } from 'lucide-react'
 import { referralActivities, referralRecords } from '@/lib/mock-data'
 import { cn } from '@/lib/utils'
+import { DraggablePageActionFab } from '@/components/draggable-page-action-fab'
 
 export default function ReferralPage() {
   const router = useRouter()
@@ -34,12 +35,6 @@ export default function ReferralPage() {
           <h1 className="font-semibold">老带新活动</h1>
           <p className="text-xs text-muted-foreground">设置转介绍奖励，促进口碑裂变</p>
         </div>
-        <button
-          onClick={() => setShowCreateModal(true)}
-          className="p-2 institution-btn-primary rounded-lg"
-        >
-          <Plus className="w-5 h-5" />
-        </button>
       </header>
 
       {/* Stats */}
@@ -267,6 +262,12 @@ export default function ReferralPage() {
           </div>
         </div>
       )}
+      <DraggablePageActionFab
+        actionId="institution-referral-create"
+        label="新建活动"
+        icon={Plus}
+        onClick={() => setShowCreateModal(true)}
+      />
     </div>
   )
 }

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { ArrowLeft, Send, Sparkles, Mic, MicOff, Keyboard, CheckCircle, Users, AlertCircle, Clock } from 'lucide-react'
 import { classSessions, students, leaveRecords } from '@/lib/mock-data'
 import { cn } from '@/lib/utils'
+import { TeacherPageShell } from '@/components/teacher-page-shell'
 
 const ME_ID = '1'
 const weekDayNames = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
@@ -141,9 +142,9 @@ export default function TeacherAssistantPage() {
   }
 
   return (
-    <div className="flex flex-col h-full bg-background">
+    <TeacherPageShell className="assistant-page-texture flex h-full flex-col" variant="tool">
       {/* Header */}
-      <header className="safe-area-top px-4 pb-3 bg-background border-b border-border">
+      <header className="hidden safe-area-top px-4 pb-3 bg-background border-b border-border">
         <div className="flex items-center gap-3">
           <button onClick={() => router.push('/institution/teacher')}
             className="p-2 -ml-2 hover:bg-muted rounded-xl transition-colors">
@@ -162,14 +163,14 @@ export default function TeacherAssistantPage() {
       </header>
 
       {/* Messages */}
-      <div className="flex-1 overflow-auto px-4 py-4 space-y-4">
+      <div className="teacher-subpage-content scrollbar-quiet flex-1 overflow-auto space-y-4">
         {/* Quick prompts on first load */}
         {messages.length <= 1 && (
           <div className="grid grid-cols-2 gap-2 mb-2">
             {quickPrompts.map(q => (
               <button key={q.label} onClick={() => sendMessage(q.label)}
-                className="flex items-center gap-2 p-3 bg-muted/40 rounded-xl text-left hover:bg-muted/70 transition-colors">
-                <q.icon className="w-4 h-4 text-primary shrink-0" />
+                className="teacher-card flex items-center gap-2 p-3 text-left transition-colors hover:bg-blue-50">
+                <q.icon className="w-4 h-4 text-blue-600 shrink-0" />
                 <span className="text-xs text-foreground">{q.label}</span>
               </button>
             ))}
@@ -179,8 +180,8 @@ export default function TeacherAssistantPage() {
         {messages.map(msg => (
           <div key={msg.id} className={cn('flex', msg.role === 'user' ? 'justify-end' : 'justify-start')}>
             {msg.role === 'assistant' && (
-              <div className="w-8 h-8 rounded-xl bg-amber-500/10 flex items-center justify-center mr-2 mt-0.5 shrink-0">
-                <Sparkles className="w-4 h-4 text-amber-600" />
+              <div className="mr-2 mt-0.5 h-8 w-8 shrink-0 overflow-hidden rounded-xl bg-white shadow-sm">
+                <img src="/images/ai/ai_crab_加油加油.gif" alt="课小宝AI" className="h-full w-full object-cover" />
               </div>
             )}
             <div className={cn('max-w-[80%] space-y-2')}>
@@ -188,7 +189,7 @@ export default function TeacherAssistantPage() {
                 'px-4 py-3 rounded-2xl text-sm whitespace-pre-line leading-relaxed',
                 msg.role === 'user'
                   ? 'institution-btn-primary rounded-tr-sm'
-                  : 'bg-muted/60 text-foreground rounded-tl-sm'
+                  : 'bg-white/92 text-foreground rounded-tl-sm shadow-[0_10px_22px_-18px_rgba(30,84,142,0.38)]'
               )}>
                 {msg.content}
               </div>
@@ -216,8 +217,8 @@ export default function TeacherAssistantPage() {
 
         {isTyping && (
           <div className="flex items-start gap-2">
-            <div className="w-8 h-8 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0">
-              <Sparkles className="w-4 h-4 text-amber-600" />
+            <div className="h-8 w-8 shrink-0 overflow-hidden rounded-xl bg-white shadow-sm">
+              <img src="/images/ai/ai_crab_加油加油.gif" alt="课小宝AI" className="h-full w-full object-cover" />
             </div>
             <div className="bg-muted/60 px-4 py-3 rounded-2xl rounded-tl-sm flex items-center gap-1.5 h-10">
               {[0, 1, 2].map(i => (
@@ -231,7 +232,7 @@ export default function TeacherAssistantPage() {
       </div>
 
       {/* Input area */}
-      <div className="px-4 py-3 border-t border-border bg-background safe-area-bottom">
+      <div className="border-t border-blue-100 bg-white/95 px-4 py-3 safe-area-bottom">
         {inputMode === 'text' ? (
           <div className="flex items-end gap-2">
             <button onClick={() => setInputMode('voice')}
@@ -262,7 +263,7 @@ export default function TeacherAssistantPage() {
               onPointerLeave={() => isRecording && stopRecording()}
               className={cn(
                 'w-16 h-16 rounded-full flex items-center justify-center transition-all',
-                isRecording ? 'bg-red-500 scale-110 shadow-lg' : 'bg-primary'
+                isRecording ? 'bg-red-500 scale-110 shadow-lg' : 'bg-blue-600'
               )}
             >
               {isRecording ? <MicOff className="w-7 h-7 text-white" /> : <Mic className="w-7 h-7 text-white" />}
@@ -278,6 +279,6 @@ export default function TeacherAssistantPage() {
           </div>
         )}
       </div>
-    </div>
+    </TeacherPageShell>
   )
 }

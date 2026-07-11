@@ -1,7 +1,7 @@
 'use client'
 
 import { useParams, useRouter } from 'next/navigation'
-import { ArrowLeft, Clock, Users, MapPin } from 'lucide-react'
+import { Clock, Users, MapPin } from 'lucide-react'
 import { classSessions } from '@/lib/mock-data'
 
 // Mock teacher's sessions mapping
@@ -29,22 +29,11 @@ export default function TeacherClassesPage() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
-      <div className="sticky top-0 z-10 bg-background border-b border-border">
-        <div className="flex items-center gap-3 px-4 py-3">
-          <button onClick={() => router.back()} className="p-1">
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <h1 className="font-semibold">每周班次</h1>
-          <span className="text-sm text-muted-foreground">({teacherSessionList.length}个班次)</span>
-        </div>
-      </div>
-
       {/* Summary */}
       <div className="px-4 py-3 bg-muted/30 border-b border-border">
         <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">本周总课时</span>
-          <span className="font-bold text-primary">{totalHours.toFixed(1)} 小时</span>
+          <span className="text-sm text-muted-foreground">{teacherSessionList.length} 个班次</span>
+          <span className="font-bold text-primary">本周 {totalHours.toFixed(1)} 小时</span>
         </div>
       </div>
 

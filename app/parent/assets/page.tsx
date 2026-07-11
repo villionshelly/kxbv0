@@ -7,6 +7,7 @@ import { children, classRecords } from '@/lib/mock-data'
 import { useParentCourseStore } from '@/lib/parent-course-store'
 import { useSelectedChild } from '@/hooks/use-selected-child'
 import { cn } from '@/lib/utils'
+import { DraggablePageActionFab } from '@/components/draggable-page-action-fab'
 
 export default function ParentAssetsPage() {
   const router = useRouter()
@@ -50,13 +51,6 @@ export default function ParentAssetsPage() {
               <ChevronDown className="w-4 h-4 text-muted-foreground" />
             </button>
           </div>
-          <button
-            onClick={() => router.push('/parent/add-course')}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-primary-foreground rounded-full text-sm font-medium pill-warm"
-          >
-            <Plus className="w-4 h-4" />
-            添加课程
-          </button>
         </div>
 
         {/* Big stat */}
@@ -257,6 +251,13 @@ export default function ParentAssetsPage() {
           </div>
         )}
       </div>
+      <DraggablePageActionFab
+        actionId="parent-assets-add-course"
+        label="添加课程"
+        icon={Plus}
+        reservedBottom={96}
+        onClick={() => router.push('/parent/add-course')}
+      />
     </div>
   )
 }

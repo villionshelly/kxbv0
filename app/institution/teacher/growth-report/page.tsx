@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { ArrowLeft, FileText, Sparkles, CheckCircle, Send, ChevronRight, Star } from 'lucide-react'
 import { classSessions, students } from '@/lib/mock-data'
 import { cn } from '@/lib/utils'
+import { TeacherPageShell } from '@/components/teacher-page-shell'
 
 const ME_ID = '1'
 const mySessions = classSessions.filter(cs => cs.teacherId === ME_ID)
@@ -59,23 +60,23 @@ export default function TeacherGrowthReportPage() {
   }
 
   return (
-    <div className="flex flex-col h-full bg-background">
-      <header className="safe-area-top px-4 pb-3 border-b border-border">
+    <TeacherPageShell className="flex h-full flex-col" variant="tool">
+      <header className="hidden safe-area-top px-4 pb-3 border-b border-border">
         <div className="flex items-center gap-3">
           <button onClick={() => router.push('/institution/teacher')}
             className="p-2 -ml-2 hover:bg-muted rounded-xl transition-colors">
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div className="flex items-center gap-2 flex-1">
-            <div className="w-8 h-8 rounded-xl bg-purple-500/10 flex items-center justify-center">
-              <FileText className="w-4 h-4 text-purple-600" />
+            <div className="w-8 h-8 rounded-xl bg-blue-100 flex items-center justify-center">
+              <FileText className="w-4 h-4 text-blue-700" />
             </div>
             <p className="font-semibold">AI成长报告</p>
           </div>
         </div>
       </header>
 
-      <div className="flex-1 overflow-auto px-4 py-4 space-y-4">
+      <div className="teacher-subpage-content flex-1 overflow-auto space-y-4">
         {/* Student list */}
         {genStep === 'idle' && (
           <div>
@@ -89,8 +90,8 @@ export default function TeacherGrowthReportPage() {
                     className={cn(
                       'w-full flex items-center gap-3 p-3 rounded-2xl border-2 transition-all text-left',
                       selectedStudent === s.id
-                        ? 'border-purple-400 bg-purple-50/50'
-                        : 'border-transparent bg-muted/30 hover:bg-muted/50'
+                        ? 'border-blue-400 bg-blue-50/70'
+                      : 'border-transparent bg-white/85 shadow-[0_10px_20px_-22px_rgba(30,84,142,0.6)] hover:bg-blue-50'
                     )}>
                     <img src={s.avatar} alt={s.name} className="w-11 h-11 rounded-full bg-muted" />
                     <div className="flex-1 min-w-0">
@@ -103,7 +104,7 @@ export default function TeacherGrowthReportPage() {
                       <p className="text-xs text-muted-foreground mt-0.5">{s.courses.join('、')}</p>
                     </div>
                     {selectedStudent === s.id
-                      ? <CheckCircle className="w-5 h-5 text-purple-500 shrink-0" />
+                      ? <CheckCircle className="w-5 h-5 text-blue-600 shrink-0" />
                       : <ChevronRight className="w-4 h-4 text-muted-foreground/40 shrink-0" />
                     }
                   </button>
@@ -113,7 +114,7 @@ export default function TeacherGrowthReportPage() {
 
             {selectedStudent && (
               <button onClick={handleGenerate}
-                className="w-full mt-4 h-12 bg-purple-600 text-white rounded-2xl font-medium flex items-center justify-center gap-2">
+                className="w-full mt-4 h-12 institution-btn-primary font-medium flex items-center justify-center gap-2">
                 <Sparkles className="w-4 h-4" />
                 AI生成 {student?.name} 的成长报告
               </button>
@@ -123,7 +124,7 @@ export default function TeacherGrowthReportPage() {
 
         {genStep === 'generating' && (
           <div className="flex-1 flex flex-col items-center justify-center py-16 gap-4">
-            <div className="w-16 h-16 rounded-full border-4 border-purple-500 border-t-transparent animate-spin" />
+            <div className="w-16 h-16 rounded-full border-4 border-blue-500 border-t-transparent animate-spin" />
             <p className="font-medium">AI正在生成报告...</p>
             <p className="text-sm text-muted-foreground text-center px-8">
               分析本月出勤数据、课堂表现和学习进度中
@@ -133,7 +134,7 @@ export default function TeacherGrowthReportPage() {
 
         {genStep === 'done' && student && (
           <div className="space-y-4">
-            <div className="flex items-center gap-3 p-3 bg-purple-50 rounded-2xl">
+            <div className="teacher-card flex items-center gap-3 p-3">
               <img src={student.avatar} alt={student.name} className="w-10 h-10 rounded-full bg-muted" />
               <div>
                 <p className="font-semibold text-sm">{student.name} · 2026年4月成长报告</p>
@@ -153,7 +154,7 @@ export default function TeacherGrowthReportPage() {
                 className="w-full min-h-[320px] p-4 bg-muted/30 rounded-2xl text-sm leading-relaxed outline-none resize-none"
               />
             ) : (
-              <div className="p-4 bg-muted/30 rounded-2xl">
+              <div className="teacher-card p-4">
                 <p className="text-sm leading-relaxed whitespace-pre-line text-foreground">{reportContent}</p>
               </div>
             )}
@@ -164,7 +165,7 @@ export default function TeacherGrowthReportPage() {
                 {editing ? '完成编辑' : '编辑报告'}
               </button>
               <button onClick={handleSend}
-                className="flex-1 h-11 bg-purple-600 text-white rounded-2xl text-sm font-medium flex items-center justify-center gap-2">
+                className="flex-1 h-11 institution-btn-primary text-sm font-medium flex items-center justify-center gap-2">
                 <Send className="w-4 h-4" />
                 发送给家长
               </button>
@@ -176,6 +177,6 @@ export default function TeacherGrowthReportPage() {
           </div>
         )}
       </div>
-    </div>
+    </TeacherPageShell>
   )
 }

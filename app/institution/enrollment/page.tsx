@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { ArrowLeft, BadgePercent, CalendarCheck, CheckCircle, ChevronRight, Gift, Megaphone, Plus, TrendingUp, UserPlus, Users, Zap } from 'lucide-react'
 import { enrollmentOverview, marketingActivities, trialProspects } from '@/lib/mock-data'
 import { cn } from '@/lib/utils'
+import { DraggablePageActionFab } from '@/components/draggable-page-action-fab'
 
 const activityIcon = {
   referral: Gift,
@@ -74,14 +75,6 @@ export default function EnrollmentPage() {
           <h1 className="font-semibold">招生管家</h1>
           <p className="truncate text-xs text-muted-foreground">营销活动工具列表与试课转化</p>
         </div>
-        <button
-          type="button"
-          onClick={() => setNotice('试课活动草稿已创建，可继续补充课程、名额和海报')}
-          className="flex items-center gap-1.5 rounded-xl bg-primary px-3 py-2 text-xs font-medium text-primary-foreground"
-        >
-          <Plus className="h-4 w-4" />
-          创建活动
-        </button>
       </header>
 
       <div className="flex-1 overflow-auto px-4 py-4 pb-8">
@@ -234,6 +227,12 @@ export default function EnrollmentPage() {
           </div>
         </section>
       </div>
+      <DraggablePageActionFab
+        actionId="institution-enrollment-create"
+        label="创建活动"
+        icon={Plus}
+        onClick={() => setNotice('试课活动草稿已创建，可继续补充课程、名额和海报')}
+      />
     </div>
   )
 }

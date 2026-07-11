@@ -35,6 +35,7 @@ export type InstitutionVerification =
 
 export type InstitutionProfileSettings = {
   institutionName: string
+  institutionCode: string
   institutionLogo: string
   institutionPhone: string
   institutionAddress: string
@@ -51,6 +52,7 @@ export type InstitutionProfileSettings = {
 
 export const defaultInstitutionProfileSettings: InstitutionProfileSettings = {
   institutionName: institutionInfo.name,
+  institutionCode: '73918426',
   institutionLogo: institutionInfo.logo,
   institutionPhone: institutionInfo.phone,
   institutionAddress: '杭州市西湖区文三路168号',

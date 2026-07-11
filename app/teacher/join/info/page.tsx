@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { CheckCircle, Camera, User, Briefcase, GraduationCap, Phone } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { TeacherPageShell } from '@/components/teacher-page-shell'
 
 // 模拟已有用户数据（如果用户之前在个人中心填过）
 const existingUserData = {
@@ -57,7 +58,7 @@ function InfoContent() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-8">
+      <TeacherPageShell variant="onboarding" className="flex flex-col items-center justify-center p-8">
         <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mb-6">
           <CheckCircle className="w-10 h-10 text-green-500" />
         </div>
@@ -72,7 +73,7 @@ function InfoContent() {
         <div className="w-full max-w-xs space-y-3">
           <button
             onClick={() => router.push('/institution/teacher')}
-            className="w-full h-12 bg-primary text-primary-foreground rounded-xl font-medium"
+            className="w-full h-12 institution-btn-primary font-medium"
           >
             进入教师工作台
           </button>
@@ -87,16 +88,16 @@ function InfoContent() {
         <p className="text-xs text-muted-foreground text-center mt-8">
           您可以在「我的」页面切换或加入其他机构
         </p>
-      </div>
+      </TeacherPageShell>
     )
   }
 
   const hasExistingData = !!existingUserData[phone as keyof typeof existingUserData]
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <TeacherPageShell variant="onboarding" className="flex flex-col">
       {/* Header */}
-      <div className="px-6 pt-8 pb-4">
+      <div className="teacher-brand-header px-6 pt-10 pb-5">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
             <GraduationCap className="w-5 h-5 text-primary" />
@@ -115,7 +116,7 @@ function InfoContent() {
         </p>
       </div>
 
-      <div className="flex-1 px-6 py-4">
+      <div className="flex-1 px-6 py-5">
         {/* Avatar */}
         <div className="flex justify-center mb-6">
           <button className="relative">
@@ -137,7 +138,7 @@ function InfoContent() {
         </div>
 
         {/* Form */}
-        <div className="space-y-4">
+        <div className="teacher-card space-y-4 p-4">
           <div>
             <label className="text-sm text-muted-foreground block mb-2">
               手机号 <span className="text-xs text-green-600">(已验证)</span>
@@ -208,11 +209,11 @@ function InfoContent() {
       </div>
 
       {/* Submit */}
-      <div className="px-6 py-6 border-t border-border bg-background">
+      <div className="border-t border-blue-100 bg-white/95 px-6 py-6">
         <button
           onClick={handleSubmit}
           disabled={!name.trim() || submitting}
-          className="w-full h-12 bg-primary text-primary-foreground rounded-xl font-medium disabled:opacity-40 flex items-center justify-center gap-2"
+          className="w-full h-12 institution-btn-primary font-medium disabled:opacity-40 flex items-center justify-center gap-2"
         >
           {submitting ? (
             <>
@@ -224,7 +225,7 @@ function InfoContent() {
           )}
         </button>
       </div>
-    </div>
+    </TeacherPageShell>
   )
 }
 

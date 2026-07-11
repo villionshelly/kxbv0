@@ -21,7 +21,7 @@ function ParentChrome({
       {/* Content Area */}
       <div
         className="mobile-content-area scrollbar-quiet flex-1 overflow-auto"
-        style={showSubpageNav ? { marginTop: 'var(--kxb-mp-header-height)', minHeight: 0 } : { minHeight: 0 }}
+        style={showSubpageNav ? { paddingTop: 'var(--kxb-mp-total-nav-height)', minHeight: 0 } : { minHeight: 0 }}
       >
         {children}
       </div>

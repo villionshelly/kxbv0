@@ -10,6 +10,7 @@ import {
 } from 'lucide-react'
 import { teachers, classSessions } from '@/lib/mock-data'
 import { cn } from '@/lib/utils'
+import { DraggablePageActionFab } from '@/components/draggable-page-action-fab'
 
 type Teacher = typeof teachers[0]
 
@@ -32,6 +33,8 @@ const defaultRules: Record<string, SettlementRule> = {
 export default function StaffManagementPage() {
   const router = useRouter()
   const [staffList, setStaffList] = useState(teachers)
+  // The former invite sheet is retained only for backwards-safe state restoration;
+  // all entry points now route to /institution/staff/invite.
   const [showInviteSheet, setShowInviteSheet] = useState(false)
   const [showMenuFor, setShowMenuFor] = useState<string | null>(null)
   const [copiedCode, setCopiedCode] = useState(false)
@@ -55,7 +58,7 @@ export default function StaffManagementPage() {
   const [ruleCommissionRate, setRuleCommissionRate] = useState('')
   const [ruleSaved, setRuleSaved] = useState(false)
 
-  const inviteCode = 'QCY-2026-ABCD'
+  const inviteCode = '73918426'
   const orgNameForInvite = '七彩培训中心'
   const joinPath = `/teacher/join?code=${inviteCode}&org=${encodeURIComponent(orgNameForInvite)}`
   const inviteLink = `https://kxb.app${joinPath}`
@@ -147,34 +150,19 @@ export default function StaffManagementPage() {
   }
 
   return (
-    <div className="flex flex-col h-full bg-background">
-      {/* Header */}
-      <header className="safe-area-top px-4 py-3 flex items-center gap-3 border-b border-border bg-background">
-        <button onClick={() => router.back()} className="p-1.5 rounded-lg hover:bg-muted transition-colors">
-          <ArrowLeft className="w-5 h-5" />
-        </button>
-        <h1 className="text-base font-semibold flex-1">员工管理</h1>
-        <button
-          onClick={() => setShowInviteSheet(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 institution-btn-primary rounded-lg text-sm font-medium"
-        >
-          <Plus className="w-4 h-4" />
-          邀请教师
-        </button>
-      </header>
-
-      <div className="flex-1 overflow-auto px-4 py-4 space-y-3">
+    <div className="flex h-full flex-col institution-dream-bg">
+      <div className="scrollbar-quiet flex-1 overflow-auto px-4 pb-8 pt-4 space-y-4">
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-3 mb-2">
-          <div className="bg-muted/40 rounded-xl p-3 text-center">
+        <div className="grid grid-cols-3 gap-3">
+          <div className="rounded-2xl bg-card p-3 text-center card-dream">
             <p className="text-xl font-bold">{staffList.filter(t => t.status === 'active').length}</p>
             <p className="text-xs text-muted-foreground mt-0.5">在职教师</p>
           </div>
-          <div className="bg-muted/40 rounded-xl p-3 text-center">
+          <div className="rounded-2xl bg-card p-3 text-center card-dream">
             <p className="text-xl font-bold">{staffList.filter(t => t.role === 'admin').length}</p>
             <p className="text-xs text-muted-foreground mt-0.5">管理员</p>
           </div>
-          <div className="bg-gray-500/10 rounded-xl p-3 text-center">
+          <div className="rounded-2xl bg-slate-100/85 p-3 text-center ring-1 ring-white/70">
             <p className="text-xl font-bold text-gray-500">{staffList.filter(t => t.status === 'resigned').length}</p>
             <p className="text-xs text-muted-foreground mt-0.5">已离职</p>
           </div>
@@ -184,11 +172,11 @@ export default function StaffManagementPage() {
         {staffList.map(teacher => {
           const mySessions = getTeacherSessions(teacher.id)
           return (
-            <div key={teacher.id} className="bg-background border border-border rounded-2xl overflow-hidden">
+            <div key={teacher.id} className="overflow-hidden rounded-3xl bg-card card-dream">
               <div className="p-4">
                 <div className="flex items-start gap-3">
                   <div className="relative">
-                    <img src={teacher.avatar} alt={teacher.name} className="w-12 h-12 rounded-full bg-muted" />
+                    <img src={teacher.avatar} alt={teacher.name} className="h-12 w-12 rounded-2xl bg-muted" />
                     {teacher.role === 'admin' && (
                       <span className="absolute -bottom-1 -right-1 w-5 h-5 bg-secondary rounded-full flex items-center justify-center">
                         <Crown className="w-3 h-3 text-secondary-foreground" />
@@ -254,7 +242,7 @@ export default function StaffManagementPage() {
                           className="w-full flex items-center gap-2.5 px-3 py-2.5 hover:bg-muted rounded-lg text-sm text-left transition-colors"
                         >
                           <Shield className="w-4 h-4 text-secondary" />
-                          {teacher.role === 'admin' ? '降为普通教师' : '设为管理员'}
+                          {teacher.role === 'admin' ? '取消管理员' : '设为管理员'}
                         </button>
                         <div className="my-2 border-t border-border" />
                         <button
@@ -329,6 +317,13 @@ export default function StaffManagementPage() {
           )
         })}
       </div>
+
+      <DraggablePageActionFab
+        actionId="institution-staff-invite"
+        label="新增员工"
+        icon={Plus}
+        onClick={() => router.push('/institution/staff/invite')}
+      />
 
       {/* Edit Teacher Sheet */}
       {editingTeacher && (
@@ -644,7 +639,7 @@ export default function StaffManagementPage() {
               </button>
 
               <button
-                onClick={() => router.push('/institution/staff/invite-poster')}
+                onClick={() => router.push('/institution/staff/invite')}
                 className="flex flex-col items-center gap-2 p-4 bg-purple-50 rounded-xl hover:bg-purple-100 transition-colors"
               >
                 <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">

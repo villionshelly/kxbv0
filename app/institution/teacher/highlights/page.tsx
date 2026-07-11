@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { ArrowLeft, Video, Sparkles, Upload, CheckCircle, Play, Share2, Camera } from 'lucide-react'
 import { classSessions, students } from '@/lib/mock-data'
 import { cn } from '@/lib/utils'
+import { TeacherPageShell } from '@/components/teacher-page-shell'
 
 const ME_ID = '1'
 const mySessions = classSessions.filter(cs => cs.teacherId === ME_ID)
@@ -41,8 +42,8 @@ export default function TeacherHighlightsPage() {
   }
 
   return (
-    <div className="flex flex-col h-full bg-background">
-      <header className="safe-area-top px-4 pb-3 border-b border-border">
+    <TeacherPageShell className="flex h-full flex-col" variant="tool">
+      <header className="hidden safe-area-top px-4 pb-3 border-b border-border">
         <div className="flex items-center gap-3">
           <button onClick={() => router.push('/institution/teacher')}
             className="p-2 -ml-2 hover:bg-muted rounded-xl transition-colors">
@@ -57,9 +58,9 @@ export default function TeacherHighlightsPage() {
         </div>
       </header>
 
-      <div className="flex-1 overflow-auto px-4 py-4 space-y-5">
+      <div className="teacher-subpage-content flex-1 overflow-auto space-y-4">
         {/* Generate card */}
-        <div className="bg-gradient-to-br from-primary/8 to-secondary/5 rounded-2xl p-4">
+        <div className="teacher-card bg-gradient-to-br from-blue-50 to-white p-4">
           <div className="flex items-center gap-2 mb-3">
             <Sparkles className="w-4 h-4 text-secondary" />
             <p className="font-semibold text-sm">AI生成精彩视频</p>
@@ -74,7 +75,7 @@ export default function TeacherHighlightsPage() {
                 <button key={cs.id} onClick={() => setSelectedSession(cs.id)}
                   className={cn('px-3 py-1.5 rounded-xl text-xs font-medium transition-all border-2',
                     selectedSession === cs.id
-                      ? 'border-primary text-primary bg-primary/5'
+                      ? 'border-blue-500 text-blue-700 bg-blue-50'
                       : 'border-transparent bg-background/70 text-muted-foreground')}>
                   {cs.name}
                 </button>
@@ -87,7 +88,7 @@ export default function TeacherHighlightsPage() {
               {/* Upload zone */}
               <button
                 onClick={() => setUploadCount(c => c + 3)}
-                className="w-full h-24 border-2 border-dashed border-primary/30 rounded-xl flex flex-col items-center justify-center gap-2 hover:border-primary/60 hover:bg-primary/5 transition-all"
+                className="h-28 w-full rounded-2xl border-2 border-dashed border-blue-200 bg-blue-50/45 flex flex-col items-center justify-center gap-2 transition-all hover:border-blue-400 hover:bg-blue-50"
               >
                 <Camera className="w-7 h-7 text-primary/40" />
                 <p className="text-xs text-muted-foreground">点击添加照片</p>
@@ -161,7 +162,7 @@ export default function TeacherHighlightsPage() {
           <p className="text-sm font-semibold mb-3">历史精彩视频</p>
           <div className="space-y-3">
             {sampleHighlights.map(h => (
-              <div key={h.id} className="flex gap-3 p-3 bg-muted/30 rounded-2xl">
+              <div key={h.id} className="teacher-soft-card flex gap-3 p-3 rounded-2xl">
                 <div className="relative w-24 h-16 rounded-xl overflow-hidden shrink-0">
                   <img src={h.cover} alt={h.session} className="w-full h-full object-cover" />
                   <div className="absolute inset-0 flex items-center justify-center">
@@ -184,6 +185,6 @@ export default function TeacherHighlightsPage() {
           </div>
         </div>
       </div>
-    </div>
+    </TeacherPageShell>
   )
 }

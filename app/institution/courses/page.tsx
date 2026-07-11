@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { ArrowLeft, Plus, ChevronRight, Users, BookOpen, Pencil, Trash2, X, CheckCircle } from 'lucide-react'
 import { courseCatalog, classSessions, teachers } from '@/lib/mock-data'
 import { cn } from '@/lib/utils'
+import { DraggablePageActionFab } from '@/components/draggable-page-action-fab'
 
 type Course = typeof courseCatalog[0]
 
@@ -53,7 +54,7 @@ function CourseFormModal({
   }
 
   return (
-    <div className="absolute inset-0 z-50 flex flex-col bg-background">
+    <div data-subpage-overlay="true" className="absolute inset-0 z-[100] flex flex-col bg-background">
       <div className="safe-area-top px-4 py-3 flex items-center gap-3 border-b border-border">
         <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-muted transition-colors">
           <X className="w-5 h-5" />
@@ -278,13 +279,6 @@ export default function InstitutionCoursesPage() {
           <ArrowLeft className="w-5 h-5" />
         </button>
         <h1 className="text-base font-semibold flex-1">课程管理</h1>
-        <button
-          onClick={() => { setEditCourse(undefined); setShowForm(true) }}
-          className="flex items-center gap-1.5 px-3 py-1.5 institution-btn-primary rounded-lg text-sm font-medium"
-        >
-          <Plus className="w-4 h-4" />
-          新建课程
-        </button>
       </div>
 
       {/* Category filter */}
@@ -441,6 +435,12 @@ export default function InstitutionCoursesPage() {
           onSave={handleSave}
         />
       )}
+      <DraggablePageActionFab
+        actionId="institution-courses-create"
+        label="新建课程"
+        icon={Plus}
+        onClick={() => { setEditCourse(undefined); setShowForm(true) }}
+      />
     </div>
   )
 }

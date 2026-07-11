@@ -44,7 +44,8 @@
   --radius: 0.75rem;
   --kxb-mp-status-bar-height: 44px;
   --kxb-mp-nav-bar-height: 44px;
-  --kxb-mp-header-height: calc(var(--kxb-mp-status-bar-height) + var(--kxb-mp-nav-bar-height));
+  --kxb-mp-total-nav-height: calc(var(--kxb-mp-status-bar-height) + var(--kxb-mp-nav-bar-height));
+  --kxb-mp-header-height: var(--kxb-mp-total-nav-height);
   --sidebar: oklch(0.99 0 0);
   --sidebar-foreground: oklch(0.18 0.02 250);
   --sidebar-primary: oklch(0.68 0.18 45);
@@ -194,6 +195,10 @@
   visibility: hidden !important;
 }
 
+.mobile-frame [data-local-header-hidden='true'] {
+  display: none !important;
+}
+
 .mobile-frame[data-global-quick-nav='true'] header button:has(svg.lucide-arrow-left),
 .mobile-frame[data-global-quick-nav='true'] header a:has(svg.lucide-arrow-left),
 .mobile-frame[data-global-quick-nav='true'] header button[aria-label*='返回'],
@@ -203,14 +208,26 @@
 }
 
 .mobile-frame[data-global-quick-nav='true'] .mobile-content-area {
-  margin-top: var(--kxb-mp-header-height);
+  margin-top: 0;
+  padding-top: var(--kxb-mp-total-nav-height);
   min-height: 0;
-  scroll-padding-top: var(--kxb-mp-header-height);
+  scroll-padding-top: var(--kxb-mp-total-nav-height);
   overscroll-behavior: contain;
+}
+
+.mobile-frame[data-global-quick-nav='true'] .mobile-content-area > .institution-dream-bg,
+.mobile-frame[data-global-quick-nav='true'] .mobile-content-area > .warm-bg {
+  margin-top: calc(var(--kxb-mp-total-nav-height) * -1);
+  padding-top: var(--kxb-mp-total-nav-height);
+  min-height: calc(100% + var(--kxb-mp-total-nav-height));
 }
 
 .mobile-frame[data-global-quick-nav='true'] .safe-area-top {
   padding-top: 0;
+}
+
+.mobile-frame[data-global-quick-nav='true'] [data-subpage-overlay='true'] .safe-area-top {
+  padding-top: var(--kxb-mp-status-bar-height) !important;
 }
 
 .institution-frame[data-root-tab-page='true'] .safe-area-top {
@@ -417,6 +434,94 @@
   border: 1px solid rgba(255, 255, 255, 0.58);
   background: rgba(255, 255, 255, 0.26);
   box-shadow: 0 18px 42px -32px rgba(232, 122, 52, 0.45);
+}
+
+/* Teacher workspace: the teaching flow shares the institution's calm blue
+   system, while semantic teaching states keep their own meaning. */
+.teacher-page-shell {
+  position: relative;
+  min-height: 100%;
+  color: #172033;
+  background-color: #edf6ff;
+  background-image:
+    linear-gradient(180deg, rgba(236, 247, 255, 0.18) 0%, rgba(248, 252, 255, 0.86) 62%, #f7fbff 100%),
+    url('/images/backgrounds/institution-dream-texture-v2.png');
+  background-position: center top;
+  background-repeat: no-repeat;
+  background-size: 100% 100%, cover;
+}
+
+.teacher-page-shell--workspace {
+  display: flex;
+  flex: 1 1 auto;
+  height: 100%;
+  min-height: 0;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.teacher-page-shell--tool {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+  flex-direction: column;
+}
+
+.teacher-page-shell--onboarding {
+  min-height: 100dvh;
+}
+
+.teacher-page-shell::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 92% 7%, rgba(148, 197, 255, 0.28), transparent 24%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.58) 0 18%, transparent 18% 100%);
+}
+
+.teacher-page-shell > * {
+  position: relative;
+  z-index: 1;
+}
+
+.teacher-card {
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 14px 30px -24px rgba(30, 84, 142, 0.42);
+}
+
+.teacher-soft-card {
+  border-radius: 18px;
+  background: rgba(237, 247, 255, 0.78);
+}
+
+.teacher-brand-header {
+  background:
+    radial-gradient(circle at 93% 8%, rgba(144, 196, 255, 0.42), transparent 34%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.78) 0 28%, rgba(233, 245, 255, 0.84) 28% 100%);
+}
+
+.teacher-root-tab-scroll {
+  padding-top: var(--kxb-mp-total-nav-height);
+  scroll-padding-top: var(--kxb-mp-total-nav-height);
+}
+
+.teacher-subpage-content {
+  padding: 16px;
+  padding-bottom: 24px;
+}
+
+.teacher-tab-bar {
+  border-top-color: rgba(185, 213, 242, 0.62);
+  background: rgba(248, 252, 255, 0.96);
+  box-shadow: 0 -14px 34px -28px rgba(37, 99, 155, 0.44);
+}
+
+.teacher-page-shell .institution-btn-primary {
+  border-radius: 14px;
 }
 
 .assistant-page-texture::before {

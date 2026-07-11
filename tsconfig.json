@@ -39,7 +39,9 @@
     ".next-admin/types/**/*.ts",
     ".next-admin/dev/types/**/*.ts",
     ".next-parent/types/**/*.ts",
-    ".next-parent/dev/types/**/*.ts"
+    ".next-parent/dev/types/**/*.ts",
+    ".next-teacher-verify/types/**/*.ts",
+    ".next-teacher-verify/dev/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",

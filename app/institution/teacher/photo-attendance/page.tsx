@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { ArrowLeft, Camera, CheckCircle, XCircle, RefreshCw, Zap, Users } from 'lucide-react'
 import { classSessions, students, leaveRecords } from '@/lib/mock-data'
 import { cn } from '@/lib/utils'
+import { TeacherPageShell } from '@/components/teacher-page-shell'
 
 const ME_ID = '1'
 const todayDow = new Date().getDay() === 0 ? 6 : new Date().getDay() - 1
@@ -50,8 +51,8 @@ export default function TeacherPhotoAttendancePage() {
 
   if (saved) {
     return (
-      <div className="flex flex-col h-full bg-background">
-        <header className="safe-area-top px-4 pb-3 border-b border-border">
+      <TeacherPageShell className="flex h-full flex-col" variant="tool">
+        <header className="hidden safe-area-top px-4 pb-3 border-b border-border">
           <div className="flex items-center gap-3">
             <button onClick={() => router.push('/institution/teacher')} className="p-2 -ml-2 hover:bg-muted rounded-xl">
               <ArrowLeft className="w-5 h-5" />
@@ -79,13 +80,13 @@ export default function TeacherPhotoAttendancePage() {
             返回首页
           </button>
         </div>
-      </div>
+      </TeacherPageShell>
     )
   }
 
   return (
-    <div className="flex flex-col h-full bg-background">
-      <header className="safe-area-top px-4 pb-3 border-b border-border">
+    <TeacherPageShell className="flex h-full flex-col" variant="tool">
+      <header className="hidden safe-area-top px-4 pb-3 border-b border-border">
         <div className="flex items-center gap-3">
           <button onClick={() => router.push('/institution/teacher')} className="p-2 -ml-2 hover:bg-muted rounded-xl transition-colors">
             <ArrowLeft className="w-5 h-5" />
@@ -99,9 +100,9 @@ export default function TeacherPhotoAttendancePage() {
         </div>
       </header>
 
-      <div className="flex-1 overflow-auto">
+      <div className="teacher-subpage-content flex-1 overflow-auto">
         {/* Session picker */}
-        <div className="px-4 py-3 border-b border-border">
+        <div className="teacher-card p-3">
           <p className="text-xs text-muted-foreground mb-2">选择班次</p>
           <div className="flex gap-2 flex-wrap">
             {mySessions.map(cs => (
@@ -117,7 +118,7 @@ export default function TeacherPhotoAttendancePage() {
         </div>
 
         {/* Camera area */}
-        <div className="mx-4 mt-4 rounded-2xl overflow-hidden bg-muted/30 aspect-[4/3] flex flex-col items-center justify-center relative">
+        <div className="teacher-card mt-4 aspect-[4/3] overflow-hidden bg-blue-50/60 relative flex flex-col items-center justify-center">
           {scanning ? (
             <div className="flex flex-col items-center gap-3 text-center px-8">
               <div className="w-16 h-16 rounded-full border-4 border-primary border-t-transparent animate-spin" />
@@ -149,7 +150,7 @@ export default function TeacherPhotoAttendancePage() {
         </div>
 
         {/* Scan button */}
-        <div className="px-4 mt-4">
+        <div className="mt-4">
           <button
             onClick={handleScan}
             disabled={scanning || !session}
@@ -168,7 +169,7 @@ export default function TeacherPhotoAttendancePage() {
 
         {/* Student list with statuses */}
         {session && (
-          <div className="px-4 mt-5 pb-6">
+          <div className="mt-5 pb-6">
             <div className="flex items-center gap-2 mb-3">
               <Users className="w-4 h-4 text-muted-foreground" />
               <p className="text-sm font-semibold">学员出勤情况</p>
@@ -178,7 +179,7 @@ export default function TeacherPhotoAttendancePage() {
               {sessionStudents.map(s => {
                 const status = statuses[s.id]
                 return (
-                  <div key={s.id} className="flex items-center gap-3 p-3 bg-muted/30 rounded-xl">
+                <div key={s.id} className="teacher-soft-card flex items-center gap-3 p-3 rounded-2xl">
                     <img src={s.avatar} alt={s.name} className="w-10 h-10 rounded-full bg-muted" />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium">{s.name}</p>
@@ -210,13 +211,13 @@ export default function TeacherPhotoAttendancePage() {
 
       {/* Save button */}
       {scanDone && (
-        <div className="px-4 py-4 border-t border-border bg-background safe-area-bottom">
+        <div className="border-t border-blue-100 bg-white/90 px-4 py-4 safe-area-bottom">
           <button onClick={handleSave}
             className="w-full h-12 institution-btn-primary rounded-2xl font-medium">
             确认提交点名（{attendedCount}人到课）
           </button>
         </div>
       )}
-    </div>
+    </TeacherPageShell>
   )
 }

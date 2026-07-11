@@ -6,6 +6,7 @@ import { ArrowLeft, Plus, CheckCircle, XCircle, X, Edit3, Send, Clock, AlertTria
 import { students, courseCatalog } from '@/lib/mock-data'
 import { type PurchaseRecord, type PurchaseRecordStatus, useStudentPurchaseRecords } from '@/lib/purchase-record-store'
 import { cn } from '@/lib/utils'
+import { DraggablePageActionFab } from '@/components/draggable-page-action-fab'
 
 export default function PurchaseRecordsPage() {
   const params = useParams()
@@ -189,13 +190,6 @@ export default function PurchaseRecordsPage() {
             <p className="text-xs text-muted-foreground">{student.name}</p>
           </div>
         </div>
-        <button
-          onClick={() => setShowAddPurchase(true)}
-          className="flex items-center gap-1 px-3 py-1.5 institution-btn-primary rounded-lg text-sm font-medium"
-        >
-          <Plus className="w-4 h-4" />
-          添加
-        </button>
       </div>
 
       <div className="p-4">
@@ -780,6 +774,12 @@ export default function PurchaseRecordsPage() {
           </div>
         </div>
       )}
+      <DraggablePageActionFab
+        actionId="institution-purchase-record-create"
+        label="添加购买记录"
+        icon={Plus}
+        onClick={() => setShowAddPurchase(true)}
+      />
     </div>
   )
 }

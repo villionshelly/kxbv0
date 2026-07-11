@@ -1,7 +1,7 @@
 'use client'
 
 import { useParams, useRouter } from 'next/navigation'
-import { ArrowLeft, BookOpen } from 'lucide-react'
+import { BookOpen } from 'lucide-react'
 import { students } from '@/lib/mock-data'
 
 // Mock teacher's students
@@ -21,19 +21,9 @@ export default function TeacherStudentsPage() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
-      <div className="sticky top-0 z-10 bg-background border-b border-border">
-        <div className="flex items-center gap-3 px-4 py-3">
-          <button onClick={() => router.back()} className="p-1">
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <h1 className="font-semibold">学员名单</h1>
-          <span className="text-sm text-muted-foreground">({teacherStudentList.length}人)</span>
-        </div>
-      </div>
-
       {/* Student List */}
       <div className="flex-1 px-4 py-4 space-y-3">
+        <p className="px-1 text-sm text-muted-foreground">共 {teacherStudentList.length} 名学员</p>
         {teacherStudentList.map(student => (
           <button
             key={student.id}

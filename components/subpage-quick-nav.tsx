@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ArrowLeft, Home } from 'lucide-react'
 import { usePathname, useRouter } from 'next/navigation'
 
@@ -31,6 +31,21 @@ const routeTitleOverrides: Array<[RegExp, string]> = [
   [/^\/institution\/profile$/, '我的'],
   [/^\/institution\/profile\/institution-info$/, '机构信息'],
   [/^\/institution\/profile\/account$/, '个人资料'],
+  [/^\/institution\/staff\/[^/]+\/students$/, '学员名单'],
+  [/^\/institution\/staff\/[^/]+\/classes$/, '每周班次'],
+  [/^\/institution\/staff\/invite$/, '新增员工'],
+  [/^\/institution\/staff\/invite-poster$/, '新增员工'],
+  [/^\/institution\/staff$/, '员工管理'],
+  [/^\/institution\/students\/[^/]+$/, '学员详情'],
+  [/^\/institution\/students\/[^/]+\/purchase-records$/, '购买记录'],
+  [/^\/institution\/students\/[^/]+\/add-course$/, '添加课程'],
+  [/^\/institution\/students\/[^/]+\/renew$/, '续费登记'],
+  [/^\/institution\/schedule\/[^/]+$/, '课程核销'],
+  [/^\/institution\/teacher\/assistant$/, 'AI助理'],
+  [/^\/institution\/teacher\/consumption-records$/, '销课记录'],
+  [/^\/institution\/teacher\/growth-report$/, '成长报告'],
+  [/^\/institution\/teacher\/highlights$/, '精彩瞬间'],
+  [/^\/institution\/teacher\/photo-attendance$/, '拍照点名'],
 ]
 
 function getRouteTitle(pathname: string) {
@@ -44,7 +59,7 @@ function getHeaderTitle(frame: Element) {
     const title = heading.textContent?.replace(/\s+/g, ' ').trim()
     const rect = heading.getBoundingClientRect()
     const frameRect = frame.getBoundingClientRect()
-    const nearTop = rect.top - frameRect.top <= 132
+    const nearTop = rect.top - frameRect.top <= 260
     if (title && nearTop) {
       return { element: heading, title }
     }
@@ -53,11 +68,24 @@ function getHeaderTitle(frame: Element) {
   return null
 }
 
+function getLocalHeaderContainer(heading: Element, frame: Element) {
+  const container = heading.closest('header, [class*="sticky"], [class*="safe-area-top"]')
+  if (!container || container.closest('.subpage-top-nav')) return null
+
+  const frameRect = frame.getBoundingClientRect()
+  const rect = container.getBoundingClientRect()
+  const isNearTop = rect.top - frameRect.top <= 260
+  const isCompact = rect.height > 0 && rect.height <= 120
+
+  return isNearTop && isCompact ? container : null
+}
+
 export function SubpageQuickNav({ section }: SubpageQuickNavProps) {
   const pathname = usePathname()
   const router = useRouter()
   const fallbackTitle = getRouteTitle(pathname)
   const [pageTitle, setPageTitle] = useState(fallbackTitle)
+  const navBarRef = useRef<HTMLDivElement>(null)
 
   const homeHref =
     section === 'parent'
@@ -81,6 +109,46 @@ export function SubpageQuickNav({ section }: SubpageQuickNavProps) {
   useEffect(() => {
     if (!showNav) return
 
+    const frame = document.querySelector<HTMLElement>('.mobile-frame')
+    if (!frame) return
+
+    const cacheKey = 'kxb-mini-program-nav-metrics-v1'
+    const applyMetrics = (statusBarHeight: number, totalNavHeight: number) => {
+      frame.style.setProperty('--kxb-mp-status-bar-height', `${statusBarHeight}px`)
+      frame.style.setProperty('--kxb-mp-total-nav-height', `${totalNavHeight}px`)
+    }
+
+    try {
+      const cached = sessionStorage.getItem(cacheKey)
+      if (cached) {
+        const metrics = JSON.parse(cached) as { statusBarHeight: number; totalNavHeight: number }
+        if (Number.isFinite(metrics.statusBarHeight) && Number.isFinite(metrics.totalNavHeight)) {
+          applyMetrics(metrics.statusBarHeight, metrics.totalNavHeight)
+          return
+        }
+      }
+    } catch {
+      sessionStorage.removeItem(cacheKey)
+    }
+
+    const fallbackStatus = Number.parseFloat(getComputedStyle(frame).getPropertyValue('--kxb-mp-status-bar-height')) || 0
+    const navHeight = navBarRef.current?.getBoundingClientRect().height || Number.parseFloat(getComputedStyle(frame).getPropertyValue('--kxb-mp-nav-bar-height')) || 0
+    const wx = (globalThis as typeof globalThis & {
+      wx?: { getSystemInfoSync?: () => { statusBarHeight?: number }; getMenuButtonBoundingClientRect?: () => DOMRect }
+    }).wx
+    const statusBarHeight = wx?.getSystemInfoSync?.().statusBarHeight ?? fallbackStatus
+    const capsule = wx?.getMenuButtonBoundingClientRect?.()
+    const capsuleBottom = capsule ? capsule.bottom + Math.max(capsule.top - statusBarHeight, 0) : 0
+    const totalNavHeight = Math.max(statusBarHeight + navHeight, capsuleBottom)
+    const metrics = { statusBarHeight, totalNavHeight }
+
+    applyMetrics(metrics.statusBarHeight, metrics.totalNavHeight)
+    sessionStorage.setItem(cacheKey, JSON.stringify(metrics))
+  }, [showNav])
+
+  useEffect(() => {
+    if (!showNav) return
+
     const frame = document.querySelector('.mobile-frame')
     if (!frame) return
 
@@ -88,6 +156,7 @@ export function SubpageQuickNav({ section }: SubpageQuickNavProps) {
 
     const hiddenControls = new Set<Element>()
     const hiddenTitles = new Set<Element>()
+    const hiddenHeaders = new Set<Element>()
     let frameRect = frame.getBoundingClientRect()
 
     const syncLocalHeader = () => {
@@ -119,6 +188,11 @@ export function SubpageQuickNav({ section }: SubpageQuickNavProps) {
 
       const headerTitle = getHeaderTitle(frame)
       if (headerTitle) {
+        const localHeader = getLocalHeaderContainer(headerTitle.element, frame)
+        if (localHeader) {
+          localHeader.setAttribute('data-local-header-hidden', 'true')
+          hiddenHeaders.add(localHeader)
+        }
         headerTitle.element.setAttribute('data-local-title-hidden', 'true')
         hiddenTitles.add(headerTitle.element)
         setPageTitle((currentTitle) =>
@@ -132,7 +206,10 @@ export function SubpageQuickNav({ section }: SubpageQuickNavProps) {
       )
     }
 
-    const frameHandle = window.requestAnimationFrame(syncLocalHeader)
+    const frameHandle = window.requestAnimationFrame(() => {
+      syncLocalHeader()
+      window.requestAnimationFrame(syncLocalHeader)
+    })
     const observer = new MutationObserver(syncLocalHeader)
     observer.observe(frame, { childList: true, characterData: true, subtree: true })
     window.addEventListener('resize', syncLocalHeader)
@@ -147,6 +224,9 @@ export function SubpageQuickNav({ section }: SubpageQuickNavProps) {
       })
       hiddenTitles.forEach((title) => {
         title.removeAttribute('data-local-title-hidden')
+      })
+      hiddenHeaders.forEach((header) => {
+        header.removeAttribute('data-local-header-hidden')
       })
     }
   }, [fallbackTitle, pathname, showNav])
@@ -203,10 +283,8 @@ export function SubpageQuickNav({ section }: SubpageQuickNavProps) {
       {pageTitle && (
         <div
           className="subpage-top-nav__title absolute left-24 right-24 flex items-center justify-center"
-          style={{
-            top: 'var(--kxb-mp-status-bar-height)',
-            height: 'var(--kxb-mp-nav-bar-height)',
-          }}
+          ref={navBarRef}
+          style={{ top: 'var(--kxb-mp-status-bar-height)', height: 'var(--kxb-mp-nav-bar-height)' }}
         >
           <span>{pageTitle}</span>
         </div>
