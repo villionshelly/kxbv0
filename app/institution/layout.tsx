@@ -5,6 +5,7 @@ import Image, { type StaticImageData } from 'next/image'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { SubpageQuickNav } from '@/components/subpage-quick-nav'
+import { InstitutionAccessGuard } from '@/components/institution-access-guard'
 import navWorkbenchSelected from '@/png_256/nav_workbench_selected.png'
 import navWorkbenchUnselected from '@/png_256/nav_workbench_unselected.png'
 import navStudentsSelected from '@/png_256/nav_students_selected.png'
@@ -82,7 +83,7 @@ export default function InstitutionLayout({
           )}
           style={showSubpageNav ? { paddingTop: 'var(--kxb-mp-total-nav-height)', minHeight: 0 } : { minHeight: 0 }}
         >
-          {children}
+          <InstitutionAccessGuard>{children}</InstitutionAccessGuard>
         </div>
 
         {/* Tab Bar - Hidden on detail pages */}

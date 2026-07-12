@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { CheckCircle, Camera, User, Briefcase, GraduationCap, Phone } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { TeacherPageShell } from '@/components/teacher-page-shell'
+import { acceptTeacherInvite } from '@/lib/institution-member-store'
 
 // 模拟已有用户数据（如果用户之前在个人中心填过）
 const existingUserData = {
@@ -51,6 +52,13 @@ function InfoContent() {
     if (!name.trim()) return
     setSubmitting(true)
     setTimeout(() => {
+      acceptTeacherInvite({
+        name: name.trim(),
+        title: title.trim(),
+        specialty: specialty.trim(),
+        phone,
+        avatar: existingUserData[phone as keyof typeof existingUserData]?.avatar,
+      })
       setSubmitting(false)
       setSuccess(true)
     }, 1500)

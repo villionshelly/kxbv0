@@ -5,14 +5,16 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { Phone, MessageSquare, Building2, MapPin, User, Shield, GraduationCap } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { setCurrentInstitutionUser, useInstitutionMembers } from '@/lib/institution-member-store'
 
 type Step = 'role' | 'phone' | 'verify' | 'register'
-type Role = 'admin' | 'teacher'
+type Role = 'institution' | 'teacher'
 
 export default function InstitutionLoginPage() {
   const router = useRouter()
   const [step, setStep] = useState<Step>('role')
-  const [role, setRole] = useState<Role>('admin')
+  const [role, setRole] = useState<Role>('institution')
+  const memberState = useInstitutionMembers()
   const [phone, setPhone] = useState('')
   const [code, setCode] = useState('')
   const [countdown, setCountdown] = useState(0)
@@ -44,11 +46,23 @@ export default function InstitutionLoginPage() {
   const verifyCode = () => {
     if (code.length !== 6) return
     if (role === 'teacher') {
-      // Teachers go directly to teacher view
+      const teacher = memberState.members.find((member) => member.status === 'active' && member.roles.includes('teacher'))
+      if (teacher) setCurrentInstitutionUser({ kind: 'member', memberId: teacher.id })
       router.push('/institution/teacher')
       return
     }
-    // Admin: check if new user
+    if (phone.endsWith('8888')) {
+      setCurrentInstitutionUser({ kind: 'owner', memberId: 'owner' })
+      router.push('/institution')
+      return
+    }
+    const administrator = memberState.members.find((member) => member.status === 'active' && member.roles.includes('admin'))
+    if (administrator) {
+      setCurrentInstitutionUser({ kind: 'member', memberId: administrator.id })
+      router.push('/institution')
+      return
+    }
+    // New institution owner registration.
     const newUser = phone.endsWith('0')
     if (newUser) {
       setIsNewUser(true)
@@ -83,15 +97,15 @@ export default function InstitutionLoginPage() {
               <div className="space-y-4">
                 <p className="text-center text-sm text-muted-foreground mb-6">请选择您的登录身份</p>
                 <button
-                  onClick={() => { setRole('admin'); setStep('phone') }}
+                  onClick={() => { setRole('institution'); setStep('phone') }}
                   className="w-full flex items-center gap-4 p-5 bg-muted/40 rounded-2xl hover:bg-secondary/5 hover:border-secondary border-2 border-transparent transition-all"
                 >
                   <div className="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center">
                     <Building2 className="w-6 h-6 text-secondary" />
                   </div>
                   <div className="text-left">
-                    <p className="font-semibold text-base">机构管理员</p>
-                    <p className="text-sm text-muted-foreground mt-0.5">管理机构、学员、课程及数据</p>
+                    <p className="font-semibold text-base">机构端成员</p>
+                    <p className="text-sm text-muted-foreground mt-0.5">验证后按已绑定身份进入机构端</p>
                   </div>
                 </button>
                 <button
@@ -118,9 +132,9 @@ export default function InstitutionLoginPage() {
                   <span className="text-lg leading-none">←</span>
                   <span className={cn(
                     'px-2 py-0.5 rounded-full text-xs font-medium',
-                    role === 'admin' ? 'bg-secondary/10 text-secondary' : 'bg-primary/10 text-primary'
+                    role === 'institution' ? 'bg-secondary/10 text-secondary' : 'bg-primary/10 text-primary'
                   )}>
-                    {role === 'admin' ? '机构管理员' : '教师'}
+                    {role === 'institution' ? '机构端成员' : '教师'}
                   </span>
                   <span>切换身份</span>
                 </button>

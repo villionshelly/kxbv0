@@ -34,6 +34,8 @@ const routeTitleOverrides: Array<[RegExp, string]> = [
   [/^\/institution\/staff\/[^/]+\/students$/, '学员名单'],
   [/^\/institution\/staff\/[^/]+\/classes$/, '每周班次'],
   [/^\/institution\/staff\/invite$/, '新增员工'],
+  [/^\/institution\/staff\/invite\/admin$/, '邀请管理员'],
+  [/^\/institution\/staff\/invite\/teacher$/, '邀请教师'],
   [/^\/institution\/staff\/invite-poster$/, '新增员工'],
   [/^\/institution\/staff$/, '员工管理'],
   [/^\/institution\/students\/[^/]+$/, '学员详情'],

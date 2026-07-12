@@ -4,11 +4,17 @@ import { useRouter } from 'next/navigation'
 import { ChevronRight, Building2, Users, FileText, Bell, HelpCircle, Settings, LogOut, Sparkles, BookOpen, CalendarDays, UserCog } from 'lucide-react'
 import { institutionInfo, teachers, courseCatalog, classSessions } from '@/lib/mock-data'
 import { useInstitutionProfileSettings } from '@/lib/institution-profile-store'
+import { getCurrentMember, useInstitutionMembers } from '@/lib/institution-member-store'
 import Image from 'next/image'
 
 export default function InstitutionProfilePage() {
   const router = useRouter()
   const { settings } = useInstitutionProfileSettings()
+  const memberState = useInstitutionMembers()
+  const isOwner = memberState.currentUser.kind === 'owner'
+  const currentMember = getCurrentMember(memberState)
+  const profileName = currentMember?.name || settings.accountNickname
+  const profileAvatar = currentMember?.avatar || settings.accountAvatar
 
   const menuItems = [
     {
@@ -73,10 +79,13 @@ export default function InstitutionProfilePage() {
     },
   ]
 
-  const quickItems = menuItems.filter(item =>
+  const visibleMenuItems = menuItems.filter((item) =>
+    isOwner || !['AI积分', '账号设置'].includes(item.label),
+  )
+  const quickItems = visibleMenuItems.filter(item =>
     ['课程管理', '班次管理', '员工管理', '合同管理'].includes(item.label)
   )
-  const settingItems = menuItems.filter(item =>
+  const settingItems = visibleMenuItems.filter(item =>
     !['课程管理', '班次管理', '员工管理', '合同管理'].includes(item.label)
   )
 
@@ -87,8 +96,8 @@ export default function InstitutionProfilePage() {
           <div className="flex items-center gap-3">
             <div className="h-12 w-12 overflow-hidden rounded-2xl bg-white/80 shadow-sm ring-1 ring-white">
               <Image 
-                src={settings.accountAvatar}
-                alt={settings.accountNickname}
+                src={profileAvatar}
+                alt={profileName}
                 width={48}
                 height={48}
                 className="h-full w-full object-cover"
@@ -96,9 +105,9 @@ export default function InstitutionProfilePage() {
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex min-w-0 items-center gap-2">
-                <h2 className="truncate text-xl font-bold leading-tight">{settings.accountNickname}</h2>
+                <h2 className="truncate text-xl font-bold leading-tight">{profileName}</h2>
               </div>
-              <p className="mt-0.5 truncate text-xs text-muted-foreground">{settings.institutionName}</p>
+              <p className="mt-0.5 truncate text-xs text-muted-foreground">{isOwner ? `${settings.institutionName} · 主账号` : `${settings.institutionName} · 机构成员`}</p>
             </div>
           </div>
         </header>

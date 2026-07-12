@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
 
 export default function InvitePosterPage() {
-  redirect('/institution/staff/invite')
+  redirect('/institution/staff/invite/teacher')
 }
